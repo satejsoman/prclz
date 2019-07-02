@@ -1,0 +1,14 @@
+Fiona==1.7.13
+GDAL==2.4.0
+geojson==2.4.1
+geopandas==0.4.0
+matplotlib==2.2.2
+numpy==1.16.2
+networkx==2.2
+osmnx==0.8.2
+pandas==0.23.0
+pyshp==2.1.0
+Pytess==1.0.0
+Rtree==0.8.3
+scipy==1.2.1
+Shapely==1.6.4.post2
