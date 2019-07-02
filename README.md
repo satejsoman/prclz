@@ -6,7 +6,7 @@
 - creating parcels/cadastral maps for building footprints and other land use features within each block 
 - calculating structural and areal features (_k_-complexity of access graph, percentage of land used by buildings, etc) at the block and neighborhood level
 
-## development Setup
+## development setup
 1. Set up a virtual environment, and activate it.
 ```
 pip3 install virtualenv
