@@ -1,4 +1,4 @@
-<h1 align="right"> P R C L Z </h1>
+<h1 align="center"> P R C L Z </h1>
 
 ### overview/
 `prclz` is a library for:
