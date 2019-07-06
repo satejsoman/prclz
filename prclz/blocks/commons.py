@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Tuple
 from shapely.geometry import Polygon, MultiLineString, MultiPolygon
 
-BlockExtractionMethod = Callable[[Polygon, MultiLineString], MultiPolygon]
+BlockExtractionMethod = Tuple[str, Callable[[Polygon, MultiLineString], MultiPolygon]]
