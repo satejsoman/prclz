@@ -93,3 +93,5 @@ FigureScripts/*
 *.ipynb
 
 .vscode
+
+*/.mypy_cache/
