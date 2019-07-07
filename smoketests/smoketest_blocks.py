@@ -1,21 +1,15 @@
 import logging
-from itertools import cycle
 
-import matplotlib.pyplot as plt
-from descartes import PolygonPatch
-from shapely.geometry import box
+import matplotlib  # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
+from descartes import PolygonPatch  # type: ignore
+from shapely.geometry import box  # type: ignore
 
 from prclz.blocks.extraction import extract_blocks
-from prclz.blocks.methods import intersection_polygonize
+from prclz.blocks.methods import (BufferedLineDifference,
+                                  IntersectionPolygonization)
+from prclz.plotting import greens as colors
 
-colors = cycle([
-    tuple(_/256.0 for _ in rgb) for rgb in [
-        [180, 213, 202],
-        [134, 188, 168],
-        [94, 153, 131],
-        [62, 101, 88]
-    ]
-])
 
 def ckg(): 
     xmin = -13.2995606518
@@ -41,7 +35,7 @@ def chicago():
 
     bbox = box(xmin, ymin, xmax, ymax)
 
-    blocks = extract_blocks(bbox, extraction_method=intersection_polygonize)
+    blocks = extract_blocks(bbox, extraction_method=IntersectionPolygonization)
 
     plt.figure()
     ax: matplotlib.axes.Axes = plt.gca()
@@ -51,4 +45,5 @@ def chicago():
     plt.show()
 
 if __name__ == "__main__":
+    logging.basicConfig()
     chicago()

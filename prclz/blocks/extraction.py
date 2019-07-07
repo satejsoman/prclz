@@ -1,5 +1,7 @@
+# pylint: disable=relative-beyond-top-level
+
 import logging
-from typing import Callable, Mapping, Union
+from typing import Callable, Mapping, Type, Union
 
 import networkx
 import osmnx as ox
@@ -7,8 +9,7 @@ from shapely.geometry import (LineString, MultiLineString, MultiPolygon,
                               Polygon, mapping)
 from shapely.ops import polygonize, unary_union
 
-from .commons import BlockExtractionMethod
-from .methods import DEFAULT_EXTRACTION_METHOD
+from .methods import BlockExtractionMethod, DEFAULT_EXTRACTION_METHOD
 
 
 def edge_to_geometry(nodes: Mapping, edge: Mapping) -> LineString:
@@ -29,7 +30,7 @@ def linestrings_from_network(graph: networkx.Graph) -> MultiLineString:
 def extract_blocks(
     area: Union[Polygon, MultiPolygon],
     buffer_radius: float = 0.001,
-    extraction_method: BlockExtractionMethod = DEFAULT_EXTRACTION_METHOD, 
+    extraction_method: Type[BlockExtractionMethod] = DEFAULT_EXTRACTION_METHOD, 
     clean_periphery: bool = True, 
     simplify: bool = True
 ) -> MultiPolygon:
@@ -51,9 +52,9 @@ def extract_blocks(
     logger.info("Parsing graph")
     linestrings = linestrings_from_network(road_network)
 
-    (method_name, extract) = extraction_method()
-    logger.info("Extracting blocks via %s method", method_name)
-    blocks = extract(area, linestrings)
+    extractor = extraction_method()
+    logger.info("Extracting blocks using %s", extractor)
+    blocks = extractor.extract(area, linestrings)
 
     logger.info("Filtering extracted blocks")
     mp_border = buffered_multipolygon.boundary

@@ -1,25 +1,50 @@
+from abc import ABC as AbstractBaseClass
+from abc import ABCMeta, abstractclassmethod
+from typing import Union
+
 from shapely.geometry import (MultiLineString, MultiPolygon, Polygon, asShape,
                               mapping)
 from shapely.ops import polygonize
 
-from .commons import BlockExtractionMethod
 
-# these could potentially be instances of a BlockExtractionMethod class,
-# which in turn would be an AbstractBaseClass, but readability is too
-# low to justify that approach
+class BlockExtractionMethod(AbstractBaseClass, metaclass = ABCMeta):
+    @abstractclassmethod
+    def extract(self, region: Union[Polygon, MultiPolygon], linestrings: MultiLineString) -> MultiPolygon:
+        pass
 
+class BufferedLineDifference(BlockExtractionMethod):
+    """ buffers each line string by a given epsilon, and returns the difference 
+    between the area and buffered road linestrings 
+    
+    taken from: https://gis.stackexchange.com/a/58674
+    
+    suggested epsilons: 
+        1e-4 for generating representative graphics
+        5e-6 for generating workable shapefiles
+    """
 
-def buffered_line_diff(epsilon: float = 0.000005) -> BlockExtractionMethod:
-    # https://gis.stackexchange.com/a/58674
-    # suggest epsilon of 0.0001 for generating graphics,
-    # and 0.00005 to generate shapefiles
-    def extract(region: Polygon, linestrings: MultiLineString) -> MultiPolygon:
-        return region.difference(linestrings.buffer(epsilon))
-    return ("buffered line difference", extract)
+    def __init__(self, epsilon: float=5e-6):
+        self.epsilon = epsilon
 
+    def __repr__(self):
+        return "BufferedLineDifference(epsilon={})".format(self.epsilon)
 
-def intersection_polygonize() -> BlockExtractionMethod:
-    # https://peteris.rocks/blog/openstreetmap-city-blocks-as-geojson-polygons/#mapzen-metro-extracts
+    def extract(self, region: Union[Polygon, MultiPolygon], linestrings: MultiLineString) -> MultiPolygon:
+        return region.difference(linestrings.buffer(self.epsilon))
+
+class IntersectionPolygonization(BlockExtractionMethod):
+    """ converts each linestring into multiple straight segments, and then uses GDAL's 
+    built-in polygonization function to return polygons
+
+    taken from: https://peteris.rocks/blog/openstreetmap-city-blocks-as-geojson-polygons/#mapzen-metro-extracts://gis.stackexchange.com/a/58674
+
+    poor results with non-quadrilateral blocks, generally works best for developed countries
+    """
+
+    def __repr__(self):
+        return "IntersectionPolygonization"
+
+    @staticmethod
     def get_line_feature(start, stop, properties):
         return {"type": "Feature",
                 "properties": properties, 
@@ -28,7 +53,8 @@ def intersection_polygonize() -> BlockExtractionMethod:
                     "coordinates": [start, stop]
                 }
             }
-    
+
+    @staticmethod
     def segment_streets(multipoint_lines):
         output = {
             "type": "FeatureCollection",
@@ -37,10 +63,11 @@ def intersection_polygonize() -> BlockExtractionMethod:
 
         for feature in multipoint_lines['features']:
             output['features'] += [
-                get_line_feature(current, feature['geometry']['coordinates'][i+1], feature['properties']) 
+                IntersectionPolygonization.get_line_feature(current, feature['geometry']['coordinates'][i+1], feature['properties']) 
                 for (i, current) in enumerate(feature['geometry']['coordinates'][:-1])]
         return output
 
+    @staticmethod
     def polygonize_streets(streets):
         lines = []
         for feature in streets['features']:
@@ -61,14 +88,12 @@ def intersection_polygonize() -> BlockExtractionMethod:
             })
 
         return geojson
-    
-    def extract(region: Polygon, linestrings: MultiLineString) -> MultiPolygon:
-        segmented_streets = segment_streets(linestrings)
+
+    def extract(self, region: Union[Polygon, MultiPolygon], linestrings: MultiLineString) -> MultiPolygon:
+        # perform segmentation
+        segmented_streets = IntersectionPolygonization.segment_streets(linestrings)
         # add the region boundary as an additional constraint
-        constrained_linestrings = linestrings + [region.exterior]
-        return MultiPolygon(list(polygonize(constrained_linestrings)))
-    
-    return ("intersection polygonization", extract)
+        constrained_linestrings = segmented_streets + [region.exterior]
+        return MultiPolygon(list(IntersectionPolygonization.polygonize_streets(constrained_linestrings)))
 
-
-DEFAULT_EXTRACTION_METHOD = buffered_line_diff
+DEFAULT_EXTRACTION_METHOD = BufferedLineDifference
