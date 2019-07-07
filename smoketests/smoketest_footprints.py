@@ -10,3 +10,6 @@ if __name__ == "__main__":
     ymax = north = 41.8022
     r = footprints.query_buildings(ymin, xmin, ymax, xmax)
     print(r)
+
+    centroids = [(w.center_lat, w.center_lon) for w in r.ways]
+    
