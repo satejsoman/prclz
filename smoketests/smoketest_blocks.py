@@ -8,7 +8,8 @@ from shapely.geometry import box  # type: ignore
 from prclz.blocks.extraction import extract_blocks
 from prclz.blocks.methods import (BufferedLineDifference,
                                   IntersectionPolygonization)
-from prclz.plotting import greens as colors
+from prclz.plotting import greens as palette
+from prclz.plotting import plot_polygons
 
 
 def ckg(): 
@@ -19,29 +20,18 @@ def ckg():
     bbox = box(xmin, ymin, xmax, ymax)
 
     blocks = extract_blocks(bbox)
-
-    plt.figure()
-    ax: matplotlib.axes.Axes = plt.gca()
-    for (block, color) in zip(blocks, colors): 
-        ax.add_patch(PolygonPatch(block, fc=color, ec='white', linewidth=0.5, zorder=10))
-    plt.autoscale()
+    plot_polygons(blocks)
     plt.show()
 
 def chicago():
-    ymax = 41.8022
     xmin = -87.6064
-    ymin = 41.7873
     xmax = -87.5758
-
+    ymin = 41.7873
+    ymax = 41.8022
     bbox = box(xmin, ymin, xmax, ymax)
 
-    blocks = extract_blocks(bbox, extraction_method=IntersectionPolygonization)
-
-    plt.figure()
-    ax: matplotlib.axes.Axes = plt.gca()
-    for (block, color) in zip(blocks, colors): 
-        ax.add_patch(PolygonPatch(block, fc=color, ec='white', linewidth=0.5, zorder=10))
-    plt.autoscale()
+    blocks = extract_blocks(bbox)
+    plot_polygons(blocks)
     plt.show()
 
 if __name__ == "__main__":

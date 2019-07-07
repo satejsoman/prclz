@@ -31,9 +31,9 @@ def plot_polygons(
     if not facecolors:
         facecolors = cycle(['gray'])
     if not edgecolors:
-        facecolors = cycle(['white'])
+        edgecolors = cycle(['white'])
     
-    for (polygon, fc, ec) in zip(polygon, facecolors, edgecolors):
+    for (polygon, fc, ec) in zip(polygons, facecolors, edgecolors):
         ax.add_patch(PolygonPatch(polygon, fc=fc, ec=ec, linewidth=linewidth, zorder=zorder))
     plt.autoscale()
 
