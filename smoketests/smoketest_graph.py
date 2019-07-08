@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 
 n = [
-    None,
     Node((0, 0)),
     Node((0, 1)),
     Node((0, 2)),
@@ -19,28 +18,28 @@ n = [
 ]
 
 s0 = PlanarGraph()
+s0.add_edge(Edge((n[0], n[1])))
 s0.add_edge(Edge((n[1], n[2])))
+s0.add_edge(Edge((n[1], n[4])))
 s0.add_edge(Edge((n[2], n[3])))
-s0.add_edge(Edge((n[2], n[5])))
+s0.add_edge(Edge((n[2], n[4])))
+s0.add_edge(Edge((n[2], n[8])))
 s0.add_edge(Edge((n[3], n[4])))
 s0.add_edge(Edge((n[3], n[5])))
-s0.add_edge(Edge((n[3], n[9])))
+s0.add_edge(Edge((n[3], n[6])))
+s0.add_edge(Edge((n[3], n[7])))
+s0.add_edge(Edge((n[3], n[8])))
 s0.add_edge(Edge((n[4], n[5])))
-s0.add_edge(Edge((n[4], n[6])))
-s0.add_edge(Edge((n[4], n[7])))
-s0.add_edge(Edge((n[4], n[8])))
-s0.add_edge(Edge((n[4], n[9])))
 s0.add_edge(Edge((n[5], n[6])))
 s0.add_edge(Edge((n[6], n[7])))
 s0.add_edge(Edge((n[7], n[8])))
 s0.add_edge(Edge((n[8], n[9])))
-s0.add_edge(Edge((n[9], n[10])))
-s0.add_edge(Edge((n[3], n[10])))
-s0.add_edge(Edge((n[2], n[10])))
+s0.add_edge(Edge((n[2], n[9])))
+s0.add_edge(Edge((n[1], n[9])))
+s0.add_edge(Edge((n[6], n[10])))
+s0.add_edge(Edge((n[5], n[10])))
+s0.add_edge(Edge((n[9], n[11])))
 s0.add_edge(Edge((n[7], n[11])))
-s0.add_edge(Edge((n[6], n[11])))
-s0.add_edge(Edge((n[10], n[12])))
-s0.add_edge(Edge((n[8], n[12])))
 
 plt.figure()
 
