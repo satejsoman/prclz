@@ -2,44 +2,25 @@ from prclz.topology.planar import Edge, Face, Node, PlanarGraph
 import matplotlib.pyplot as plt
 
 
-n = [
-    Node((0, 0)),
-    Node((0, 1)),
-    Node((0, 2)),
-    Node((0, 3)),
-    Node((1, 2)),
-    Node((1, 3)),
-    Node((0, 4)),
-    Node((-1, 4)),
-    Node((-1, 3)),
-    Node((-1, 2)),
-    Node((1, 4)),
-    Node((-2, 3))
-]
+n = [Node(xy) for xy in [
+    (0, 0),
+    (0, 1),
+    (0, 2),
+    (0, 3),
+    (1, 2),
+    (1, 3),
+    (0, 4),
+    (-1, 4),
+    (-1, 3),
+    (-1, 2),
+    (1, 4),
+    (-2, 3)
+]]
 
 s0 = PlanarGraph()
-s0.add_edge(Edge((n[0], n[1])))
-s0.add_edge(Edge((n[1], n[2])))
-s0.add_edge(Edge((n[1], n[4])))
-s0.add_edge(Edge((n[2], n[3])))
-s0.add_edge(Edge((n[2], n[4])))
-s0.add_edge(Edge((n[2], n[8])))
-s0.add_edge(Edge((n[3], n[4])))
-s0.add_edge(Edge((n[3], n[5])))
-s0.add_edge(Edge((n[3], n[6])))
-s0.add_edge(Edge((n[3], n[7])))
-s0.add_edge(Edge((n[3], n[8])))
-s0.add_edge(Edge((n[4], n[5])))
-s0.add_edge(Edge((n[5], n[6])))
-s0.add_edge(Edge((n[6], n[7])))
-s0.add_edge(Edge((n[7], n[8])))
-s0.add_edge(Edge((n[8], n[9])))
-s0.add_edge(Edge((n[2], n[9])))
-s0.add_edge(Edge((n[1], n[9])))
-s0.add_edge(Edge((n[6], n[10])))
-s0.add_edge(Edge((n[5], n[10])))
-s0.add_edge(Edge((n[9], n[11])))
-s0.add_edge(Edge((n[7], n[11])))
+edge_indices = [(0, 1), (1, 2), (1, 4), (2, 3), (2, 4), (2, 8), (3, 4), (3, 5), (3, 6), (3, 7), (3, 8), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (2, 9), (1, 9), (6, 10), (5, 10), (9, 11), (7, 11)]
+for (u, v) in edge_indices:
+    s0.add_edge(Edge((n[u], n[v])))
 
 plt.figure()
 
