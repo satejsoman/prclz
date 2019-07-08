@@ -1,13 +1,17 @@
 from itertools import chain, combinations
 from typing import List, Sequence
+from functools import reduce
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon
+import shapely.geos
 
 from prclz.plotting import plot_polygons
 
+""" implementation of planar graph embedding using GDAL (via shapely) to determine face/vertex adjancency """
 
 class Node(Point):
     """ two-dimensional point container """
@@ -35,9 +39,12 @@ class Edge(LineString):
 
     def __str__(self):
         return "Edge(({}, {})-({}, {}))".format(self.nodes[0].x, self.nodes[0].y, self.nodes[1].x, self.nodes[1].y)
+
+    def __repr__(self):
+        return "Edge(({}, {})-({}, {}))".format(self.nodes[0].x, self.nodes[0].y, self.nodes[1].x, self.nodes[1].y)
     
     def __hash__(self):
-        return hash(self.nodes[0]) + hash(self.nodes[1])
+        return sum(map(hash, self.nodes[:2]))
 
 class Face(Polygon):
     """ polygon defined by edges """
@@ -60,31 +67,42 @@ class PlanarGraph(nx.Graph):
 
     def add_edge(self, edge: Edge, weight=None):
         assert isinstance(edge, Edge)
-        super().add_edge(edge.nodes[0], edge.nodes[1], planar_edge=edge, weight=weight if weight else edge.length())  
+        super().add_edge(edge.nodes[0], edge.nodes[1], planar_edge=edge, weight=weight if weight else edge.length()) 
 
-    ## weak dual calculation functions    
     def trace_faces(self):
-        cycles = nx.algorithms.cycles.cycle_basis(self)
-        return [Face(shell=[(n.x, n.y) for n in cycle], edges=self.edges(cycle)) for cycle in cycles]
+        cycles = nx.algorithms.cycles.minimum_cycle_basis(self)
+        faces = [
+            Face(
+                shell = [(n.x, n.y) for n in sorted(cycle, key=lambda node, first=cycle[0]: np.arctan2(node.x - first.x, node.y - first.y))], 
+                edges = [Edge((cycle[i], cycle[(i + 1) % len(cycle)])) for i in range(len(cycle))])
+            for cycle in cycles
+        ]
+        #invalid_faces = [face for face in faces if not face.is_valid]
+        # print("{}/{} invalid faces".format(len(invalid_faces), len(faces)))
+        # plot_polygons(invalid_faces)
+        # plt.show()
+        # plot_polygons([face.convex_hull for face in invalid_faces])
+        # plt.show()
+        return [face.convex_hull if not face.is_valid else face for face in faces]
 
     def weak_dual(self):
         dual = PlanarGraph(name = self.name, dual_order = self.graph['dual_order'] + 1)
 
         if self.number_of_nodes() < 2: 
             return dual 
-
+        
         inner_facelist = self.trace_faces()
         
         if len(inner_facelist) == 1:
             dual.add_node(inner_facelist[0].centroid)
-        else:
-            for c in combinations(inner_facelist, 2):
-                c0 = [e for e in c[0].edges]
-                c1 = [e for e in c[1].edges]
-                if len(set(c0).intersection(c1)) > 0:
-                    n1 = Node(c[0].centroid.x, c[0].centroid.y)
-                    n2 = Node(c[1].centroid.x, c[1].centroid.y)
-                    dual.add_edge(Edge((n1, n2)))
+        else: 
+            for (face1, face2) in combinations(inner_facelist, 2):
+                try: 
+                    intersection = face1.intersection(face2)
+                except shapely.geos.TopologicalError:
+                    intersection = face1.convex_hull.intersection(face2.convex_hull)
+                if intersection.geom_type == "LineString":
+                    dual.add_edge(Edge((Node(face1.centroid.x, face1.centroid.y), Node(face2.centroid.x, face2.centroid.y))))
 
         return dual 
 
