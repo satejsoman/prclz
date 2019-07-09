@@ -77,12 +77,6 @@ class PlanarGraph(nx.Graph):
                 edges = [Edge((cycle[i], cycle[(i + 1) % len(cycle)])) for i in range(len(cycle))])
             for cycle in cycles
         ]
-        #invalid_faces = [face for face in faces if not face.is_valid]
-        # print("{}/{} invalid faces".format(len(invalid_faces), len(faces)))
-        # plot_polygons(invalid_faces)
-        # plt.show()
-        # plot_polygons([face.convex_hull for face in invalid_faces])
-        # plt.show()
         return [face.convex_hull if not face.is_valid else face for face in faces]
 
     def weak_dual(self):
