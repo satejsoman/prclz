@@ -7,6 +7,17 @@
 - creating parcels/cadastral maps for building footprints and other land use features within each block 
 - calculating structural and areal features (_k_-complexity of access graph, percentage of land used by buildings, etc) at the block and neighborhood level
 
+
+### structure/
+- [`prclz`](/prclz): main library
+    - [`blocks`](/prclz/blocks): extract vector polygons representing street blocks from street network information
+    - [`features`](/prclz/features): calculate per-block features
+    - [`parcels`](/prclz/parcels): generate cadastral parcels tesselating each block given building/land use footprints
+    - [`topology`](/prclz/topology): planar graph implementation, with tools to calculate weak duals. largely taken from [openreblock/topology](https://github.com/open-reblock/topology).
+
+- [`smoketests`](/smoketests): not _quite_ unit tests, but visual tests to make sure things look right
+
+
 ### development setup/
 1. Set up a virtual environment, and activate it.
 ```
