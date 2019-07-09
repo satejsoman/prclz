@@ -1,5 +1,5 @@
-<h1> ▣ ▥ ▦ ▩ <div display="inline" align="right">p&nbsp;&nbsp;r&nbsp;&nbsp;c&nbsp;&nbsp;l&nbsp;&nbsp;z</div></h1>
-<h6 align="right"> "<i>parcelize</i>" </h6>
+<h1 align="right">p&nbsp;&nbsp;r&nbsp;&nbsp;c&nbsp;&nbsp;l&nbsp;&nbsp;z</h1>
+<h6 align="right"> ▣ ▥ ▦ ▩ "<i>parcelize</i>" </h6>
 
 ### overview/
 `prclz` is a library for:
