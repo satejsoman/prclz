@@ -1,4 +1,5 @@
-<h1 align="center"> P R C L Z </h1>
+<h1 align="center"> p r c l z </h1>
+<h6 align="center"> "parcelize" </h1>
 
 ### overview/
 `prclz` is a library for:
