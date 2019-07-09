@@ -1,5 +1,4 @@
 <h1 align="center">p&nbsp;&nbsp;r&nbsp;&nbsp;c&nbsp;&nbsp;l&nbsp;&nbsp;z</h1>
-<h6 align="center"> ▣ ▥ ▦ ▩ </h6>
 <h6 align="center"> "<i>parcelize</i>" </h6>
 
 ### overview/
