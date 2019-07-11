@@ -1,6 +1,7 @@
-from typing import Optional, Sequence
-import overpy
 import logging
+from typing import Optional, Sequence
+
+import overpy
 from shapely.geometry import Point
 
 building_centroid_query = """
@@ -29,4 +30,3 @@ def get_building_centroids(
     query = building_centroid_query.format(bbox=(south, west, north, east))
     result = ovp.query(query)
     return [Point(float(way.center_lon), (float(way.center_lat))) for way in result.ways]
-

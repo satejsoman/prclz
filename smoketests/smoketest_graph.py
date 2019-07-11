@@ -3,7 +3,7 @@ from itertools import product
 import matplotlib.pyplot as plt
 
 from prclz.plotting import plot_polygons, greens
-from prclz.topology.planar import Edge, Face, Node, PlanarGraph
+from prclz.topology import Edge, Face, Node, PlanarGraph
 
 
 def plot_double_dual(s0):

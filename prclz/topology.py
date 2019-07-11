@@ -266,4 +266,5 @@ class PlanarGraph(nx.Graph):
         node_kwargs["label"] = self.name
         node_kwargs["pos"] = nlocs
         nodes = nx.draw_networkx_nodes(self, **node_kwargs)
-        nodes.set_edgecolor("None")
+        if nodes:
+            nodes.set_edgecolor("None")
