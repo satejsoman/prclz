@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import shapely.geos
+from shapely.geometry import Polygon
 
 """ implementation of planar graph """
 
@@ -133,6 +134,35 @@ class PlanarGraph(nx.Graph):
         attr["name"] = name
         attr["dual_order"] = dual_order
         super().__init__(incoming_graph_data=incoming_graph_data, **attr)
+
+    @staticmethod
+    def from_edges(edges, name="S"):
+        graph = PlanarGraph(name=name)
+        for edge in edges:
+            graph.add_edge(edge)
+        return graph
+
+    @staticmethod
+    def from_polygons(polygons: Sequence[Polygon], name="S"):
+        nodes = dict()
+        faces = []
+        for polygon in polygons:
+            polygon_nodes = []
+            for node in map(Node, polygon.boundary.coords):
+                if node not in nodes:
+                    polygon_nodes.append(node)
+                    nodes[node] = node
+                else:
+                    polygon_nodes.append(nodes[node])
+                edges = [tuple(polygon_nodes[i:i+2]) for i in range(len(polygon_nodes)-1)]
+                faces.append(Face(edges))
+
+        graph = PlanarGraph(name=name)
+
+        for edge in chain.from_iterable(face.edges for face in faces):
+            graph.add_edge(Edge(edge.nodes))
+
+        return graph
 
     def __repr__(self):
         return "{}{} with {} nodes".format(

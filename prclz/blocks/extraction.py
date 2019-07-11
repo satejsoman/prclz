@@ -9,7 +9,7 @@ from shapely.geometry import (LineString, MultiLineString, MultiPolygon,
                               Polygon, mapping)
 from shapely.ops import polygonize, unary_union
 
-from .methods import BlockExtractionMethod, DEFAULT_EXTRACTION_METHOD
+from .methods import DEFAULT_EXTRACTION_METHOD, BlockExtractionMethod
 
 
 def edge_to_geometry(nodes: Mapping, edge: Mapping) -> LineString:
@@ -34,14 +34,12 @@ def extract_blocks(
     clean_periphery: bool = True, 
     simplify: bool = True
 ) -> MultiPolygon:
-    logger = logging.getLogger(__name__)
-    logger.setLevel("INFO")
     
-    logger.info("Unioning input polygons and buffering with radius: %s", buffer_radius)
+    logging.info("Unioning input polygons and buffering with radius: %s", buffer_radius)
     multipolygon = unary_union(area)
     buffered_multipolygon = multipolygon.buffer(buffer_radius)
     
-    logger.info("Downloading road network from OSM")
+    logging.info("Downloading road network from OSM")
     road_network = ox.graph_from_polygon(
         buffered_multipolygon, 
         network_type="all_private", 
@@ -49,14 +47,14 @@ def extract_blocks(
         clean_periphery=clean_periphery, 
         simplify=simplify)
 
-    logger.info("Parsing graph")
+    logging.info("Parsing graph")
     linestrings = linestrings_from_network(road_network)
 
     extractor = extraction_method()
-    logger.info("Extracting blocks using %s", extractor)
+    logging.info("Extracting blocks using %s", extractor)
     blocks = extractor.extract(area, linestrings)
 
-    logger.info("Filtering extracted blocks")
+    logging.info("Filtering extracted blocks")
     mp_border = buffered_multipolygon.boundary
     filtered_blocks = [block for block in blocks if not mp_border.intersects(block)]
 
