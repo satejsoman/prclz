@@ -29,4 +29,5 @@ def get_building_centroids(
         ovp = overpy.Overpass()
     query = building_centroid_query.format(bbox=(south, west, north, east))
     result = ovp.query(query)
+    logging.info("Overpass Query returned.")
     return [Point(float(way.center_lon), (float(way.center_lat))) for way in result.ways]

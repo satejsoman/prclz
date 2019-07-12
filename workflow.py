@@ -6,6 +6,7 @@ import overpy
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from shapely.geometry import Polygon, box
+from tqdm import tqdm
 
 from prclz.blocks.extraction import extract_blocks
 from prclz.complexity import get_complexity, get_weak_dual_sequence
@@ -25,16 +26,17 @@ def main(xmin: float, ymin: float, xmax: float, ymax: float) -> None:
 if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s/%(levelname)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger().setLevel("INFO")
+    tqdm.pandas()
 
     # hyde park 
-    # xmin = -87.7764
-    # xmax = -87.5758
-    # ymin = 41.7873
-    # ymax = 41.8022
-    xmin = -87.7596
+    xmin = -87.7764
     xmax = -87.5758
-    ymin = 41.7684
+    ymin = 41.7873
     ymax = 41.8022
+    # xmin = -87.7596
+    # xmax = -87.5758
+    # ymin = 41.7684
+    # ymax = 41.8022
 
     # south chicago 
     # xmin = -87.719650268555
@@ -72,15 +74,18 @@ if __name__ == "__main__":
     blocks = gpd.GeoDataFrame(geometry=polygons)
     centroids = gpd.GeoDataFrame(geometry=downloaded_centroids)
     
+    logging.info("Aggregating buildings by street block.")
     block_aggregation = gpd.sjoin(blocks, centroids, how="right", op="intersects")
     block_aggregation = block_aggregation[pd.notnull(block_aggregation["index_left"])].groupby("index_left")["geometry"].agg(list)
     block_aggregation.name = "centroids"
     block_centroids = blocks.join(block_aggregation)
     block_centroids = block_centroids[pd.notnull(block_centroids["centroids"])]
 
-    block_centroids["weak_duals"] = block_centroids.apply(get_weak_dual_sequence, axis=1)
-    block_centroids["complexity"] = block_centroids["weak_duals"].apply(get_complexity)
+    logging.info("Calculating block complexity.")
+    block_centroids["weak_duals"] = block_centroids.progress_apply(get_weak_dual_sequence, axis=1)
+    block_centroids["complexity"] = block_centroids["weak_duals"].progress_apply(get_complexity)
     
+    logging.info("Plotting (deviously).")
     fig, ax = plt.subplots(1, 1)
     divider = make_axes_locatable(ax)
     block_centroids.plot(column='complexity', ax=ax, legend=True)
