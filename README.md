@@ -17,6 +17,8 @@
 
 - [`smoketests`](/smoketests): not _quite_ unit tests, but visual tests to make sure things look right
 
+- [`osm-etl`](/osm-etl): scripts to perform ETL on `*.osm.pbf` files and extract relevant features.
+
 
 ### development setup/
 1. Set up a virtual environment, and activate it.
