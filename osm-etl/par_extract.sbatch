@@ -2,7 +2,7 @@
 #SBATCH --job-name=MNP
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
-#SBATCH --ntasks=2
+#SBATCH --ntasks=3
 #SBATCH --output=model.out
 #SBATCH --error=model.err
 #SBATCH --mail-type=ALL
@@ -40,7 +40,7 @@ echo $SLURM_NTASKS
 #
 #   srun --exclusive -N1 -n1 ./runtask.sh arg1:1 > runtask.1
 #
-$parallel "$srun ./extract.sh {1}" ::: ../data/Africa/* 
+$parallel "$srun ./toy.sh {1}" ::: ../data/	Africa/* 
 
 
  
