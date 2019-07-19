@@ -38,9 +38,8 @@ echo $SLURM_NTASKS
 # will run the runtask script for the numbers 1 through 128. To
 # illustrate, the first job will run like this:
 #
-#   srun --exclusive -N1 -n1 ./runtask.sh arg1:1 > runtask.1
 #
-$parallel "$srun ./toy.sh {1}" ::: ../data/	Africa/* 
+$parallel "$srun ./toy.sh {1}" ::: ../data/input/Africa/* 
 
 
  
