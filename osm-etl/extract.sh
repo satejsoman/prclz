@@ -1,14 +1,12 @@
 #!/bin/bash  
 
-set -eu 
-
 pbf_path="$1"
 output_prefix="$2"
 
 function extract() { 
     output_name="${output_prefix}_${1}.geojson"
     script="$2"
-    OSM_CONFIG_FILE=osmconf.ini ogr2ogr -f GeoJSON ${output_prefix}_lines.geojson ${pbf_path} -sql "${script}"
+    OSM_CONFIG_FILE=osmconf.ini ogr2ogr -f GeoJSON ${output_name} ${pbf_path} -sql "${script}"
 }
 
 if [[ $(hostname) =~ ^midway* ]] ; then 
