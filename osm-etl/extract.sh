@@ -12,9 +12,10 @@ function extract() {
     script="$2"
 
     echo "Loading pbf file: ${pbf_path}"
-	echo "Saving geojson to: ${output_name}"
+    echo "Saving geojson to: ${output_name}"
+    echo ""
 
-    #OSM_CONFIG_FILE=osmconf.ini ogr2ogr -f GeoJSON ${output_name} ${pbf_path} -sql "${script}"
+    OSM_CONFIG_FILE=osmconf.ini ogr2ogr -f GeoJSON ${output_name} ${pbf_path} -sql "${script}"
 }
 
 if [[ $(hostname) =~ ^midway* ]] ; then 

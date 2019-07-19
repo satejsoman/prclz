@@ -39,7 +39,7 @@ echo $SLURM_NTASKS
 # illustrate, the first job will run like this:
 #
 #
-$parallel "$srun ./toy.sh {1}" ::: ../data/input/Africa/* 
+$parallel "$srun ./extract.sh {1}" ::: ../data/input/Africa_test/* 
 
 
  
