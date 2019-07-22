@@ -23,7 +23,7 @@ def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
         warn("GID column for GADM level %s not found, trying with level %s", level, level-1)
         level -= 1
         gadm_level_column = "GID_{}".format(level)
-    info("GID column found for GADM level %s", level)
+    info("Using GID column for GADM level %s", level)
     return gadm_level_column
 
 
