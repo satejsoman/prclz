@@ -17,20 +17,30 @@ def save_to(df, dst):
     else:
         df.to_csv(dst)
 
+def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
+    gadm_level_column = "GID_{}".format(level)
+    while gadm_level_column not in gadm.columns and level > 0:
+        warn("GID column for GADM level %s not found, trying with level %s", level, level-1)
+        level -= 1
+        gadm_level_column = "GID_{}".format(level)
+    info("GID column found for GADM level %s", level)
+    return gadm_level_column
 
-def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, level, blocks_destination, complexity_destination):
+
+def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, blocks, complexity, level):
     info("Reading geospatial data from files")
     gadm              = gpd.read_file(gadm_path)
     linestrings       = gpd.read_file(linestrings_path)
     buildings         = gpd.read_file(buildings_path)
     building_polygons = gpd.read_file(building_polygons_path)
+    blocks_dst        = blocks
+    complexity_dst    = complexity
 
     info("Setting up indices.")
-    gadm_level_column = "GID_{}".format(level)
-    assert gadm_level_column in gadm.columns, "GID column for specified GADM level not found"
-    gadm            = gadm.set_index(gadm_level_column)
-    gadm_idx        = gadm.sindex
-    linestrings_idx = linestrings.sindex
+    gadm_level_column = get_gadm_level_column(gadm, level)
+    gadm              = gadm.set_index(gadm_level_column)
+    gadm_idx          = gadm.sindex
+    linestrings_idx   = linestrings.sindex
 
     info("Aggregating linestrings by GADM-%s delineation.", level)
     gadm_aggregation =\
@@ -81,7 +91,8 @@ def setup(args=None):
     parser.add_argument('--linestrings',       help='path to linestrings',          type=Path)
     parser.add_argument('--buildings',         help='path to building linestrings', type=Path)
     parser.add_argument('--building_polygons', help='path to building polygons',    type=Path)
-    parser.add_argument('--destination',       help='path to output',               type=Path)
+    parser.add_argument('--blocks',            help='path to blocks output',        type=Path)
+    parser.add_argument('--complexity',        help='path to complexity output',    type=Path)
     parser.add_argument('--level',             help='GADM level to use for delineation', type=int, default=3)
 
     return parser.parse_args(args)
