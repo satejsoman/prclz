@@ -1,25 +1,22 @@
 import argparse
 import logging
+from logging import info, warn 
 from pathlib import Path
-from itertools import islice
-from logging import info
 
 import geopandas as gpd
-import matplotlib.pyplot as plt
-import overpy
 import pandas as pd
-from shapely.geometry import Polygon, box
 from tqdm import tqdm
 
 from prclz.blocks.methods import BufferedLineDifference
 from prclz.complexity import get_complexity, get_weak_dual_sequence
-from prclz.plotting import plot_polygons
+
 
 def save_to(df, dst):
-    if dest.endswith(".json"):
+    if dst.endswith(".json"):
         df.to_json(dst)
     else:
         df.to_csv(dst)
+
 
 def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, level, blocks_destination, complexity_destination):
     info("Reading geospatial data from files")
@@ -27,7 +24,6 @@ def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, le
     linestrings       = gpd.read_file(linestrings_path)
     buildings         = gpd.read_file(buildings_path)
     building_polygons = gpd.read_file(building_polygons_path)
-    limit             = gpd.read_file(limit_path)
 
     info("Setting up indices.")
     gadm_level_column = "GID_{}".format(level)
@@ -40,8 +36,8 @@ def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, le
     gadm_aggregation =\
         gadm.join(
             gpd.sjoin(gadm, linestrings, how="left", op="intersects")\
-                .groupby(lambda idx: idx)["index_right"]\
-                .agg(list)
+               .groupby(lambda idx: idx)["index_right"]\
+               .agg(list)
         )[["geometry", "index_right"]]\
         .rename({"index_right" : "linestring_index"}, axis=1)
 
