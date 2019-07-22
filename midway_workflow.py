@@ -27,14 +27,12 @@ def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
     return gadm_level_column
 
 
-def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, blocks, complexity, level):
+def main(gadm_path, linestrings_path, buildings_path, building_polygons_path, blocks_destination, complexity_destination, level):
     info("Reading geospatial data from files")
     gadm              = gpd.read_file(gadm_path)
     linestrings       = gpd.read_file(linestrings_path)
     buildings         = gpd.read_file(buildings_path)
     building_polygons = gpd.read_file(building_polygons_path)
-    blocks_dst        = blocks
-    complexity_dst    = complexity
 
     info("Setting up indices.")
     gadm_level_column = get_gadm_level_column(gadm, level)
@@ -87,13 +85,13 @@ def setup(args=None):
 
     # read arguments
     parser = argparse.ArgumentParser(description='Run parcelization workflow on midway2.')
-    parser.add_argument('--gadm',              help='path to GADM file',            type=Path)
-    parser.add_argument('--linestrings',       help='path to linestrings',          type=Path)
-    parser.add_argument('--buildings',         help='path to building linestrings', type=Path)
-    parser.add_argument('--building_polygons', help='path to building polygons',    type=Path)
-    parser.add_argument('--blocks',            help='path to blocks output',        type=Path)
-    parser.add_argument('--complexity',        help='path to complexity output',    type=Path)
-    parser.add_argument('--level',             help='GADM level to use for delineation', type=int, default=3)
+    parser.add_argument('--gadm',              required=True, type=Path, dest="gadm_path",              help='path to GADM file')
+    parser.add_argument('--linestrings',       required=True, type=Path, dest="linestrings_path",       help='path to linestrings')
+    parser.add_argument('--buildings',         required=True, type=Path, dest="buildings_path",         help='path to building linestrings')
+    parser.add_argument('--building_polygons', required=True, type=Path, dest="building_polygons_path", help='path to building polygons')
+    parser.add_argument('--blocks',            required=True, type=Path, dest="blocks_destination",     help='path to blocks output')
+    parser.add_argument('--complexity',        required=True, type=Path, dest="complexity_destination", help='path to complexity output')
+    parser.add_argument('--level',             default=3,     type=int,  help='GADM level to use for delineation')
 
     return parser.parse_args(args)
 
