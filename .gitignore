@@ -95,3 +95,5 @@ FigureScripts/*
 .vscode
 
 .mypy_cache/
+
+scratch/
