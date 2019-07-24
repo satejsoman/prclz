@@ -33,8 +33,8 @@ def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, 
 
 def main(gadm_path, linestrings_path, output_dir, level, parallelism):
     info("Reading geospatial data from files.")
-    gadm              = gpd.read_file(gadm_path)
-    linestrings       = gpd.read_file(linestrings_path)
+    gadm              = gpd.read_file(str(gadm_path))
+    linestrings       = gpd.read_file(str(linestrings_path))
 
     info("Setting up indices.")
     gamd_column, level = get_gadm_level_column(gadm, level)
@@ -51,7 +51,7 @@ def main(gadm_path, linestrings_path, output_dir, level, parallelism):
 
     extractor = BufferedLineDifference()
     info("Extracting blocks for each delineation using method: %s.", extractor)
-    Parallel(n_jobs=parallelism, verbosity=50)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
+    Parallel(n_jobs=parallelism, verbose=50)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
 
     info("Done.")
 
