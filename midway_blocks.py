@@ -24,7 +24,9 @@ def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
 def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, MultiPolygon], ls_idx: List[int], output_dir: Path) -> None:
     # minimize synchronization barrier by constructing a new extractor
     block_polygons = BufferedLineDifference().extract(geometry, linestrings.iloc[ls_idx].unary_union)
-    blocks = gpd.GeoDataFrame([(index+str(i), polygon) for (i, polygon) in enumerate(block_polygons)], columns=["block_id", "geometry"])
+    blocks = gpd.GeoDataFrame(
+        [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
+        columns=["block_id", "geometry"])
     blocks.set_index("block_id")
     filename = output_dir/("blocks_{}.csv".format(index))
     blocks.to_csv(filename)
@@ -63,9 +65,9 @@ def setup(args=None):
 
     # read arguments
     parser = argparse.ArgumentParser(description='Run parcelization workflow on midway2.')
-    parser.add_argument('--gadm',        required=True, type=Path, help='path to GADM file',         dest="gadm_path")
-    parser.add_argument('--linestrings', required=True, type=Path, help='path to linestrings',       dest="linestrings_path")
-    parser.add_argument('--output',      required=True, type=Path, help='path to complexity output', dest="output_dir")
+    parser.add_argument('--gadm',        required=True, type=Path, help='path to GADM file',   dest="gadm_path")
+    parser.add_argument('--linestrings', required=True, type=Path, help='path to linestrings', dest="linestrings_path")
+    parser.add_argument('--output',      required=True, type=Path, help='path to  output',     dest="output_dir")
     parser.add_argument('--level',       default=3,     type=int,  help='GADM level to use')
     parser.add_argument('--parallelism', default=4,     type=int,  help='number of cores to use')
 
