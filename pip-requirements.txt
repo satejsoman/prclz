@@ -1,0 +1,4 @@
+ipython-genutils==0.2.0
+prompt-toolkit==2.0.9
+appnope==0.1.0
+pytess==1.0.0
