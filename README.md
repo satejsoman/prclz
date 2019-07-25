@@ -19,17 +19,26 @@
 
 - [`osm-etl`](/osm-etl): scripts to perform ETL on `*.osm.pbf` files and extract relevant features.
 
+- [`midway`](/midway): end-to-end workflow to be run on RCC's [`midway` cluster](https://rcc.uchicago.edu/docs/using-midway/index.html)
+
+- [`requirements`](/requirements): required packages
 
 ### development setup/
-1. Set up a virtual environment, and activate it.
+0. on midway, load the necessary modules
 ```
-pip3 install virtualenv
-virtualenv venv
-source venv/bin/activate
+module load intel/18.0
+module load gdal/2.2
+module load Anaconda3/5.1.0
 ```
-2. Install the requirements.
+1. Set up a conda virtual environment, and activate it.
 ```
-pip3 install -r requirements.txt
+conda create --name mnp
+conda activate mnp 
+```
+2. Install the requirements. (Due to version pinning/compatibility, some packages aren't in the standard conda repos, so we install them with `pip`).
+```
+conda install --name mnp -f -y -q -c anaconda -c conda-forge --file requirements/conda-requirements.txt
+pip3 install -r requirements.txt  requirements/pip-requirements.txt
 ```
 3. From the top-level directory, install `prclz` in editable mode.
 ```
@@ -37,6 +46,6 @@ pip3 install -e .
 ```
 4. Deactivate your virtual environment once you're done
 ```
-deactivate
+conda deactivate
 ```
 ----
