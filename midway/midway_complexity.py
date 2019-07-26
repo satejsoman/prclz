@@ -12,7 +12,7 @@ import pandas as pd
 
 from prclz.blocks.methods import BufferedLineDifference
 
-    
+
 def read_from_csv(path):
     """ ensures geometry set correctly when reading from csv
     otherwise, pd.BlockManager malformed when using gpd.read_file(*) """
