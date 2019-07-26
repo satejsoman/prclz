@@ -24,7 +24,7 @@ def main(polygons_path: Path, linestrings_path: Path, output: Path):
     concat = pd.concat([polygons, linestrings], sort=True)
     
     info("Saving valid geometries to %s", output.resolve())
-    concat[~concat.is_empty].to_file(str(output))
+    concat[~concat.is_empty].to_file(str(output), driver='GeoJSON')
 
 
 def setup(args=None):
