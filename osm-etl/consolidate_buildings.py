@@ -32,9 +32,6 @@ def setup(args=None):
     logging.basicConfig(format="%(asctime)s/%(filename)s/%(funcName)s | %(levelname)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger().setLevel("INFO")
 
-    # progress bars
-    tqdm.pandas()
-
     # read arguments
     parser = argparse.ArgumentParser(description='Consolidate building footprint geometries.')
     parser.add_argument('--polygons',    required=True, type=Path, help='path to polygons',    dest="polygons_path")
