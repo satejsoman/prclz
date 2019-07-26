@@ -22,6 +22,6 @@ if [[ $(hostname) =~ ^midway* ]] ; then
     module load python/3.6.1+intel-16.0
 fi 
 
-extract "lines"             "select * from lines where natural = 'coastline' or highway is not null or waterway is not null"
-extract "buildings"         "select * from lines where building is not null"
-extract "building_polygons" "select * from multipolygons where building is not null"
+extract "lines"                "select * from lines where natural = 'coastline' or highway is not null or waterway is not null"
+extract "building_linestrings" "select * from lines where building is not null"
+extract "building_polygons"    "select * from multipolygons where building is not null"

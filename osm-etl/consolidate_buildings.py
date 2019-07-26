@@ -7,8 +7,6 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Polygon
 
-from tqdm import tqdm
-
 
 def to_polygon(geometry): 
     try:
@@ -22,10 +20,11 @@ def main(polygons_path: Path, linestrings_path: Path, output: Path):
     polygons    = gpd.read_file(str(polygons_path))
     linestrings = gpd.read_file(str(linestrings_path))
 
-    linestrings["geometry"] = linestrings["geometry"].progress_apply(to_polygon)
-
-    info("Saving to %s", output.resolve())
-    pd.concat([polygons, linestrings], sort=True).to_csv(str(output))
+    linestrings["geometry"] = linestrings["geometry"].apply(to_polygon)
+    concat = pd.concat([polygons, linestrings], sort=True)
+    
+    info("Saving valid geometries to %s", output.resolve())
+    concat[~concat.is_empty].to_file(str(output))
 
 
 def setup(args=None):
