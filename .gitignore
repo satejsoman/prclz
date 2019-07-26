@@ -102,3 +102,4 @@ FigureScripts/*
 .mypy_cache/
 
 scratch/
+data/

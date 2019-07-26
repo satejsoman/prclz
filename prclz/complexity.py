@@ -4,7 +4,7 @@ import geopandas as gpd
 import pytess
 from shapely.geometry import Polygon
 
-from prclz.topology import PlanarGraph
+from .topology import PlanarGraph
 
 
 def get_s0_approximation(block, centroids) -> PlanarGraph:

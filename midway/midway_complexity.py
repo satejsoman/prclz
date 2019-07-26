@@ -11,7 +11,7 @@ import shapely.wkt
 import pandas as pd
 
 from prclz.blocks.methods import BufferedLineDifference
-
+from prclz.complexity import get_weak_dual_sequence, get_complexity
 
 def read_from_csv(path):
     """ ensures geometry set correctly when reading from csv
@@ -20,16 +20,13 @@ def read_from_csv(path):
     raw["geometry"] = raw["geometry"].apply(shapely.wkt.loads)
     return gpd.GeoDataFrame(raw, geometry="geometry")
 
-def main(blocks_path, building_linestrings, building_polygons):
+def main(blocks_path: Path, buildings_path: Path):
     info("Reading geospatial data from files.")
-    blocks               = read_from_csv(str(blocks_path))
-    building_linestrings = gpd.read_file(str(linestrings_path))
+    blocks    = read_from_csv(str(blocks_path))
+    buildings = gpd.read_file(str(buildings_path))
     
-    gpd.GeoDataFrame(
-         pd.read_csv(
-            './scratch/SGP.1_1_blocks.csv', 
-            index_col="block_id", 
-            usecols=["block_id", "geometry"]))
+    centroids = buildings.centroid
+
     info("Aggregating buildings by street block.")
     block_aggregation = gpd.sjoin(blocks, centroids, how="right", op="intersects")
     block_aggregation = block_aggregation[pd.notnull(block_aggregation["index_left"])].groupby("index_left")["geometry"].agg(list)
@@ -53,10 +50,9 @@ def setup(args=None):
 
     # read arguments
     parser = argparse.ArgumentParser(description='Run parcelization workflow on midway2.')
-    parser.add_argument('--gadm',        required=True, type=Path, help='path to GADM file',   dest="gadm_path")
-    parser.add_argument('--linestrings', required=True, type=Path, help='path to linestrings', dest="linestrings_path")
-    parser.add_argument('--output',      required=True, type=Path, help='path to  output',     dest="output_dir")
-    parser.add_argument('--level',       default=3,     type=int,  help='GADM level to use')
+    parser.add_argument('--blocks',      required=True, type=Path, help='path to blocks',    dest="blocks_path")
+    parser.add_argument('--buildings',   required=True, type=Path, help='path to buildings', dest="buildings_path")
+    parser.add_argument('--output',      required=True, type=Path, help='path to output',    dest="output_dir")
     parser.add_argument('--parallelism', default=4,     type=int,  help='number of cores to use')
 
     return parser.parse_args(args)
