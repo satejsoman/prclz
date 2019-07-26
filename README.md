@@ -38,7 +38,7 @@ conda activate mnp
 2. Install the requirements. (Due to version pinning/compatibility, some packages aren't in the standard conda repos, so we install them with `pip`).
 ```
 conda install --name mnp -f -y -q -c anaconda -c conda-forge --file requirements/conda-requirements.txt
-pip3 install -r requirements.txt  requirements/pip-requirements.txt
+pip3 install -r requirements/pip-requirements.txt
 ```
 3. From the top-level directory, install `prclz` in editable mode.
 ```
