@@ -53,6 +53,8 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph
 
     info("Calculating block complexity.")
     complexity = Parallel(n_jobs=parallelism, verbose=50)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
+    
+    info("Restructuring complexity calculations by block_id index.")
     block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint", "weak_duals"]).set_index("block_id"))
 
     info("Serializing complexity calculations to %s.", complexity_output)
