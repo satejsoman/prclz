@@ -28,6 +28,15 @@ def read_file(path, **kwargs):
     raw["geometry"] = raw["geometry"].apply(shapely.wkt.loads)
     return gpd.GeoDataFrame(raw, geometry="geometry")
 
+
+def calculate_complexity(index, block, centroids):
+    sequence = get_weak_dual_sequence(block, centroids)
+    complexity = get_complexity(sequence)
+    sequence_json = weak_dual_sequence_to_json_string(sequence)
+    centroids_multipoint = shapely.geometry.MultiPoint(centroids)
+
+    return (index, complexity, centroids_multipoint, sequence_json)
+
 def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int):
     info("Reading geospatial data from files.")
     blocks    = read_file(str(blocks_path), index_col="block_id", usecols=["block_id", "geometry"], low_memory=False)
@@ -42,19 +51,14 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph
     block_buildings = blocks.join(block_aggregation)
     block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
 
-    info("Generating weak dual sequences.")
-    block_buildings["weak_duals"] = Parallel(n_jobs=parallelism, verbose=50)(delayed(get_weak_dual_sequence)(block, centroids) for (block, centroids) in block_buildings[["geometry", "centroids"]].itertuples(index=False))
-    
     info("Calculating block complexity.")
-    block_buildings["complexity"] = Parallel(n_jobs=parallelism, verbose=50)(delayed(get_complexity)(s_vector) for s_vector in block_buildings["weak_duals"])
+    complexity = Parallel(n_jobs=parallelism, verbose=50)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
+    block_buildings = block_buildings.join(pd.DataFrame(complexity, columns = ["block_id", "complexity", "centroids_multipoint", "weak_duals"]).set_index("block_id"))
 
-    info("Serializing block complexity calculations to %s", complexity_output)
-    block_buildings["centroids"] = Parallel(n_jobs=parallelism, verbose=50)(delayed(shapely.geometry.MultiPoint)(centroids) for centroids in block_buildings["centroids"])
-    main.df = block_buildings
-    block_buildings[['geometry', 'complexity', 'centroids']].to_csv(complexity_output)
+    info("Serializing complexity calculations to %s.", complexity_output)
+    block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
     if graph_output:
         info("Serializing graph sequences to %s", graph_output)
-        block_buildings["weak_duals"] = Parallel(n_jobs=parallelism, verbose=50)(delayed(weak_dual_sequence_to_json_string)(sequence) for sequence in block_buildings["weak_duals"])
         block_buildings[['weak_duals']].to_csv(complexity_output)
 
 def setup(args=None):
