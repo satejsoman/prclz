@@ -9,6 +9,8 @@ import pandas as pd
 import os 
 import matplotlib.pyplot as plt 
 
+print("DONE IMPORTING\n")
+
 BLOCK_PATH = "../data/blocks/Africa/"
 GEOJSON_PATH = "../data/geojson/Africa"
 GADM_GEOJSON_PATH = "../data/geojson_gadm/Africa"
@@ -32,10 +34,33 @@ def split_files(building_file, trans_table: pd.DataFrame):
     GADM boundaries and block file
     '''
 
+    geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
+    country_info = trans_table[trans_table['geofabrik_name'] == geofabrik_name]
+    gadm_name = country_info['gadm_name'].item()
+    
     input_type = "lines" if "lines" in building_file else "buildings"
 
+    # Get the corresponding block file (and check that it exists)
+    block_file_path = os.path.join(BLOCK_PATH, gadm_name)
+
+    # Check that the block folder exists
+    if not os.path.isdir(block_file_path):
+        print("WARNING - country {} / {} does not have a block folder".format(geofabrik_name, gadm_name))
+        return None, "no_block_folder" 
+
+    # Check that the block folder actually has block files in it
+    block_files = os.listdir(block_file_path)
+
+    if len(block_files) == 0:
+        print("WARNING - country {} / {} has a block file path but has no block files in it".format(geofabrik_name, gadm_name))
+        return None, "block_folder_empty" 
+
     # Get buildings file
-    buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
+    try:
+        buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
+    except:
+        print("WARNING - country {} / {} could not load GeoJSON file".format(geofabrik_name, gadm_name))
+        return None, "load_geojson_error"
 
     # Apply convex hull transform to our buildings
     if input_type == "buildings":
@@ -44,23 +69,7 @@ def split_files(building_file, trans_table: pd.DataFrame):
     cols = [c for c in buildings.columns]
     buildings['match_count'] = 0
 
-    geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    country_info = trans_table[trans_table['geofabrik_name'] == geofabrik_name]
-    gadm_name = country_info['gadm_name'].item()
-    
     print("Processing a {} file type of country {}\n".format(input_type, geofabrik_name))
-
-    block_file_path = os.path.join(BLOCK_PATH, gadm_name)
-
-    # Check that the block file exists
-    if not os.path.isdir(block_file_path):
-        print("WARNING - country {} / {} does not have a block file".format(geofabrik_name, gadm_name))
-        return buildings 
-
-    block_files = os.listdir(block_file_path)
-
-    if len(block_files) == 0:
-        print("WARNING - country has a block file path but has no block files in it")
 
     output_path = os.path.join(GADM_GEOJSON_PATH, gadm_name)
     if not os.path.isdir(output_path):
@@ -99,8 +108,9 @@ def split_files(building_file, trans_table: pd.DataFrame):
         buildings.drop(columns=['matched_flag'], inplace=True)
 
     print(buildings['match_count'].value_counts(dropna=False, normalize=True))
+    print()
 
-    return buildings  
+    return buildings, "DONE"
 
 
 # building_file = "djibouti_buildings.geojson" 
@@ -122,26 +132,31 @@ def process_all_files():
 
     country_files = os.listdir(GEOJSON_PATH)
 
+    error_summary = open("error_summary.txt", 'w')
+
     for f in country_files:
-        
-        if "zimbabwe" in f:
-            print("Skipping....")
-            print(f)
-            continue
 
         if "buildings" in f:
-            print("Processing file {}".format(f))
-            buildings = split_files(f, TRANS_TABLE)
+            print("FILE {}\n".format(f))
+            buildings, details = split_files(f, TRANS_TABLE)
 
-            not_matched_buildings = buildings[buildings['match_count'] == 0]
+            # Was a success
+            if buildings is not None:
+                not_matched_buildings = buildings[buildings['match_count'] == 0]
 
-            qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
-   
-            if os.path.isfile(qc_path):
-                os.remove(qc_path)
+                qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
+                print()
 
-                if not_matched_buildings.shape[0] != 0:
-                    not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+                if os.path.isfile(qc_path):
+                    os.remove(qc_path)
+
+                    if not_matched_buildings.shape[0] != 0:
+                        not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+            else:
+                error_summary.write(f + "  |  " + details + "\n")
+
+    error_summary.close()
+
 
 if __name__ == "__main__":
     process_all_files()
