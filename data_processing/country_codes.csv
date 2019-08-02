@@ -1,0 +1,183 @@
+country,region,global_south,gadm_name,geofabrik_name,geofabrik_region
+Afghanistan,Asia & Pacific,Global South,AFG,afghanistan,asia
+Algeria,Arab States,Global South,DZA,algeria,africa
+American Samoa,Asia & Pacific,Global South,ASM,american-samoa,asia
+Angola,Africa,Global South,AGO,angola,africa
+Anguilla,South/Latin America,Global South,AIA,anguilla,south-america
+Antarctica,Asia & Pacific,Global South,ATA,antarctica,antarctica
+Antigua and Barbuda,South/Latin America,Global South,ATG,antigua-and-barbuda,south-america
+Argentina,South/Latin America,Global South,ARG,argentina,south-america
+Armenia,Europe,Global South,ARM,armenia,asia
+Aruba,South/Latin America,Global South,ABW,aruba,south-america
+Azerbaijan,Asia & Pacific,Global South,AZE,azerbaijan,asia
+Bahamas,South/Latin America,Global South,BHS,bahamas,south-america
+Bahrain,Arab States,Global South,BHR,bahrain,asia
+Bangladesh,Asia & Pacific,Global South,BGD,bangladesh,asia
+Barbados,South/Latin America,Global South,BRB,barbados,south-america
+Belarus,Europe,Global South,BLR,belarus,europe
+Belize,South/Latin America,Global South,BLZ,belize,central-america
+Benin,Africa,Global South,BEN,benin,africa
+Bhutan,Asia & Pacific,Global South,BTN,bhutan,asia
+Bolivia,South/Latin America,Global South,BOL,bolivia,south-america
+Botswana,Africa,Global South,BWA,botswana,africa
+Bouvet Island,South/Latin America,Global South,BVT,bouvet-island,south-america
+Brazil,South/Latin America,Global South,BRA,brazil,south-america
+British Indian Ocean Territory,Asia & Pacific,Global South,IOT,british-indian-ocean-territory,asia
+Brunei Darussalam,Asia & Pacific,Global South,BRN,malaysia-singapore-brunei,asia
+Burkina Faso,Africa,Global South,BFA,burkina-faso,africa
+Burundi,Africa,Global South,BDI,burundi,africa
+Cambodia,Asia & Pacific,Global South,KHM,cambodia,asia
+Cameroon,Africa,Global South,CMR,cameroon,africa
+Cape Verde,Africa,Global South,CPV,cape-verde,africa
+Cayman Islands,South/Latin America,Global South,CYM,cayman-islands,south-america
+Central African Republic,Africa,Global South,CAF,central-african-republic,africa
+Chad,Africa,Global South,TCD,chad,africa
+Chile,South/Latin America,Global South,CHL,chile,south-america
+China,Asia & Pacific,Global South,CHN,china,asia
+Christmas Island,Asia & Pacific,Global South,CXR,christmas-island,asia
+Cocos (Keeling) Islands,Asia & Pacific,Global South,CCK,cocos-(keeling)-islands,asia
+Colombia,South/Latin America,Global South,COL,colombia,south-america
+Comoros,Arab States,Global South,COM,comoros,asia
+Congo,Africa,Global South,COG,congo-brazzaville,africa
+"Congo, The Democratic Republic of the",Africa,Global South,COD,congo-democratic-republic,africa
+Cook Islands,Asia & Pacific,Global South,COK,cook-islands,asia
+Costa Rica,South/Latin America,Global South,CRI,costa-rica,central-america
+Côte D'Ivoire,Africa,Global South,CIV,ivory-coast,africa
+Cuba,South/Latin America,Global South,CUB,cuba,central-america
+Djibouti,Arab States,Global South,DJI,djibouti,africa
+Dominica,South/Latin America,Global South,DMA,dominica,south-america
+Dominican Republic,South/Latin America,Global South,DOM,haiti-and-domrep,central-america
+Ecuador,South/Latin America,Global South,ECU,ecuador,south-america
+Egypt,Arab States,Global South,EGY,egypt,africa
+El Salvador,South/Latin America,Global South,SLV,el-salvador,south-america
+Equatorial Guinea,Africa,Global South,GNQ,equatorial-guinea,africa
+Eritrea,Africa,Global South,ERI,eritrea,africa
+Ethiopia,Africa,Global South,ETH,ethiopia,africa
+Falkland Islands (Malvinas),South/Latin America,Global South,FLK,falkland-islands-(malvinas),south-america
+Fiji,Asia & Pacific,Global South,FJI,fiji,australia-oceania
+French Guiana,South/Latin America,Global South,GUF,french-guiana,south-america
+French Polynesia,Asia & Pacific,Global South,PYF,french-polynesia,asia
+French Southern Territories,Asia & Pacific,Global South,ATF,french-southern-territories,asia
+Gabon,Africa,Global South,GAB,gabon,africa
+Gambia,Africa,Global South,GMB,senegal-and-gambia,africa
+Georgia,Europe,Global South,GEO,georgia,europe
+Ghana,Africa,Global South,GHA,ghana,africa
+Grenada,South/Latin America,Global South,GRD,grenada,south-america
+Guadeloupe,South/Latin America,Global South,GLP,guadeloupe,south-america
+Guam,Asia & Pacific,Global South,GUM,guam,asia
+Guatemala,South/Latin America,Global South,GTM,guatemala,central-america
+Guinea,Africa,Global South,GIN,guinea,africa
+Guinea-Bissau,Africa,Global South,GNB,guinea-bissau,africa
+Guyana,South/Latin America,Global South,GUY,guyana,south-america
+Haiti,South/Latin America,Global South,HTI,haiti-and-domrep,central-america
+Heard Island and McDonald Islands,Asia & Pacific,Global South,HMD,heard-island-and-mcdonald-islands,asia
+Honduras,South/Latin America,Global South,HND,honduras,south-america
+India,Asia & Pacific,Global South,IND,india,asia
+Indonesia,Asia & Pacific,Global South,IDN,indonesia,asia
+"Iran, Islamic Republic of",Asia & Pacific,Global South,IRN,iran,asia
+Iraq,Arab States,Global South,IRQ,iraq,asia
+Jamaica,South/Latin America,Global South,JAM,jamaica,central-america
+Jordan,Arab States,Global South,JOR,jordan,asia
+Kazakhstan,Asia & Pacific,Global South,KAZ,kazakhstan,asia
+Kenya,Africa,Global South,KEN,kenya,africa
+Kiribati,Asia & Pacific,Global South,KIR,kiribati,asia
+"Korea, Democratic People's Republic of",Asia & Pacific,Global South,PRK,south-korea,asia
+Kuwait,Arab States,Global South,KWT,kuwait,asia
+Kyrgyzstan,Asia & Pacific,Global South,KGZ,kyrgyzstan,asia
+Lao People's Democratic Republic,Asia & Pacific,Global South,LAO,laos,asia
+Lebanon,Arab States,Global South,LBN,lebanon,asia
+Lesotho,Africa,Global South,LSO,lesotho,africa
+Liberia,Africa,Global South,LBR,liberia,africa
+Libya,Arab States,Global South,LBY,libya,africa
+Madagascar,Africa,Global South,MDG,madagascar,africa
+Malawi,Africa,Global South,MWI,malawi,africa
+Malaysia,Asia & Pacific,Global South,MYS,malaysia-singapore-brunei,asia
+Maldives,Asia & Pacific,Global South,MDV,maldives,asia
+Mali,Africa,Global South,MLI,mali,africa
+Marshall Islands,Asia & Pacific,Global South,MHL,marshall-islands,asia
+Martinique,South/Latin America,Global South,MTQ,martinique,south-america
+Mauritania,Arab States,Global South,MRT,mauritania,asia
+Mauritius,Africa,Global South,MUS,mauritius,africa
+Mayotte,Africa,Global South,MYT,mayotte,africa
+Mexico,South/Latin America,Global South,MEX,mexico,north-america
+"Micronesia, Federated States of",Asia & Pacific,Global South,FSM,micronesia-federated-states-of,asia
+Mongolia,Asia & Pacific,Global South,MNG,mongolia,asia
+Montserrat,South/Latin America,Global South,MSR,montserrat,south-america
+Morocco,Arab States,Global South,MAR,morocco,africa
+Mozambique,Africa,Global South,MOZ,mozambique,africa
+Myanmar,Asia & Pacific,Global South,MMR,myanmar,asia
+Namibia,Africa,Global South,NAM,namibia,africa
+Nauru,Asia & Pacific,Global South,NRU,nauru,asia
+Nepal,Asia & Pacific,Global South,NPL,nepal,asia
+Netherlands Antilles,South/Latin America,Global South,,netherlands-antilles,south-america
+New Caledonia,Asia & Pacific,Global South,NCL,new-caledonia,australia-oceania
+Nicaragua,South/Latin America,Global South,NIC,nicaragua,central-america
+Niger,Africa,Global South,NER,niger,africa
+Nigeria,Africa,Global South,NGA,nigeria,africa
+Niue,Asia & Pacific,Global South,NIU,niue,asia
+Norfolk Island,Asia & Pacific,Global South,NFK,norfolk-island,asia
+Northern Mariana Islands,Asia & Pacific,Global South,MNP,northern-mariana-islands,asia
+Oman,Arab States,Global South,OMN,oman,asia
+Pakistan,Asia & Pacific,Global South,PAK,pakistan,asia
+Palau,Asia & Pacific,Global South,PLW,palau,asia
+Palestinian Territory,Arab States,Global South,PSE,israel-and-palestine,asia
+Panama,South/Latin America,Global South,PAN,panama,south-america
+Papua New Guinea,Asia & Pacific,Global South,PNG,papua-new-guinea,australia-oceania
+Paraguay,South/Latin America,Global South,PRY,paraguay,south-america
+Peru,South/Latin America,Global South,PER,peru,south-america
+Philippines,Asia & Pacific,Global South,PHL,philippines,asia
+Pitcairn Islands,Asia & Pacific,Global South,PCN,pitcairn-islands,asia
+Puerto Rico,South/Latin America,Global South,PRI,puerto-rico,North-america/us
+Qatar,Arab States,Global South,QAT,qatar,asia
+Reunion,Asia & Pacific,Global South,REU,reunion,asia
+Rwanda,Africa,Global South,RWA,rwanda,africa
+Saint Barthelemy,South/Latin America,Global South,BLM,saint-barthelemy,south-america
+Saint Helena,Africa,Global South,SHN,saint-helena,africa
+Saint Kitts and Nevis,South/Latin America,Global South,KNA,saint-kitts-and-nevis,south-america
+Saint Lucia,South/Latin America,Global South,LCA,saint-lucia,south-america
+Saint Martin,South/Latin America,Global South,MAF,saint-martin,south-america
+Saint Vincent and the Grenadines,South/Latin America,Global South,VCT,saint-vincent-and-the-grenadines,south-america
+Samoa,Asia & Pacific,Global South,WSM,samoa,asia
+Sao Tome and Principe,Africa,Global South,STP,sao-tome-and-principe,africa
+Saudi Arabia,Arab States,Global South,SAU,saudi-arabia,asia
+Senegal,Africa,Global South,SEN,senegal-and-gambia,africa
+Seychelles,Africa,Global South,SYC,seychelles,africa
+Sierra Leone,Africa,Global South,SLE,sierra-leone,africa
+Solomon Islands,Asia & Pacific,Global South,SLB,solomon-islands,asia
+Somalia,Arab States,Global South,SOM,somalia,africa
+South Africa,Africa,Global South,ZAF,south-africa,africa
+South Georgia and the South Sandwich Islands,South/Latin America,Global South,SGS,south-georgia-and-the-south-sandwich-islands,south-america
+South Sudan,Africa,Global South,SSD,south-sudan,africa
+Sri Lanka,Asia & Pacific,Global South,LKA,sri-lanka,asia
+Sudan,Arab States,Global South,SDN,sudan,africa
+Suriname,South/Latin America,Global South,SUR,suriname,south-america
+Swaziland,Africa,Global South,SWZ,swaziland,africa
+Syrian Arab Republic,Asia & Pacific,Global South,SYR,syria,asia
+Tajikistan,Asia & Pacific,Global South,TJK,tajikistan,asia
+"Tanzania, United Republic of",Africa,Global South,TZA,tanzania,africa
+Thailand,Asia & Pacific,Global South,THA,thailand,asia
+Timor-Leste,Asia & Pacific,Global South,,timor-leste,asia
+Togo,Africa,Global South,TGO,togo,africa
+Tokelau,Asia & Pacific,Global South,TKL,tokelau,asia
+Tonga,Asia & Pacific,Global South,TON,tonga,asia
+Trinidad and Tobago,South/Latin America,Global South,TTO,trinidad-and-tobago,south-america
+Tunisia,Arab States,Global South,TUN,tunisia,africa
+Turkmenistan,Asia & Pacific,Global South,TKM,turkmenistan,asia
+Turks and Caicos Islands,South/Latin America,Global South,TCA,turks-and-caicos-islands,south-america
+Tuvalu,Asia & Pacific,Global South,TUV,tuvalu,asia
+Uganda,Africa,Global South,UGA,uganda,africa
+Ukraine,Europe,Global South,UKR,ukraine,europe
+United Arab Emirates,Arab States,Global South,ARE,united-arab-emirates,asia
+United States Minor Outlying Islands,Asia & Pacific,Global South,UMI,united-states-minor-outlying-islands,asia
+Uruguay,South/Latin America,Global South,URY,uruguay,south-america
+Uzbekistan,Asia & Pacific,Global South,UZB,uzbekistan,asia
+Vanuatu,Asia & Pacific,Global South,VUT,vanuatu,asia
+Venezuela,South/Latin America,Global South,VEN,venezuela,south-america
+Vietnam,Asia & Pacific,Global South,VNM,vietnam,asia
+"Virgin Islands, British",South/Latin America,Global South,,virgin-islands-british,south-america
+"Virgin Islands, U.S.",South/Latin America,Global South,VIR,virgin-islands-u.s.,south-america
+Wallis and Futuna,Asia & Pacific,Global South,WLF,wallis-and-futuna,asia
+Western Sahara,Africa,Global South,ESH,western-sahara,africa
+Yemen,Arab States,Global South,YEM,yemen,asia
+Zambia,Africa,Global South,ZMB,zambia,africa
+Zimbabwe,Africa,Global South,ZWE,zimbabwe,africa
