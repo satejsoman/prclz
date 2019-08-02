@@ -48,7 +48,7 @@ def split_files(building_file, trans_table: pd.DataFrame):
     country_info = trans_table[trans_table['geofabrik_name'] == geofabrik_name]
     gadm_name = country_info['gadm_name'].item()
     
-    print("Processing a {} file type of country {}".format(input_type, geofabrik_name))
+    print("Processing a {} file type of country {}\n".format(input_type, geofabrik_name))
 
     block_file_path = os.path.join(BLOCK_PATH, gadm_name)
 
@@ -58,6 +58,9 @@ def split_files(building_file, trans_table: pd.DataFrame):
         return buildings 
 
     block_files = os.listdir(block_file_path)
+
+    if len(block_files) == 0:
+        print("WARNING - country has a block file path but has no block files in it")
 
     output_path = os.path.join(GADM_GEOJSON_PATH, gadm_name)
     if not os.path.isdir(output_path):
@@ -120,8 +123,14 @@ def process_all_files():
     country_files = os.listdir(GEOJSON_PATH)
 
     for f in country_files:
-        print(f)
+        
+        if "zimbabwe" in f:
+            print("Skipping....")
+            print(f)
+            continue
+
         if "buildings" in f:
+            print("Processing file {}".format(f))
             buildings = split_files(f, TRANS_TABLE)
 
             not_matched_buildings = buildings[buildings['match_count'] == 0]
