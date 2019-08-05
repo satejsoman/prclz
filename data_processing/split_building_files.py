@@ -164,7 +164,7 @@ def bash_parallel(args_file: str):
     and the current python implementation :(
     '''
 
-    wkr_num = int(args_file.replace("/tmp/wkr", "").replace(".txt", ""))
+    wkr_num = int(args_file.replace("wkr", "").replace(".txt", "").replace("tmp", "").replace("/",""))
 
     if not os.path.isdir("building_split_qc"):
         os.mkdir("building_split_qc")
