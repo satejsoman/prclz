@@ -180,41 +180,41 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 #         process_all_files(country_file, wkr_num)
 
 
-def process_all_files(country_files, gadm_code):
-    '''
-    '''
+# def process_all_files(country_files, gadm_code):
+#     '''
+#     '''
 
-    # if not os.path.isdir("building_split_qc"):
-    #     os.mkdir("building_split_qc")
+#     # if not os.path.isdir("building_split_qc"):
+#     #     os.mkdir("building_split_qc")
 
-    #country_files = os.listdir(GEOJSON_PATH)
+#     #country_files = os.listdir(GEOJSON_PATH)
 
-    error_summary = open("error_summary{}.txt".format(gadm_code), 'w')
+#     error_summary = open("error_summary{}.txt".format(gadm_code), 'w')
 
-    for f in [country_files]:
+#     for f in [country_files]:
 
-        if "buildings" in f:
-            print("FILE {}\n".format(f))
-            #buildings, details = split_files_alt(f, TRANS_TABLE)
+#         if "buildings" in f:
+#             print("FILE {}\n".format(f))
+#             #buildings, details = split_files_alt(f, TRANS_TABLE)
 
 
-            # Was a success
-            if buildings is not None:
-                not_matched_buildings = buildings[buildings['match_count'] == 0]
+#             # Was a success
+#             if buildings is not None:
+#                 not_matched_buildings = buildings[buildings['match_count'] == 0]
 
-                qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
-                print(not_matched_buildings.shape)
-                print()
+#                 qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
+#                 print(not_matched_buildings.shape)
+#                 print()
 
-                if os.path.isfile(qc_path):
-                    os.remove(qc_path)
+#                 if os.path.isfile(qc_path):
+#                     os.remove(qc_path)
 
-                if not_matched_buildings.shape[0] != 0:
-                    not_matched_buildings.to_file(qc_path, driver='GeoJSON')
-            else:
-                error_summary.write(f + "  |  " + details + "\n")
+#                 if not_matched_buildings.shape[0] != 0:
+#                     not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+#             else:
+#                 error_summary.write(f + "  |  " + details + "\n")
 
-    error_summary.close()
+#     error_summary.close()
 
 
 if __name__ == "__main__":
@@ -227,9 +227,7 @@ if __name__ == "__main__":
     gadm_name = country_info['gadm_name'].item()
 
 
-    #buildings, details = split_files_alt(building_file, TRANS_TABLE)
-    buildings = None 
-    details = "building_file = {}".format(building_file)
+    buildings, details = split_files_alt(building_file, TRANS_TABLE)
 
     # Was a success
     if buildings is not None:
