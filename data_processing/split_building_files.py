@@ -9,6 +9,7 @@ import time
 
 import os 
 import matplotlib.pyplot as plt 
+import sys 
 
 print("DONE IMPORTING\n")
 
@@ -163,7 +164,7 @@ def bash_parallel(args_file: str):
     and the current python implementation :(
     '''
 
-    wkr_num = int(args_file.replace("wkr", "").replace(".txt", ""))
+    wkr_num = int(args_file.replace("/tmp/wkr", "").replace(".txt", ""))
 
     if not os.path.isdir("building_split_qc"):
         os.mkdir("building_split_qc")
@@ -224,7 +225,7 @@ def process_all_files(country_files, wkr_num):
 if __name__ == "__main__":
 
     start = time.time()
-    process_all_files()
+    bash_parallel(sys.argv[1])
 
     print("Takes {} secs".format(time.time() - start))
 
