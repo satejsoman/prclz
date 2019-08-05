@@ -34,12 +34,6 @@ def csv_to_geo(csv_path, add_file_col=False):
 
 def join_block_files(gadm_name: str) -> gpd.GeoDataFrame:
 
-    # for i, block_file in enumerate(block_files):
-
-    #     blocks = csv_to_geo(os.path.join(block_file_path, block_file))
-
-    #     if i > 0:
-    #         all_blocks\
     block_file_path = os.path.join(BLOCK_PATH, gadm_name)
     block_files = os.listdir(block_file_path)
 
@@ -102,12 +96,26 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
 
+    # PRESERVED
+    # # Identify those buildings that sjoin via intersect with our block
+    # buildings = gpd.sjoin(buildings, all_blocks, how='left', op='intersects')
+    # #buildings = gpd.sjoin(buildings, all_blocks, how='left', op='within')
+    # buildings['match_count'] = pd.notnull(buildings['index_right'])
+    # buildings.merge(all_blocks[['gadm_code']], left_on='index_right', right_index=True)
 
     # Identify those buildings that sjoin via intersect with our block
+    buildings['bldg_centroid'] = buildings['geometry'].centroid 
+    buildings.set_geometry('bldg_centroid', inplace=True)
     #buildings = gpd.sjoin(buildings, all_blocks, how='left', op='intersects')
     buildings = gpd.sjoin(buildings, all_blocks, how='left', op='within')
+    print(buildings.columns)
+    assert 'gadm_code' in list(buildings.columns)
+    assert isinstance(buildings, gpd.GeoDataFrame), "No longer GeoDataFrame (1)"
+    buildings.set_geometry('geometry', inplace=True)
+    buildings.drop(columns=['bldg_centroid'], inplace=True)
     buildings['match_count'] = pd.notnull(buildings['index_right'])
-    buildings.merge(all_blocks[['gadm_code']], left_on='index_right', right_index=True)
+    #buildings.merge(all_blocks[['gadm_code']], left_on='index_right', right_index=True)
+
 
     # Now, distribute and save
     all_gadm_codes = buildings['gadm_code'].unique()
@@ -145,120 +153,54 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 # buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
 
 
-def split_files(building_file, trans_table: pd.DataFrame):
-    '''
-    Given a country buildings.geojson file string,
-    it distributes those buildings according to the
-    GADM boundaries and block file
-    '''
-
-    geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    country_info = trans_table[trans_table['geofabrik_name'] == geofabrik_name]
-    gadm_name = country_info['gadm_name'].item()
-    
-    input_type = "lines" if "lines" in building_file else "buildings"
-
-    # Get the corresponding block file (and check that it exists)
-    block_file_path = os.path.join(BLOCK_PATH, gadm_name)
-
-    # Check that the block folder exists
-    if not os.path.isdir(block_file_path):
-        print("WARNING - country {} / {} does not have a block folder".format(geofabrik_name, gadm_name))
-        return None, "no_block_folder" 
-
-    # Check that the block folder actually has block files in it
-    block_files = os.listdir(block_file_path)
-
-    if len(block_files) == 0:
-        print("WARNING - country {} / {} has a block file path but has no block files in it".format(geofabrik_name, gadm_name))
-        return None, "block_folder_empty" 
-
-    # Get buildings file
-    try:
-        buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
-    except:
-        print("WARNING - country {} / {} could not load GeoJSON file".format(geofabrik_name, gadm_name))
-        return None, "load_geojson_error"
-
-    # Apply convex hull transform to our buildings
-    if input_type == "buildings":
-        buildings['geometry'] = buildings['geometry'].convex_hull
-
-    cols = [c for c in buildings.columns]
-    buildings['match_count'] = 0
-
-    print("Processing a {} file type of country {}\n".format(input_type, geofabrik_name))
-
-    output_path = os.path.join(GADM_GEOJSON_PATH, gadm_name)
-    if not os.path.isdir(output_path):
-        os.mkdir(output_path)
-
-    for block_file in block_files:
-
-        blocks = csv_to_geo(os.path.join(block_file_path, block_file))
-
-        # Identify those buildings that sjoin via intersect with our block
-        #split_buildings = gpd.sjoin(buildings, blocks, how='left', op='intersects')
-        split_buildings = gpd.sjoin(buildings, blocks, how='left', op='within')
-        has_match = pd.notnull(split_buildings['index_right'])
-
-        # Limit to those buildings that intersect in some way with our blocks
-        buildings_in_block = split_buildings[cols][has_match]
-
-        # Save that out
-        f = block_file.replace("blocks", input_type).replace(".csv", ".geojson")
-
-        if os.path.isfile(os.path.join(output_path, f)):
-            os.remove(os.path.join(output_path, f))
-
-        if buildings_in_block.shape[0] > 0:
-            #print(buildings_in_block.shape)
-            buildings_in_block.to_file(os.path.join(output_path, f), driver='GeoJSON')
-
-        b = block_file.replace(".csv","").replace("blocks_", "")
-        print("Block {} contains {} {}".format(b, has_match.sum(), input_type))
-
-        # Record how many matches we see for each building
-        ids = buildings_in_block[['osm_id']].drop_duplicates()
-        ids['matched_flag'] = 1
-        buildings = buildings.merge(ids, how='left', on='osm_id')
-        buildings['matched_flag'] = buildings['matched_flag'].fillna(0)
-        buildings['match_count'] = buildings['match_count'] + buildings['matched_flag']
-        buildings.drop(columns=['matched_flag'], inplace=True)
-
-    print(buildings['match_count'].value_counts(dropna=False, normalize=True))
-    print()
-
-    return buildings, "DONE"
-
-
-# building_file = "djibouti_buildings.geojson" 
-# line_file = "djibouti_lines.geojson"
-
-#buildings = split_files(building_file, trans_table) 
-#lines = split_files(line_file, trans_table)
-
 # To plot 
 # ax = blocks.plot(alpha=0.5, color='blue')
 # buildings.plot(ax=ax, color='red')
 
-def process_all_files():
+def bash_parallel(args_file: str):
     '''
+    Just a janky go-between between the bash parallel format
+    and the current python implementation :(
     '''
+
+    wkr_num = int(args_file.replace("wkr", "").replace(".txt", ""))
 
     if not os.path.isdir("building_split_qc"):
         os.mkdir("building_split_qc")
 
-    country_files = os.listdir(GEOJSON_PATH)
+    # Parse our wkr's args file to get inputs
+    with open("tmp" + args_file) as f:
 
-    error_summary = open("error_summary.txt", 'w')
+        country_files = [x.split("/")[-1].strip() for x in f.readlines()]
+
+    # Actually do the work
+    for country_file in country_files:
+
+        process_all_files(country_file, wkr_num)
+
+
+def process_all_files(country_files, wkr_num):
+    '''
+    '''
+
+    # if not os.path.isdir("building_split_qc"):
+    #     os.mkdir("building_split_qc")
+
+    #country_files = os.listdir(GEOJSON_PATH)
+
+    error_summary = open("error_summary{}.txt".format(wkr_num), 'w')
 
     for f in country_files:
 
         if "buildings" in f:
             print("FILE {}\n".format(f))
             #buildings, details = split_files_alt(f, TRANS_TABLE)
-            buildings, details = split_files(f, TRANS_TABLE)
+
+            ##################################################################
+            # WILL REMOVE BEFORE ACTUALLY RUNNING -- debuggin only
+            error_summary.write("Wkr {} processes {}".format(wkr_num, f))
+            continue 
+            ##################################################################
 
             # Was a success
             if buildings is not None:
