@@ -158,29 +158,29 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 # ax = blocks.plot(alpha=0.5, color='blue')
 # buildings.plot(ax=ax, color='red')
 
-def bash_parallel(args_file: str):
-    '''
-    Just a janky go-between between the bash parallel format
-    and the current python implementation :(
-    '''
+# def bash_parallel(args_file: str):
+#     '''
+#     Just a janky go-between between the bash parallel format
+#     and the current python implementation :(
+#     '''
 
-    wkr_num = int(args_file.replace("wkr", "").replace(".txt", "").replace("tmp", "").replace("/",""))
+#     wkr_num = int(args_file.replace("wkr", "").replace(".txt", "").replace("tmp", "").replace("/",""))
 
-    if not os.path.isdir("building_split_qc"):
-        os.mkdir("building_split_qc")
+#     if not os.path.isdir("building_split_qc"):
+#         os.mkdir("building_split_qc")
 
-    # Parse our wkr's args file to get inputs
-    with open("tmp" + args_file) as f:
+#     # Parse our wkr's args file to get inputs
+#     with open("tmp" + args_file) as f:
 
-        country_files = [x.split("/")[-1].strip() for x in f.readlines()]
+#         country_files = [x.split("/")[-1].strip() for x in f.readlines()]
 
-    # Actually do the work
-    for country_file in country_files:
+#     # Actually do the work
+#     for country_file in country_files:
 
-        process_all_files(country_file, wkr_num)
+#         process_all_files(country_file, wkr_num)
 
 
-def process_all_files(country_files, wkr_num):
+def process_all_files(country_files, gadm_code):
     '''
     '''
 
@@ -189,19 +189,14 @@ def process_all_files(country_files, wkr_num):
 
     #country_files = os.listdir(GEOJSON_PATH)
 
-    error_summary = open("error_summary{}.txt".format(wkr_num), 'w')
+    error_summary = open("error_summary{}.txt".format(gadm_code), 'w')
 
-    for f in country_files:
+    for f in [country_files]:
 
         if "buildings" in f:
             print("FILE {}\n".format(f))
             #buildings, details = split_files_alt(f, TRANS_TABLE)
 
-            ##################################################################
-            # WILL REMOVE BEFORE ACTUALLY RUNNING -- debuggin only
-            error_summary.write("Wkr {} processes {}".format(wkr_num, f))
-            continue 
-            ##################################################################
 
             # Was a success
             if buildings is not None:
@@ -225,7 +220,29 @@ def process_all_files(country_files, wkr_num):
 if __name__ == "__main__":
 
     start = time.time()
-    bash_parallel(sys.argv[1])
 
-    print("Takes {} secs".format(time.time() - start))
+    building_file = sys.argv[1].split("/")[-1]
+    geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
+    country_info = TRANS_TABLE[TRANS_TABLE['geofabrik_name'] == geofabrik_name]
+    gadm_name = country_info['gadm_name'].item()
+
+
+    buildings, details = split_files_alt(building_file, TRANS_TABLE)
+
+    # Was a success
+    if buildings is not None:
+        not_matched_buildings = buildings[buildings['match_count'] == 0]
+
+        qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
+        print(not_matched_buildings.shape)
+        print()
+
+        if os.path.isfile(qc_path):
+            os.remove(qc_path)
+
+        if not_matched_buildings.shape[0] != 0:
+            not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+    else:
+        error_summary = open("error_summary{}.txt".format(gadm_name), 'w')
+        error_summary.write(f + "  |  " + details + "\n")
 
