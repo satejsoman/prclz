@@ -235,7 +235,7 @@ if __name__ == "__main__":
     if buildings is not None:
         not_matched_buildings = buildings[buildings['match_count'] == 0]
 
-        qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
+        qc_path = os.path.join("building_split_qc", building_file.replace("buildings", "not_matched_buildings"))
         print(not_matched_buildings.shape)
         print()
 
@@ -245,8 +245,8 @@ if __name__ == "__main__":
         if not_matched_buildings.shape[0] != 0:
             not_matched_buildings.to_file(qc_path, driver='GeoJSON')
     else:
-        error_summary = open("error_summary{}.txt".format(gadm_name), 'w')
-        error_summary.write(f + "  |  " + details + "\n")
+        error_summary = open("building_split_qc/error_summary{}.txt".format(gadm_name), 'w')
+        error_summary.write(building_file + "  |  " + details + "\n")
 
-    print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start)
+    print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start))
 
