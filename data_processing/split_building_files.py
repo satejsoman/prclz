@@ -227,7 +227,9 @@ if __name__ == "__main__":
     gadm_name = country_info['gadm_name'].item()
 
 
-    buildings, details = split_files_alt(building_file, TRANS_TABLE)
+    #buildings, details = split_files_alt(building_file, TRANS_TABLE)
+    buildings = None 
+    details = "building_file = {}".format(building_file)
 
     # Was a success
     if buildings is not None:
@@ -245,4 +247,6 @@ if __name__ == "__main__":
     else:
         error_summary = open("error_summary{}.txt".format(gadm_name), 'w')
         error_summary.write(f + "  |  " + details + "\n")
+
+    print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start)
 
