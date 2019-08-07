@@ -42,24 +42,25 @@ def make_url(geo_name, geo_region):
 
 if __name__ == "__main__":
 
-	names = TRANS_TABLE['geofabrik_name']
-	regions = TRANS_TABLE['geofabrik_region']
+    names = TRANS_TABLE['geofabrik_name']
+    regions = TRANS_TABLE['geofabrik_region']
 
-	for geofabrik_name, geofabrik_region in zip(names, regions):
+    for geofabrik_name, geofabrik_region in zip(names, regions):
 
-		outfile = geofabrik_name + "-latest.osm.pbf"
+        outfile = geofabrik_name + "-latest.osm.pbf"
 
-		# Check that we haven't already downloaded it
-		output_path = os.path.join(GEOFABRIK_PATH, geofabrik_region.title())
-		if os.path.isfile(os.path.join(output_path, outfile)):
-			print("We have geofabrik data for {} -- see: {}".format(geofabrik_name, output_path))
-			continue
+        # Check that we haven't already downloaded it
+        output_path = os.path.join(GEOFABRIK_PATH, geofabrik_region.title())
+        if os.path.isfile(os.path.join(output_path, outfile)):
+            print("We have geofabrik data for {} -- see: {}".format(geofabrik_name, output_path))
+            continue
 
-	    url = make_url(n, r)
+        else:
+            url = make_url(n, r)
 
-	    if uri_exists_stream(url):
-	        wget.download(url, os.path.join(output_path, outfile))
-	    else:
-	        print("geofabrik_name = {} or geofabrik_region = {} are wrong".format(geofabrik_name, geofabrik_region))
-	        continue
+            if uri_exists_stream(url):
+                wget.download(url, os.path.join(output_path, outfile))
+            else:
+                print("geofabrik_name = {} or geofabrik_region = {} are wrong".format(geofabrik_name, geofabrik_region))
+                continue
 
