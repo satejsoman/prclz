@@ -127,7 +127,7 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
             print(code)
 
             buildings_in_gadm = buildings[ buildings['gadm_code']==code ][cols]
-            f = "blocks_" + code + ".geojson"
+            f = "buildings_" + code + ".geojson"
 
             if os.path.isfile(os.path.join(output_path, f)):
                 os.remove(os.path.join(output_path, f))
