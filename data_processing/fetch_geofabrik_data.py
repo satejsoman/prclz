@@ -56,7 +56,7 @@ if __name__ == "__main__":
             continue
 
         else:
-            url = make_url(n, r)
+            url = make_url(geofabrik_name, geofabrik_region)
 
             if uri_exists_stream(url):
                 wget.download(url, os.path.join(output_path, outfile))
