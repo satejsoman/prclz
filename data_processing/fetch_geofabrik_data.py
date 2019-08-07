@@ -1,6 +1,7 @@
 import pandas as pd
 import time 
 import typing
+import requests
 
 import os 
 import sys 
@@ -42,6 +43,8 @@ def make_url(geo_name, geo_region):
 
 if __name__ == "__main__":
 
+    TRANS_TABLE = TRANS_TABLE[TRANS_TABLE['geofabrik_NA'] != 1]
+
     names = TRANS_TABLE['geofabrik_name']
     regions = TRANS_TABLE['geofabrik_region']
 
@@ -49,18 +52,22 @@ if __name__ == "__main__":
 
         outfile = geofabrik_name + "-latest.osm.pbf"
 
+
         # Check that we haven't already downloaded it
         output_path = os.path.join(GEOFABRIK_PATH, geofabrik_region.title())
+        if not os.path.isdir(output_path):
+            os.mkdir(output_path)
         if os.path.isfile(os.path.join(output_path, outfile)):
-            print("We have geofabrik data for {} -- see: {}".format(geofabrik_name, output_path))
+            print("\nWe have geofabrik data for {} -- see: {}\n".format(geofabrik_name, output_path))
             continue
 
         else:
             url = make_url(geofabrik_name, geofabrik_region)
 
-            if uri_exists_stream(url):
+            if urlexists_stream(url):
                 wget.download(url, os.path.join(output_path, outfile))
+                print("\nSuccesfully downloaded geofabrik data for {}".format(geofabrik_name))
             else:
-                print("geofabrik_name = {} or geofabrik_region = {} are wrong".format(geofabrik_name, geofabrik_region))
+                print("\ngeofabrik_name = {} or geofabrik_region = {} are wrong\n".format(geofabrik_name, geofabrik_region))
                 continue
 

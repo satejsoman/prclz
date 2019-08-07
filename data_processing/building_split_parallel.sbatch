@@ -47,7 +47,7 @@ echo $SLURM_NTASKS
 #mkdir output/tmp
 
 $parallel "$srun python3 ./split_building_files.py {1}" ::: ../data/geojson/Africa/*buildings.geojson
-#$parallel "$srun python3 ./split_building_files.py {1} > ./output/{1}.txt" ::: ../data/geojson/Africa/*buildings.geojson 
+ 
 
 
  
