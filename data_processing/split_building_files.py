@@ -18,6 +18,15 @@ GEOJSON_PATH = "../data/geojson/Africa"
 GADM_GEOJSON_PATH = "../data/geojson_gadm/Africa"
 TRANS_TABLE = pd.read_csv('country_codes.csv')
 
+def geofabrik_to_gadm(geofabrik_name):
+    country_info = TRANS_TABLE[TRANS_TABLE['geofabrik_name'] == geofabrik_name]
+
+    assert country_info.shape[0] == 1, "geofabrik -> gadm failed, CHECK csv mapping for {}".format(geofabrik_name)
+
+    gadm_name = country_info['gadm_name'].iloc[0]
+    return gadm_name
+
+
 def csv_to_geo(csv_path, add_file_col=False):
     '''
     Loads the csv and returns a GeoDataFrame
@@ -53,8 +62,7 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
     '''
 
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    country_info = trans_table[trans_table['geofabrik_name'] == geofabrik_name]
-    gadm_name = country_info['gadm_name'].item()
+    gadm_name = geofabrik_to_gadm(geofabrik_name)
     
     input_type = "lines" if "lines" in building_file else "buildings"
 
@@ -124,7 +132,7 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 
         # Do nothing for those unmatched (but will note those that are not matched)
         if pd.notna(code):
-            print(code)
+            # print(code)
 
             buildings_in_gadm = buildings[ buildings['gadm_code']==code ][cols]
             f = "buildings_" + code + ".geojson"
@@ -136,14 +144,25 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
                 #print(buildings_in_gadm.shape)
                 buildings_in_gadm.to_file(os.path.join(output_path, f), driver='GeoJSON')
 
-            print("GADM code {} contains {} {}".format(code, buildings_in_gadm.shape[0], input_type))
+            # print("GADM code {} contains {} {}".format(code, buildings_in_gadm.shape[0], input_type))
 
     buildings['match_count'] = buildings['match_count'].apply(int)
 
-    print(buildings['match_count'].value_counts(dropna=False, normalize=True))
-    print()
+    # print(buildings['match_count'].value_counts(dropna=False, normalize=True))
+    # print()
 
     return buildings, "DONE"
+
+
+def check_building_file_already_processed(gadm_name):
+    '''
+    Returns True if the gamd_name has already been split out
+    Returns False if it needs to be done
+    '''
+
+    p = os.path.join(GADM_GEOJSON_PATH, gadm_name)
+    return os.path.isdir(p)
+
 
 # building_file = "djibouti_buildings.geojson"
 # gadm_name = "DJI"
@@ -158,93 +177,39 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 # ax = blocks.plot(alpha=0.5, color='blue')
 # buildings.plot(ax=ax, color='red')
 
-# def bash_parallel(args_file: str):
-#     '''
-#     Just a janky go-between between the bash parallel format
-#     and the current python implementation :(
-#     '''
-
-#     wkr_num = int(args_file.replace("wkr", "").replace(".txt", "").replace("tmp", "").replace("/",""))
-
-#     if not os.path.isdir("building_split_qc"):
-#         os.mkdir("building_split_qc")
-
-#     # Parse our wkr's args file to get inputs
-#     with open("tmp" + args_file) as f:
-
-#         country_files = [x.split("/")[-1].strip() for x in f.readlines()]
-
-#     # Actually do the work
-#     for country_file in country_files:
-
-#         process_all_files(country_file, wkr_num)
-
-
-# def process_all_files(country_files, gadm_code):
-#     '''
-#     '''
-
-#     # if not os.path.isdir("building_split_qc"):
-#     #     os.mkdir("building_split_qc")
-
-#     #country_files = os.listdir(GEOJSON_PATH)
-
-#     error_summary = open("error_summary{}.txt".format(gadm_code), 'w')
-
-#     for f in [country_files]:
-
-#         if "buildings" in f:
-#             print("FILE {}\n".format(f))
-#             #buildings, details = split_files_alt(f, TRANS_TABLE)
-
-
-#             # Was a success
-#             if buildings is not None:
-#                 not_matched_buildings = buildings[buildings['match_count'] == 0]
-
-#                 qc_path = os.path.join("building_split_qc", f.replace("buildings", "not_matched_buildings"))
-#                 print(not_matched_buildings.shape)
-#                 print()
-
-#                 if os.path.isfile(qc_path):
-#                     os.remove(qc_path)
-
-#                 if not_matched_buildings.shape[0] != 0:
-#                     not_matched_buildings.to_file(qc_path, driver='GeoJSON')
-#             else:
-#                 error_summary.write(f + "  |  " + details + "\n")
-
-#     error_summary.close()
-
-
 if __name__ == "__main__":
 
     start = time.time()
 
     building_file = sys.argv[1].split("/")[-1]
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    country_info = TRANS_TABLE[TRANS_TABLE['geofabrik_name'] == geofabrik_name]
-    gadm_name = country_info['gadm_name'].item()
+    gadm_name = geofabrik_to_gadm(geofabrik_name)
 
+    # Check first if we've already processed the files
+    already_processed = check_building_file_already_processed(gadm_name)
 
-    buildings, details = split_files_alt(building_file, TRANS_TABLE)
+    if already_processed:
+        print("Country {} | {} has already been processed -- SKIPPING".format(geofabrik_name, gadm_name))
 
-    # Was a success
-    if buildings is not None:
-        not_matched_buildings = buildings[buildings['match_count'] == 0]
-
-        qc_path = os.path.join("building_split_qc", building_file.replace("buildings", "not_matched_buildings"))
-        print(not_matched_buildings.shape)
-        print()
-
-        if os.path.isfile(qc_path):
-            os.remove(qc_path)
-
-        if not_matched_buildings.shape[0] != 0:
-            not_matched_buildings.to_file(qc_path, driver='GeoJSON')
     else:
-        error_summary = open("building_split_qc/error_summary{}.txt".format(gadm_name), 'w')
-        error_summary.write(building_file + "  |  " + details + "\n")
+        buildings, details = split_files_alt(building_file, TRANS_TABLE)
 
-    print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start))
+        # Was a success
+        if buildings is not None:
+            not_matched_buildings = buildings[buildings['match_count'] == 0]
+
+            qc_path = os.path.join("building_split_qc", building_file.replace("buildings", "not_matched_buildings"))
+            print(not_matched_buildings.shape)
+            print()
+
+            if os.path.isfile(qc_path):
+                os.remove(qc_path)
+
+            if not_matched_buildings.shape[0] != 0:
+                not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+        else:
+            error_summary = open("building_split_qc/error_summary{}.txt".format(gadm_name), 'w')
+            error_summary.write(building_file + "  |  " + details + "\n")
+
+        print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start))
 

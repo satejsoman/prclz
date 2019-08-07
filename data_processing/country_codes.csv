@@ -1,4 +1,4 @@
-country,region,global_south,gadm_name,geofabrik_name,geofabrik_region
+global_south_country,region,global_south,gadm_name,geofabrik_name,geofabrik_region
 Afghanistan,Asia & Pacific,Global South,AFG,afghanistan,asia
 Algeria,Arab States,Global South,DZA,algeria,africa
 American Samoa,Asia & Pacific,Global South,ASM,american-samoa,asia
