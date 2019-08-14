@@ -18,6 +18,7 @@ GEOJSON_PATH = "../data/geojson/Africa"
 GADM_GEOJSON_PATH = "../data/geojson_gadm/Africa"
 TRANS_TABLE = pd.read_csv('country_codes.csv')
 
+
 def geofabrik_to_gadm(geofabrik_name):
     country_info = TRANS_TABLE[TRANS_TABLE['geofabrik_name'] == geofabrik_name]
 
@@ -33,6 +34,10 @@ def csv_to_geo(csv_path, add_file_col=False):
     '''
 
     df = pd.read_csv(csv_path, usecols=['block_id', 'geometry'])
+
+    # Block id should unique identify each block
+    assert df['block_id'].is_unique, "Loading {} but block_id is not unique".format(csv_path)
+
     df.rename(columns={"geometry":"block_geom"}, inplace=True)
     df['block_geom'] = df['block_geom'].apply(loads)
 
@@ -54,7 +59,8 @@ def join_block_files(gadm_name: str) -> gpd.GeoDataFrame:
 
     return all_blocks
 
-def split_files_alt(building_file, trans_table: pd.DataFrame):
+
+def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_blocks=False):
     '''
     Given a country buildings.geojson file string,
     it distributes those buildings according to the
@@ -83,6 +89,7 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
 
     all_blocks = join_block_files(gadm_name)
     all_blocks.set_index('block_id', inplace=True)
+    assert all_blocks.index.is_unique, "Setting index=block_id but not unique"
 
     # Get buildings file
     try:
@@ -115,16 +122,20 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
     # Identify those buildings that sjoin via intersect with our block
     buildings['bldg_centroid'] = buildings['geometry'].centroid 
     buildings.set_geometry('bldg_centroid', inplace=True)
+
+    # Check that we are not missing any centroids or buildings
+    assert not (buildings['geometry'].isna().any()), "building geometry is missing"
+    assert not (buildings['bldg_centroid'].isna().any()), "bldg_centroid is missing"
+
     #buildings = gpd.sjoin(buildings, all_blocks, how='left', op='intersects')
     buildings = gpd.sjoin(buildings, all_blocks, how='left', op='within')
     print(buildings.columns)
     assert 'gadm_code' in list(buildings.columns)
     assert isinstance(buildings, gpd.GeoDataFrame), "No longer GeoDataFrame (1)"
     buildings.set_geometry('geometry', inplace=True)
-    buildings.drop(columns=['bldg_centroid'], inplace=True)
+    #buildings.drop(columns=['bldg_centroid'], inplace=True)
     buildings['match_count'] = pd.notnull(buildings['index_right'])
     #buildings.merge(all_blocks[['gadm_code']], left_on='index_right', right_index=True)
-
 
     # Now, distribute and save
     all_gadm_codes = buildings['gadm_code'].unique()
@@ -151,7 +162,10 @@ def split_files_alt(building_file, trans_table: pd.DataFrame):
     # print(buildings['match_count'].value_counts(dropna=False, normalize=True))
     # print()
 
-    return buildings, "DONE"
+    if return_all_blocks:
+        return buildings, "DONE", all_blocks
+    else:
+        return buildings, "DONE"
 
 
 def check_building_file_already_processed(gadm_name):
@@ -163,23 +177,25 @@ def check_building_file_already_processed(gadm_name):
     p = os.path.join(GADM_GEOJSON_PATH, gadm_name)
     return os.path.isdir(p)
 
+def map_matching_results(buildings_output, all_blocks, file_name):
 
-# building_file = "djibouti_buildings.geojson"
-# gadm_name = "DJI"
-# block_file_path = os.path.join(BLOCK_PATH, gadm_name)
-# block_files = os.listdir(os.path.join(block_file_path))
+    nonmatched_pct = (1 - buildings_output.match_count.mean()) * 100
+    nonmatched_count = nonmatched_pct * buildings_output.shape[0]
 
-# blocks = csv_to_geo(os.path.join(block_file_path, block_files[0]))
-# buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
+    buildings_output.set_geometry('bldg_centroid', inplace=True)
+    ax = buildings_output.plot(column='match_count', figsize=(25,25))
+    all_blocks.plot(ax=ax, color='blue', alpha=0.5)
+    plt.axis('off')
+    plt.title("Nonmatched count = {} pct = {}".format(int(nonmatched_count), nonmatched_pct))
+    plt.savefig(file_name)
 
-
-# To plot 
-# ax = blocks.plot(alpha=0.5, color='blue')
-# buildings.plot(ax=ax, color='red')
 
 if __name__ == "__main__":
 
     start = time.time()
+
+    if not os.path.isdir("building_split_qc"):
+        os.mkdir("building_split_qc")
 
     building_file = sys.argv[1].split("/")[-1]
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
