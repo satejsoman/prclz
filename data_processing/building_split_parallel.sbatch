@@ -1,16 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=MNP
+#SBATCH --job-name=split_buildings_parallel
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
-#SBATCH --ntasks=2
+#SBATCH --ntasks=8
 #SBATCH --output=model.out
 #SBATCH --error=model.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=cnederhood@uchicago.edu
-#SBATCH --time=00:30:00
+#SBATCH --time=06:00:00
 #SBATCH --account=pi-bettencourt
+#SBATCH --mem=32G
 
-module load Anaconda3/2018.12
 module load parallel
 
 # May be necessary to increase the user process limit
@@ -40,7 +40,14 @@ echo $SLURM_NTASKS
 #
 #   srun --exclusive -N1 -n1 ./runtask.sh arg1:1 > runtask.1
 #
-$parallel "$srun python3 ./osmium_practice.py {1} > ./output/{1}.txt" ::: Africa/* 
+
+# Call the setup script first
+#bash prep_args.sh ../data/geojson/Africa $SLURM_NTASKS
+#mkdir output
+#mkdir output/tmp
+
+$parallel "$srun python3 ./split_building_files.py {1}" ::: ../data/geojson/Africa/*buildings.geojson
+ 
 
 
  
