@@ -22,7 +22,7 @@ l = ["congo-democratic-republic_buildings.geojson",
 
 if __name__ == "__main__":
 
-    building_file = l[ sys.argv[1] ]
+    building_file = l[ int(sys.argv[1]) ]
 
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     gadm_name = geofabrik_to_gadm(geofabrik_name)
