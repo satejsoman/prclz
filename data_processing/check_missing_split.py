@@ -24,10 +24,12 @@ if __name__ == "__main__":
 
     building_file = l[ int(sys.argv[1]) ]
 
+    print("Calling the script on ", building_file)
+
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     gadm_name = geofabrik_to_gadm(geofabrik_name)
 
-    buildings, details = split_files_alt(building_file, TRANS_TABLE, return_all_blocks=True)
+    buildings_output, details, all_blocks = split_files_alt(building_file, TRANS_TABLE, return_all_blocks=True)
 
     file_name = gadm_name + "_nonmatched_map.png"
 
