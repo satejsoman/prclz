@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     buildings, details = split_files_alt(building_file, TRANS_TABLE, return_all_blocks=True)
 
-    file_name = gadm_name + "_nonmatched_map.jpg"
+    file_name = gadm_name + "_nonmatched_map.png"
 
     map_matching_results(buildings_output, all_blocks, file_name)
 
