@@ -1,33 +1,35 @@
 
 # Set up environment ------------------------------------------------------
-
 library(sf)
 library(tidyr)
 library(dplyr)
 library(purrr)
 library(lwgeom)
-library(argparse)
+library(stringr)
 
-library(future)
 library(parallel)
 library(foreach)
-library(doFuture)
 library(doParallel)
-library(batchtools)
-library(future.batchtools)
+cl <- parallel::makeCluster(28)
+doParallel::registerDoParallel(cl)
+mcoptions = list(cores = 28, preschedule=TRUE)
 
-plan(list(tweak(batchtools_slurm, 
-                  template = "batchtools_slurm.tmpl", 
-                  label = paste0('job_',make.names(Sys.time())),
-                  resources = list(partition='broadwl',
-                                   walltime='01:00:00',
-                                   mem_per_cpu = '8G', 
-                                   nodes = '1', 
-                                   ntasks = '28',
-                                   mail = 'nmarchio@uchicago.edu',
-                                   pi_account = 'pi-bettencourt'),
-                  workers = 28), 
-            multiprocess))
+#library(future)
+#library(doFuture)
+#library(future.batchtools)
+
+# plan(list(tweak(batchtools_slurm, 
+#                   template = "batchtools_slurm.tmpl", 
+#                   label = paste0('job_',make.names(Sys.time())),
+#                   resources = list(partition='broadwl',
+#                                    walltime='01:00:00',
+#                                    mem_per_cpu = '8G', 
+#                                    nodes = '1', 
+#                                    ntasks = '28',
+#                                    mail = 'nmarchio@uchicago.edu',
+#                                    pi_account = 'pi-bettencourt'),
+#                   workers = 28), 
+#             multiprocess))
 
 # Parcelization function ------------------------------------------------
 
@@ -81,14 +83,37 @@ st_parcelize <- function(footprints, block){
   return(parcel_grid)
 }
 
-# Read in command line arguments
-args <- R.utils::commandArgs(trailingOnly = TRUE)
-blocks_file <- args[1]
-buildings_file <- args[2]
-parcelization_file <- args[3]
+# #!/bin/bash
+# 
+# #SBATCH --job-name=PARCELS_::COUNTRYCODE::
+# #SBATCH --partition=broadwl
+# #SBATCH --nodes=1
+# #SBATCH --ntasks=24
+# #SBATCH --output=logs/parcels_::COUNTRYCODE::.out
+# #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
+# #SBATCH --mail-type=ALL
+# #SBATCH --mail-user=nmarchio@uchicago.edu
+# #SBATCH --time=2:00:00
+# #SBATCH --account=pi-bettencourt
+# 
+# set -e
+# for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
+# Rscript midway/midway_parcelization.R --building ${building};
+# done
 
-cat(sprintf("Reading blocks %s.\n",blocks_file))
-cat(sprintf("Reading buildings %s.\n",buildings_file))
+#!/usr/bin/env Rscript
+
+# Read in command line argument containing building file path
+args = R.utils::commandArgs(asValues=TRUE)
+buildings_file <- args['building']
+
+# Show path in terminal
+cat(sprintf("Reading blocks %s\n",blocks_file))
+
+# Parsing building path into blocks (input) and parcels (output) paths
+file_parse <- stringr::str_match(s, "data/geojson_gadm/(.*?)/(.*?)/buildings_(.*?).geojson")
+blocks_file <- paste0('data/blocks/',file_parse[2],'/',file_parse[3],'/blocks_',file_parse[4],'.csv')
+parcels_file <- paste0('data/parcels/',file_parse[2],'/',file_parse[3],'/parcels_',file_parse[4],'.geojson')
 
 # Load blocks and buildings spatial dataframes
 sf_df_blocks <- sf::st_read(blocks_file) %>% 
@@ -97,7 +122,7 @@ sf_df_blocks <- sf::st_read(blocks_file) %>%
 sf_df_buildings <- sf::st_read(buildings_file) 
 
 # Join block groupings into buildings spatial dataframes
-sf_df <- df::st_join(x = sf_df_buildings, y = sf_df_blocks) %>% 
+sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks) %>% 
   dplyr::select(osm_id, block_id)
 
 # Split buildings and blocks
@@ -105,8 +130,11 @@ split_buildings <- split(sf_df, sf_df$block_id)
 split_blocks <- split(gadm_blocks, gadm_blocks$block_id) 
 
 # Parallelize computation across blocks to generate parcel geometries
-sf_df_parcels <- foreach(i=split_buildings, j = split_blocks, .combine=rbind) %dopar% 
+
+sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind, .options.multicore=mcoptions) %dopar% 
   st_parcelize(footprints = i, block = j)
 
 # Write GADM-level spatial df containing block-level parcels
-st_write(sf_df_parcels, paste0('/project2/bettencourt/mnp/prclz/data/parcels/',continent,'/',country_code,'/parcels_',gadm_code,'.geojson'))
+sf::st_write(sf_df_parcels, paste0(parcels_file))
+
+parallel::stopCluster(cl)
