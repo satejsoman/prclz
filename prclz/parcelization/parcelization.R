@@ -130,7 +130,6 @@ split_buildings <- split(sf_df, sf_df$block_id)
 split_blocks <- split(gadm_blocks, gadm_blocks$block_id) 
 
 # Parallelize computation across blocks to generate parcel geometries
-
 sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind, .options.multicore=mcoptions) %dopar% 
   st_parcelize(footprints = i, block = j)
 
