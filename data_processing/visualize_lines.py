@@ -15,10 +15,10 @@ import sys
 
 GEOJSON_PATH = "../data/geojson/Africa"
 
-l = ["congo-democratic-republic_buildings.geojson",
-"egypt_buildings.geojson",
-"kenya_buildings.geojson",
-"malawi_buildings.geojson"]
+l = ["congo-democratic-republic_lines.geojson",
+"egypt_lines.geojson",
+"kenya_lines.geojson",
+"malawi_lines.geojson"]
 
 #l = ["djibouti_lines.geojson"]
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     gadm_name = geofabrik_to_gadm(geofabrik_name)
 
-    gdf = gpd.read_file(os.path.join(GEOJSON_PATH, "djibouti_lines.geojson"))
+    gdf = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
 
     gdf['has_natural'] = gdf['natural'].notnull().map(int)
     gdf['has_highway'] = gdf['highway'].notnull().map(int)
