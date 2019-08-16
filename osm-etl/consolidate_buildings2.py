@@ -17,6 +17,13 @@ so that it is easier (for me) to run over all the region-specific subfolders
 
 GEOJSON_PATH = "../data/geojson"
 
+def to_polygon(geometry): 
+    try:
+        return Polygon(geometry)
+    except ValueError:
+        return geometry
+
+
 def process_all(all_polygon_files: str) -> (str, str, str):
     """
     Given a list of all the polygon building files, this uniquely identifies
