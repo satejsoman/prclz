@@ -199,6 +199,8 @@ thus also identifies which countries to process
 
 if __name__ == "__main__":
 
+    REPLACE = True
+
     start = time.time()
 
     if not os.path.isdir("splitter_output"):
@@ -215,7 +217,7 @@ if __name__ == "__main__":
     # Check first if we've already processed the files
     already_processed = check_building_file_already_processed(gadm_name, region)
 
-    if already_processed:
+    if already_processed and not REPLACE:
         print("Country {} | {} | {} has already been processed -- SKIPPING".format(geofabrik_name, gadm_name, region))
 
     else:
