@@ -25,7 +25,7 @@ def to_polygon(geometry):
         return geometry
 
 
-def process_all(all_polygon_files: List(str), all_buildings_files: List(str)) -> (str, str, str):
+def process_all(all_polygon_files: List[str], all_buildings_files: List[str]) -> (str, str, str):
     """
     Given a list of all the polygon building files, this uniquely identifies
     a country to process, so then provide the corrresponding 3 args
