@@ -1,4 +1,5 @@
 import argparse
+from typing import List 
 import logging
 from logging import info
 from pathlib import Path
@@ -24,7 +25,7 @@ def to_polygon(geometry):
         return geometry
 
 
-def process_all(all_polygon_files: str) -> (str, str, str):
+def process_all(all_polygon_files: List(str), all_buildings_files: List(str)) -> (str, str, str):
     """
     Given a list of all the polygon building files, this uniquely identifies
     a country to process, so then provide the corrresponding 3 args
@@ -36,7 +37,10 @@ def process_all(all_polygon_files: str) -> (str, str, str):
 
     for args in zip(all_polygon_files, all_linestrings_files, all_outputs_files):
 
-        process(*args)
+    	if os.path.isfile(args[-1]):
+    		info("File exists -- skipping: ", args[-1])
+    	else:
+        	process(*args)
 
 
 def process(polygons_path: str, linestrings_path: str, output: str):
