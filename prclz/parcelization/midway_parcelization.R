@@ -1,6 +1,4 @@
 
-
-
 # Set up environment ------------------------------------------------------
 library(sf)
 library(tidyr)
@@ -12,9 +10,9 @@ library(stringr)
 library(parallel)
 library(foreach)
 library(doParallel)
-cl <- parallel::makeCluster(28)
-doParallel::registerDoParallel(cl)
-mcoptions = list(cores = 28, preschedule=TRUE)
+#cl <- parallel::makeCluster(28)
+doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS")))
+#mcoptions = list(cores = 28, preschedule=TRUE)
 
 #library(future)
 #library(doFuture)
@@ -132,10 +130,10 @@ split_buildings <- split(sf_df, sf_df$block_id)
 split_blocks <- split(gadm_blocks, gadm_blocks$block_id) 
 
 # Parallelize computation across blocks to generate parcel geometries
-sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind, .options.multicore=mcoptions) %dopar% 
+sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind) %dopar%  #, .options.multicore=mcoptions
   st_parcelize(footprints = i, block = j)
 
 # Write GADM-level spatial df containing block-level parcels
 sf::st_write(sf_df_parcels, paste0(parcels_file))
 
-parallel::stopCluster(cl)
+#parallel::stopCluster(cl)
