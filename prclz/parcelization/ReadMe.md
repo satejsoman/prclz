@@ -15,4 +15,4 @@ repos="http://cran.r-project.org",
 lib="~/local/R_libs/"))
 ```
 
-4. midway_parcelization.sh
+4. Run script: `bash midway_parcelization.sh`
