@@ -22,6 +22,9 @@ l = ["congo-democratic-republic_buildings.geojson",
 
 if __name__ == "__main__":
 
+    if not os.path.isdir("gadm_map_verification"):
+        os.mkdir("gadm_map_verification")
+
     building_file = l[ int(sys.argv[1]) ]
 
     print("Calling the script on ", building_file)
@@ -29,15 +32,11 @@ if __name__ == "__main__":
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     gadm_name = geofabrik_to_gadm(geofabrik_name)
 
-    buildings_output, details, all_blocks = split_files_alt(building_file, TRANS_TABLE, return_all_blocks=True)
+    all_blocks = join_block_files(gadm_name)
 
-    file_name = gadm_name + "_nonmatched_map.png"
+    all_blocks.plot(color='blue', alpha=0.5)
 
-    map_matching_results(buildings_output, all_blocks, file_name)
-
-
-
-
-
-
+    plt.axis('off')
+    file_name = "gadm_blocks_{}.png".format(gadm_name)
+    plt.savefig(os.path.join("gadm_map_verification", file_name))
 

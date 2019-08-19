@@ -11,11 +11,9 @@ import os
 import matplotlib.pyplot as plt 
 import sys 
 
-print("DONE IMPORTING\n")
-
-BLOCK_PATH = "../data/blocks/Africa/"
-GEOJSON_PATH = "../data/geojson/Africa"
-GADM_GEOJSON_PATH = "../data/geojson_gadm/Africa"
+BLOCK_PATH = "../data/blocks"
+GEOJSON_PATH = "../data/geojson"
+GADM_GEOJSON_PATH = "../data/geojson_gadm"
 TRANS_TABLE = pd.read_csv('country_codes.csv')
 
 
@@ -25,7 +23,8 @@ def geofabrik_to_gadm(geofabrik_name):
     assert country_info.shape[0] == 1, "geofabrik -> gadm failed, CHECK csv mapping for {}".format(geofabrik_name)
 
     gadm_name = country_info['gadm_name'].iloc[0]
-    return gadm_name
+    region = country_info['geofabrik_region'].iloc[0]
+    return gadm_name, region.title()
 
 
 def csv_to_geo(csv_path, add_file_col=False):
@@ -47,9 +46,8 @@ def csv_to_geo(csv_path, add_file_col=False):
 
     return gpd.GeoDataFrame(df, geometry='block_geom')
 
-def join_block_files(gadm_name: str) -> gpd.GeoDataFrame:
+def join_block_files(block_file_path: str) -> gpd.GeoDataFrame:
 
-    block_file_path = os.path.join(BLOCK_PATH, gadm_name)
     block_files = os.listdir(block_file_path)
 
     all_blocks = pd.concat([csv_to_geo(os.path.join(block_file_path, block_file), add_file_col=True) 
@@ -68,12 +66,12 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
     '''
 
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name = geofabrik_to_gadm(geofabrik_name)
+    gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     
     input_type = "lines" if "lines" in building_file else "buildings"
 
     # Get the corresponding block file (and check that it exists)
-    block_file_path = os.path.join(BLOCK_PATH, gadm_name)
+    block_file_path = os.path.join(BLOCK_PATH, region, gadm_name)
 
     # Check that the block folder exists
     if not os.path.isdir(block_file_path):
@@ -87,13 +85,13 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
         print("WARNING - country {} / {} has a block file path but has no block files in it".format(geofabrik_name, gadm_name))
         return None, "block_folder_empty" 
 
-    all_blocks = join_block_files(gadm_name)
+    all_blocks = join_block_files(block_file_path)
     all_blocks.set_index('block_id', inplace=True)
     assert all_blocks.index.is_unique, "Setting index=block_id but not unique"
 
     # Get buildings file
     try:
-        buildings = gpd.read_file(os.path.join(GEOJSON_PATH, building_file))
+        buildings = gpd.read_file(os.path.join(GEOJSON_PATH, region, building_file))
     except:
         print("WARNING - country {} / {} could not load GeoJSON file".format(geofabrik_name, gadm_name))
         return None, "load_geojson_error"
@@ -112,12 +110,6 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
     if not os.path.isdir(output_path):
         os.mkdir(output_path)
 
-    # PRESERVED
-    # # Identify those buildings that sjoin via intersect with our block
-    # buildings = gpd.sjoin(buildings, all_blocks, how='left', op='intersects')
-    # #buildings = gpd.sjoin(buildings, all_blocks, how='left', op='within')
-    # buildings['match_count'] = pd.notnull(buildings['index_right'])
-    # buildings.merge(all_blocks[['gadm_code']], left_on='index_right', right_index=True)
 
     # Identify those buildings that sjoin via intersect with our block
     buildings['bldg_centroid'] = buildings['geometry'].centroid 
@@ -127,7 +119,7 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
     assert not (buildings['geometry'].isna().any()), "building geometry is missing"
     assert not (buildings['bldg_centroid'].isna().any()), "bldg_centroid is missing"
 
-    #buildings = gpd.sjoin(buildings, all_blocks, how='left', op='intersects')
+    # sjoin on all_blocks which then adds 'gadm_code' to our buildings
     buildings = gpd.sjoin(buildings, all_blocks, how='left', op='within')
     print(buildings.columns)
     assert 'gadm_code' in list(buildings.columns)
@@ -139,11 +131,11 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
 
     # Now, distribute and save
     all_gadm_codes = buildings['gadm_code'].unique()
+    gadm_code_match_count = {}
     for code in all_gadm_codes:
 
         # Do nothing for those unmatched (but will note those that are not matched)
         if pd.notna(code):
-            # print(code)
 
             buildings_in_gadm = buildings[ buildings['gadm_code']==code ][cols]
             f = "buildings_" + code + ".geojson"
@@ -152,80 +144,115 @@ def split_files_alt(building_file: str, trans_table: pd.DataFrame, return_all_bl
                 os.remove(os.path.join(output_path, f))
 
             if buildings_in_gadm.shape[0] > 0:
-                #print(buildings_in_gadm.shape)
                 buildings_in_gadm.to_file(os.path.join(output_path, f), driver='GeoJSON')
 
-            # print("GADM code {} contains {} {}".format(code, buildings_in_gadm.shape[0], input_type))
+            gadm_code_match_count[code] = buildings_in_gadm.shape[0]
 
     buildings['match_count'] = buildings['match_count'].apply(int)
 
-    # print(buildings['match_count'].value_counts(dropna=False, normalize=True))
-    # print()
+    # Update our gadm_code_match_count to include those gadm areas with NO buildings
+    for code in list(all_blocks['gadm_code']):
+        if code not in gadm_code_match_count:
+            gadm_code_match_count[code] = 0
+
+    # And now count how many buildings are unmatched and add that to the counter
+    gadm_code_match_count['NO_GADM_DISTRICT'] = buildings[buildings['match_count'] == 0].shape[0]
+
+    count_df = pd.DataFrame.from_dict(gadm_code_match_count, orient='index', columns=['match_count'])
+    count_df.reset_index(inplace=True)
+    count_df.rename(columns={"index":"gadm_code"}, inplace=True)
+    count_df['gadm_name'] = gadm_name
 
     if return_all_blocks:
-        return buildings, "DONE", all_blocks
+        return (buildings, count_df, all_blocks), "DONE"
     else:
-        return buildings, "DONE"
+        return (buildings, count_df), "DONE"
 
 
-def check_building_file_already_processed(gadm_name):
+def check_building_file_already_processed(gadm_name, region):
     '''
     Returns True if the gamd_name has already been split out
     Returns False if it needs to be done
     '''
 
-    p = os.path.join(GADM_GEOJSON_PATH, gadm_name)
+    p = os.path.join(GADM_GEOJSON_PATH, region, gadm_name)
     return os.path.isdir(p)
 
 def map_matching_results(buildings_output, all_blocks, file_name):
 
     nonmatched_pct = (1 - buildings_output.match_count.mean()) * 100
-    nonmatched_count = nonmatched_pct * buildings_output.shape[0]
+    nonmatched_count = nonmatched_pct * buildings_output.shape[0] / 100
 
     buildings_output.set_geometry('bldg_centroid', inplace=True)
     ax = buildings_output.plot(column='match_count', figsize=(25,25))
     all_blocks.plot(ax=ax, color='blue', alpha=0.5)
     plt.axis('off')
-    plt.title("Nonmatched count = {} pct = {}".format(int(nonmatched_count), nonmatched_pct))
-    plt.savefig(file_name)
+    plt.title("Nonmatched count = {} or pct = {:.2f}%".format(int(nonmatched_count), nonmatched_pct))
+    plt.savefig(file_name, bbox_inches='tight', pad_inches=0)
+
+"""
+NOTE: our par sbatch script gives a stream of paths to
+the buildings.geojson file. This file is unique per country, and
+thus also identifies which countries to process
+"""
 
 
 if __name__ == "__main__":
 
+    REPLACE = True
+
     start = time.time()
 
-    if not os.path.isdir("building_split_qc"):
-        os.mkdir("building_split_qc")
+    if not os.path.isdir("splitter_output"):
+        os.mkdir("splitter_output")
 
-    building_file = sys.argv[1].split("/")[-1]
+    region, building_file = sys.argv[1].split("/")[-2:]
     geofabrik_name = building_file.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name = geofabrik_to_gadm(geofabrik_name)
+    gadm_name, _ = geofabrik_to_gadm(geofabrik_name)
+
+    summary_path = os.path.join("splitter_output", gadm_name)
+    if not os.path.isdir(summary_path):
+        os.mkdir(summary_path)
 
     # Check first if we've already processed the files
-    already_processed = check_building_file_already_processed(gadm_name)
+    already_processed = check_building_file_already_processed(gadm_name, region)
 
-    if already_processed:
-        print("Country {} | {} has already been processed -- SKIPPING".format(geofabrik_name, gadm_name))
+    if already_processed and not REPLACE:
+        print("Country {} | {} | {} has already been processed -- SKIPPING".format(geofabrik_name, gadm_name, region))
 
     else:
-        buildings, details = split_files_alt(building_file, TRANS_TABLE)
+        # Do the actual matching and splitting
+        rv, details = split_files_alt(building_file, TRANS_TABLE, return_all_blocks=True)
 
         # Was a success
-        if buildings is not None:
+        if rv is not None:
+
+            # Unpack
+            buildings, count_df, all_blocks = rv 
+
+            # Save out those buildings that didn't match
             not_matched_buildings = buildings[buildings['match_count'] == 0]
+            nonmatched_path = os.path.join(summary_path, building_file.replace("buildings", "not_matched_buildings"))
 
-            qc_path = os.path.join("building_split_qc", building_file.replace("buildings", "not_matched_buildings"))
-            print(not_matched_buildings.shape)
-            print()
-
-            if os.path.isfile(qc_path):
-                os.remove(qc_path)
+            if os.path.isfile(nonmatched_path):
+                os.remove(nonmatched_path)
 
             if not_matched_buildings.shape[0] != 0:
-                not_matched_buildings.to_file(qc_path, driver='GeoJSON')
+                not_matched_buildings = not_matched_buildings.drop(columns=['bldg_centroid'])
+                not_matched_buildings.to_file(nonmatched_path, driver='GeoJSON')
+
+            # Save out a png summary of matched/non-matched buildings vs gadm bounds
+            matching_viz_path = os.path.join(summary_path, "buildings_match.png")
+            map_matching_results(buildings, all_blocks, matching_viz_path)
+
+            # Save out the counts DataFrame
+            counts_df_path = os.path.join(summary_path, "matching_counts_summary.csv")
+            count_df.to_csv(counts_df_path)
+
         else:
-            error_summary = open("building_split_qc/error_summary{}.txt".format(gadm_name), 'w')
+            error_summary = open(os.path.join("splitter_output", "error_summary{}.txt".format(gadm_name)), 'w')
             error_summary.write(building_file + "  |  " + details + "\n")
 
+        # NOTE: add the below to a csv file, along with the matched pcts and counts
         print("Processing {} | {} takes {} seconds".format(geofabrik_name, gadm_name, time.time()-start))
 
