@@ -3,7 +3,7 @@
 #SBATCH --job-name=PARCELS_::COUNTRYCODE::
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
-#SBATCH --ntasks=24
+#SBATCH --ntasks=16
 #SBATCH --output=logs/parcels_::COUNTRYCODE::.out
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
