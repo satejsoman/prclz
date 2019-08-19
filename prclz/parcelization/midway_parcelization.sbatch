@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 #SBATCH --job-name=PARCELS_::COUNTRYCODE::
@@ -11,6 +10,8 @@
 #SBATCH --mail-user=nmarchio@uchicago.edu
 #SBATCH --time=2:00:00
 #SBATCH --account=pi-bettencourt
+
+module load R/3.5.1
 
 set -e
 for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
