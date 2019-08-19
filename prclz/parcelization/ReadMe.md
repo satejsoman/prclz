@@ -7,3 +7,5 @@
 2. Update repo: `git pull`
 
 3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
+
+4. Check jobs: `squeue --user=nmarchio` and kill jobs: `scancel --user=nmarchio`
