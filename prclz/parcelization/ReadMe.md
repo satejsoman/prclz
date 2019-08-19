@@ -1,6 +1,6 @@
 
 
-1. Login to Midway. 
+1. Login to Midway: `cd /project2/bettencourt/mnp/prclz`
 
 2. Copy repo: `git clone git@github.com:mansueto-institute/prclz.git`
 
