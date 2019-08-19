@@ -33,12 +33,15 @@ doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS")))
 
 # Parcelization function ------------------------------------------------
 
+
+# Extract block parcels ------------------------------------------------
 #' @param footprints, multirow dataframe, MULTIPOLYGON Simple feature collection of building footprints at country level
 #' @param block, singlerow dataframe, POLYGON Simple feature collection
+#' @param ptdist, meters between points to control how closely parcels conform to buildings
 #' 
 #' @return MULTILINE Simple feature collection
 #'  
-st_parcelize <- function(footprints, block){
+st_parcelize <- function(footprints, block, ptdist){
   # Extract building polygons within specified block
   block_footprints <- footprints %>% 
     sf::st_convex_hull() %>%
@@ -54,7 +57,7 @@ st_parcelize <- function(footprints, block){
     sf::st_cast(., "LINESTRING") %>%
     dplyr::mutate(id = row_number())
   # Add points along lines and cast to points
-  parcelpoints = st_segmentize(parcels, units::set_units(100,m)) %>%
+  parcelpoints = st_segmentize(parcels, units::set_units(ptdist,m)) %>%
     sf::st_cast(., "MULTIPOINT") %>%
     sf::st_sf() %>%
     dplyr::mutate(id = parcels$id)
@@ -84,6 +87,7 @@ st_parcelize <- function(footprints, block){
 }
 
 #!/usr/bin/env Rscript
+
 # Read in command line argument containing building file path
 args = R.utils::commandArgs(asValues=TRUE)
 buildings_file <- args['building']
@@ -112,9 +116,15 @@ split_blocks <- split(gadm_blocks, gadm_blocks$block_id)
 
 # Parallelize computation across blocks to generate parcel geometries
 sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind) %dopar%  #, .options.multicore=mcoptions
-  st_parcelize(footprints = i, block = j)
+  tryCatch({
+    st_parcelize(footprints = i, block = j, ptdist = 1)
+  }, error=function(e) {
+    qe <- st_parcelize(footprints = i, block = j, ptdist = 100)
+    return(qe)}
+  )
 
 # Write GADM-level spatial df containing block-level parcels
 sf::st_write(sf_df_parcels, paste0(parcels_file))
 
 #parallel::stopCluster(cl)
+
