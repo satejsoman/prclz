@@ -2,6 +2,10 @@
 
 set -e
 
+module load R/3.6.1
+module load udunits/2.2
+module load gdal/2.4.1 
+
 for countrycode in $(ls data/geojson_gadm/Africa/); do
 countryname=$(grep "$countrycode" midway/country_codes.geojson | rev | cut -d, -f2 | rev)
 mkdir -p data/parcels/Africa/${countrycode}
