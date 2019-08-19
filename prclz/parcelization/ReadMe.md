@@ -7,6 +7,8 @@
 3. Install R packages.
 `module load R/3.5.1`
 ```
-install.packages('sf','tidyr','dplyr','purrr','lwgeom','stringr','parallel','foreach','doParallel',
-repos="http://cran.r-project.org", lib="~/local/R_libs/"))
+install.packages(
+pkgs=c('sf','tidyr','dplyr','purrr','lwgeom','stringr','parallel','foreach','doParallel'),
+repos="http://cran.r-project.org", 
+lib="~/local/R_libs/"))
 ```
