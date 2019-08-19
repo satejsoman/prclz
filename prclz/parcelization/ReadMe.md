@@ -6,4 +6,4 @@
 
 2. Update repo: `git pull`
 
-3. Run script: `bash midway_parcelization.sh`
+3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
