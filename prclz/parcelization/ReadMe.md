@@ -1,6 +1,8 @@
 
 
-1. Login to Midway: `cd /project2/bettencourt/mnp/prclz`
+1. Login to Midway: `ssh <CNETID>@midway2.rcc.uchicago.edu` 
+
+2. Set current directory: `cd /project2/bettencourt/mnp/prclz`
 
 2. Copy repo: `git clone git@github.com:mansueto-institute/prclz.git`
 
@@ -12,3 +14,5 @@ pkgs=c('sf','tidyr','dplyr','purrr','lwgeom','stringr','parallel','foreach','doP
 repos="http://cran.r-project.org", 
 lib="~/local/R_libs/"))
 ```
+
+4. midway_parcelization.sh
