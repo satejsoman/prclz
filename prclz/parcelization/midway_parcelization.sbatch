@@ -11,8 +11,6 @@
 #SBATCH --time=2:00:00
 #SBATCH --account=pi-bettencourt
 
-module load R/3.5.1
-
 set -e
 for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
     Rscript prclz/parcelization/midway_parcelization.R --building ${building};
