@@ -5,26 +5,27 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 
 
 def to_polygon(geometry): 
     try:
         return Polygon(geometry)
     except ValueError:
-        return geometry
+        return None
 
 
 def main(polygons_path: Path, linestrings_path: Path, output: Path):
     info("Unifying %s, %s", polygons_path.resolve(), linestrings_path.resolve())
-    polygons    = gpd.read_file(str(polygons_path))
+    polygons    = gpd.read_file(str(polygons_path)).explode()
     linestrings = gpd.read_file(str(linestrings_path))
 
     linestrings["geometry"] = linestrings["geometry"].apply(to_polygon)
+    linestrings = linestrings[pd.notnull(linestrings["geometry"])].explode()
     concat = pd.concat([polygons, linestrings], sort=True)
     
     info("Saving valid geometries to %s", output.resolve())
-    concat[~concat.is_empty].to_file(str(output), driver='GeoJSON')
+    concat[(~concat.is_empty) & (concat.geom_type == "Polygon")].to_file(str(output), driver='GeoJSON')
 
 
 def setup(args=None):

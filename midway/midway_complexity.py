@@ -23,7 +23,7 @@ def read_file(path, **kwargs):
     """ ensures geometry set correctly when reading from csv
     otherwise, pd.BlockManager malformed when using gpd.read_file(*) """
     if not path.endswith(".csv"):
-        return gpd.read_file(path, **kwargs)
+        return gpd.read_file(path)
     raw = pd.read_csv(path, **kwargs)
     raw["geometry"] = raw["geometry"].apply(shapely.wkt.loads)
     return gpd.GeoDataFrame(raw, geometry="geometry")
@@ -36,7 +36,6 @@ def calculate_complexity(index, block, centroids):
     centroids_multipoint = MultiPoint(centroids)
 
     return (index, complexity, centroids_multipoint, sequence_json)
-
 
 def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int):
     info("Reading geospatial data from files.")

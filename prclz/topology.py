@@ -148,7 +148,7 @@ class PlanarGraph(nx.Graph):
         faces = []
         for polygon in polygons:
             polygon_nodes = []
-            for node in map(Node, polygon.boundary.coords):
+            for node in map(Node, polygon.exterior.coords):
                 if node not in nodes:
                     polygon_nodes.append(node)
                     nodes[node] = node
