@@ -12,7 +12,7 @@ library(foreach)
 library(doParallel)
 #cl <- parallel::makeCluster(28)
 doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS")))
-#mcoptions = list(cores = 28, preschedule=TRUE)
+mcoptions = list(cores = 28, preschedule=TRUE)
 
 #library(future)
 #library(doFuture)
@@ -115,7 +115,7 @@ split_buildings <- split(sf_df, sf_df$block_id)
 split_blocks <- split(sf_df_blocks, sf_df_blocks$block_id) 
 
 # Parallelize computation across blocks to generate parcel geometries
-sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind) %dopar%  #, .options.multicore=mcoptions
+sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=rbind, .options.multicore=mcoptions) %dopar%  
   tryCatch({
     st_parcelize(footprints = i, block = j, ptdist = 1)
   }, error=function(e) {
