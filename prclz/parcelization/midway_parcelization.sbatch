@@ -15,6 +15,5 @@ module load R/3.5.1
 
 set -e
 for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
-    Rscript midway/midway_parcelization.R --building ${building};
+    Rscript prclz/parcelization/midway_parcelization.R --building ${building};
 done
-
