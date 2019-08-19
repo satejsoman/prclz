@@ -93,7 +93,7 @@ args = R.utils::commandArgs(asValues=TRUE)
 buildings_file <- args['building']
 
 # Show path in terminal
-cat(sprintf("Reading blocks %s\n",blocks_file))
+cat(sprintf("Reading buildings %s\n",buildings_file))
 
 # Parsing building path into blocks (input) and parcels (output) paths
 file_parse <- stringr::str_match(s, "data/geojson_gadm/(.*?)/(.*?)/buildings_(.*?).geojson")
