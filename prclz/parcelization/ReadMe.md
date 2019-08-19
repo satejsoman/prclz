@@ -8,4 +8,4 @@
 
 3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
 
-4. Check jobs: `squeue --user=nmarchio` and kill jobs: `scancel --user=nmarchio`
+4. Check jobs: `squeue --user=<CNETID>` and kill jobs: `scancel --user=<CNETID>`
