@@ -6,13 +6,10 @@
 
 2. Copy repo: `git clone git@github.com:mansueto-institute/prclz.git`
 
-3. Install R packages.
-`module load R/3.5.1`
+3. Load modules:
 ```
-install.packages(
-pkgs=c('sf','tidyr','dplyr','purrr','lwgeom','stringr','parallel','foreach','doParallel'),
-repos="http://cran.r-project.org", 
-lib="~/local/R_libs/"))
+module load R/3.6.1
+module load udunits/2.2
+module load gdal/2.4.1 
 ```
-
 4. Run script: `bash midway_parcelization.sh`
