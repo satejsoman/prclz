@@ -107,7 +107,7 @@ sf_df_blocks <- sf::st_read(blocks_file) %>%
 sf_df_buildings <- sf::st_read(buildings_file) 
 
 # Join block groupings into buildings spatial dataframes
-sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks) %>% 
+sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks, left = FALSE, largest = TRUE) %>% 
   dplyr::select(osm_id, block_id)
 
 # Split buildings and blocks
