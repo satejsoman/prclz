@@ -1,7 +1,5 @@
 import argparse
 from typing import List 
-import logging
-from logging import info
 from pathlib import Path
 
 import geopandas as gpd
@@ -63,30 +61,15 @@ def process(polygons_path: str, linestrings_path: str, output: str):
     concat = pd.concat([polygons, linestrings], sort=True)
     
     #info("Saving valid geometries to %s", output)
+    if os.path.isfile(output):
+        os.remove(output)
     concat[~concat.is_empty].to_file(output, driver='GeoJSON')
 
     print("\tDropping {}/{} and {}/{} original polygon and linestrings".format(polygons_null.sum(),
                     polygons_count, linestrings_null.sum(), linestrings_count))
 
 
-# def setup(args=None):
-#     # logging
-#     logging.basicConfig(format="%(asctime)s/%(filename)s/%(funcName)s | %(levelname)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
-#     logging.getLogger().setLevel("INFO")
-
-#     # read arguments
-#     parser = argparse.ArgumentParser(description='Consolidate building footprint geometries.')
-#     parser.add_argument('--polygons',    required=True, type=Path, help='path to polygons',    dest="polygons_path")
-#     parser.add_argument('--linestrings', required=True, type=Path, help='path to linestrings', dest="linestrings_path")
-#     parser.add_argument('--output',      required=True, type=Path, help='path to output')
-    
-#     return parser.parse_args(args)
-
-
 if __name__ == "__main__":
-
-    logging.basicConfig(format="%(asctime)s/%(filename)s/%(funcName)s | %(levelname)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
-    logging.getLogger().setLevel("INFO")
 
     parser = argparse.ArgumentParser(description="Consolidate all building footprint geometries across all countries")
     parser.add_argument('--country', required=True, 
