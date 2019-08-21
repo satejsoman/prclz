@@ -39,11 +39,11 @@ def process_all(all_polygon_files: List[str], replace: bool) -> (str, str, str):
 
     for i, args in enumerate(zip(all_polygon_files, all_linestrings_files, all_outputs_files)):
 
-    	if os.path.isfile(args[-1]):
-    		print("File exists -- skipping: ", args[-1])
-    	else:
+        if os.path.isfile(args[-1]):
+            print("File exists -- skipping: ", args[-1])
+        else:
             print("Processing {}/{} -- file: {}".format(i, country_count, args[0]))
-        	process(*args)
+            process(*args)
 
 
 def process(polygons_path: str, linestrings_path: str, output: str):
