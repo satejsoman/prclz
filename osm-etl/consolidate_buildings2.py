@@ -89,15 +89,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Consolidate all building footprint geometries across all countries")
     parser.add_argument('--country', required=True, 
-          help='Which country, or All, to process. One of [All, Africa, Asia, Australia-Oceania, Central-America, Europe, North-America, South-America')
+          help='Which country, or All, to process. One of [All, Africa, Asia, Australia-Oceania, Central-America, Europe, North-America, South-America]')
     parser.add_argument('--replace', help="if file already processed, replace and update", action="store_true")
 
     args = parser.parse_args()    
 
     # NOTE: the all_files is hardcoded, as currently we process the entire directory
-    if parser.country == 'All':
+    if args.country == 'All':
         all_files = glob.glob(GEOJSON_PATH + "/*/*building_polygons.geojson")
     else:
-        all_files = glob.glob(GEOJSON_PATH + "/{}/*building_polygons.geojson".format(parser.country))
+        all_files = glob.glob(GEOJSON_PATH + "/{}/*building_polygons.geojson".format(args.country))
     process_all(all_files, replace=args.replace)
 
