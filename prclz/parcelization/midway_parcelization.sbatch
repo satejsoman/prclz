@@ -8,7 +8,7 @@
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
-#SBATCH --time=2:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=pi-bettencourt
 
 set -e
