@@ -11,8 +11,8 @@ library(parallel)
 library(foreach)
 library(doParallel)
 #cl <- parallel::makeCluster(28)
-doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS")))
-mcoptions = list(cores = 28, preschedule=TRUE)
+doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS_PER_NODE")))
+mcoptions = list(cores = 16, preschedule=TRUE)
 
 #library(future)
 #library(doFuture)
@@ -42,6 +42,7 @@ mcoptions = list(cores = 28, preschedule=TRUE)
 #' @return MULTILINE Simple feature collection
 #'  
 st_parcelize <- function(footprints, block, ptdist){
+  if (nrow(footprints) > 0) { 
   # Extract building polygons within specified block
   block_footprints <- footprints %>% 
     sf::st_convex_hull() %>%
@@ -63,15 +64,15 @@ st_parcelize <- function(footprints, block, ptdist){
     dplyr::mutate(id = parcels$id)
   # Voronoi polygon tesselation
   parcel_voronoi = parcelpoints %>% 
-    sf::st_union()  %>%
-    sf::st_voronoi()   %>% 
+    sf::st_union() %>%
+    sf::st_voronoi(envelope = st_geometry(block)) %>% 
     sf::st_cast() %>% 
     sf::st_intersection(block) %>% 
     sf::st_sf()
   # Join with building ID
   parcel_voronoi = parcel_voronoi %>% 
     sf::st_join(., parcelpoints) %>%
-    dplyr::filter(!is.na(id)) 
+    tidyr::fill(id) 
   # Group by the parcel ID to dissolve geometries 
   parcel_voronoi = raster::aggregate(parcel_voronoi, list(ID = parcel_voronoi$id), raster::unique)
   # Convert it back to lines
@@ -84,6 +85,10 @@ st_parcelize <- function(footprints, block, ptdist){
     sf::st_sf() %>%
     dplyr::mutate(block_id = block$block_id)
   return(parcel_grid)
+  }
+  else {
+    parcel_grid = block %>% sf::st_cast("MULTILINESTRING") %>% dplyr::select(block_id) 
+    }
 }
 
 #!/usr/bin/env Rscript
@@ -107,7 +112,7 @@ sf_df_blocks <- sf::st_read(blocks_file) %>%
 sf_df_buildings <- sf::st_read(buildings_file) 
 
 # Join block groupings into buildings spatial dataframes
-sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks, left = FALSE, largest = TRUE) %>% 
+sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks, largest = TRUE) %>% 
   dplyr::select(osm_id, block_id)
 
 # Split buildings and blocks
@@ -124,7 +129,7 @@ sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=
   )
 
 # Write GADM-level spatial df containing block-level parcels
-sf::st_write(sf_df_parcels, paste0(parcels_file))
+sf::st_write(obj = sf_df_parcels, dsn = paste0(parcels_file), delete_dsn = TRUE)
 
 #parallel::stopCluster(cl)
 
