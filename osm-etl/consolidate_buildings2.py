@@ -40,7 +40,7 @@ def process_all(all_polygon_files: List[str], replace: bool) -> (str, str, str):
 
     for i, args in enumerate(zip(all_polygon_files, all_linestrings_files, all_outputs_files)):
 
-        if os.path.isfile(args[-1]):
+        if os.path.isfile(args[-1]) and not replace:
             print("File exists -- skipping: ", args[-1])
         else:
             print("Processing {}/{} -- file: {}".format(i, country_count, args[0]))
