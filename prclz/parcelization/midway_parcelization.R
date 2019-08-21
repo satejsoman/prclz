@@ -72,7 +72,7 @@ st_parcelize <- function(footprints, block, ptdist){
   # Join with building ID
   parcel_voronoi = parcel_voronoi %>% 
     sf::st_join(., parcelpoints) %>%
-    tidyr::fill(id) #dplyr::filter(!is.na(id)) 
+    tidyr::fill(id) 
   # Group by the parcel ID to dissolve geometries 
   parcel_voronoi = raster::aggregate(parcel_voronoi, list(ID = parcel_voronoi$id), raster::unique)
   # Convert it back to lines
