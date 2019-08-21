@@ -10,7 +10,7 @@ from shapely.geometry import MultiPolygon, Polygon
 
 from prclz.blocks.methods import BufferedLineDifference
 import os 
-import pd 
+import pandas as pd  
 
 from midway_blocks import extract 
 
@@ -81,10 +81,8 @@ test_success = gadm_aggregation[ gadm_aggregation['success'] ][cols].iloc[0:10]
 # Run through the failures, for reference
 for index, geometry, ls_idx in test_fail.itertuples():
 
-    try:
-        extract(linestrings, index, geometry, ls_idx, "small_test")
-    except TypeError:
-        pass 
+    extract(linestrings, index, geometry, ls_idx, "small_test")
+
 
 
 # def main(gadm_path, linestrings_path, output_dir, level, parallelism):
