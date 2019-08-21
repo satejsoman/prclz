@@ -36,7 +36,8 @@ class BufferedLineDifference(BlockExtractionMethod):
         info("%sApplying buffer of %s.", "(" + self.name + ") " if self.name else "", self.epsilon)
         buffered = linestrings.buffer(self.epsilon)
         info("%sCalculating difference.", "(" + self.name + ") " if self.name else "")
-        return MultiPolygon(region.difference(buffered))
+        difference = region.difference(buffered)
+        return MultiPolygon([difference]) if difference.type == "Polygon" else difference
 
 
 class IntersectionPolygonization(BlockExtractionMethod):
