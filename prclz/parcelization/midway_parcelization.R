@@ -129,7 +129,7 @@ sf_df_parcels <- foreach::foreach(i=split_buildings, j = split_blocks, .combine=
   )
 
 # Write GADM-level spatial df containing block-level parcels
-sf::st_write(sf_df_parcels, paste0(parcels_file), delete_layer = TRUE)
+sf::st_write(obj = sf_df_parcels, dsn = paste0(parcels_file), delete_layer = TRUE)
 
 #parallel::stopCluster(cl)
 
