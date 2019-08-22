@@ -10,3 +10,4 @@
 
 4. Check jobs: `squeue --user=<CNETID>` 
    And kill jobs: `scancel --user=<CNETID>`
+   Run `sinfo -p broadwl` to see a list of allocated/idle nodes
