@@ -12,7 +12,7 @@ library(foreach)
 library(doParallel)
 #cl <- parallel::makeCluster(28)
 doParallel::registerDoParallel(cores=(Sys.getenv("SLURM_NTASKS_PER_NODE")))
-mcoptions = list(cores = 16, preschedule=TRUE)
+mcoptions = list(cores = (Sys.getenv("SLURM_NTASKS_PER_NODE")), preschedule=TRUE)
 
 #library(future)
 #library(doFuture)
