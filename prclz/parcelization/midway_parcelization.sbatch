@@ -4,14 +4,15 @@
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
+#SBATCH --mem=56000
 #SBATCH --output=logs/parcels_::COUNTRYCODE::.out
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
-#SBATCH --time=8:00:00
+#SBATCH --time=28:00:00
 #SBATCH --account=pi-bettencourt
 
 set -e
-for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
+for building in data/buildings/Africa/::COUNTRYCODE::/*.geojson; do
     Rscript prclz/parcelization/midway_parcelization.R --building ${building};
 done
