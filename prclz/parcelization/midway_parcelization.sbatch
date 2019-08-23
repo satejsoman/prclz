@@ -13,6 +13,6 @@
 #SBATCH --account=pi-bettencourt
 
 set -e
-for building in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
+for building in data/buildings/Africa/::COUNTRYCODE::/*.geojson; do
     Rscript prclz/parcelization/midway_parcelization.R --building ${building};
 done
