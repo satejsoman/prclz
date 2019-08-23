@@ -27,7 +27,7 @@
       * `esc` leave inserty mode and leave command line mode
 
 * Sort by file size in directory:
-    * `cd /project2/bettencourt/mnp/prclz/data/geojson_gadm/Africa/SLE`
+    * `cd /project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE`
     * `ls -l | sort -k 5nr`
 
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
