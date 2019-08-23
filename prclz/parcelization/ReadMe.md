@@ -30,6 +30,10 @@
     * `cd /project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE`
     * `ls -l | sort -k 5nr`
 
+* Copy Midway file to local directory:
+    * `scp nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE/buildings_SLE.4.2.1_1.geojson /Users/nmarchio/Desktop`
+
+
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
 
 
