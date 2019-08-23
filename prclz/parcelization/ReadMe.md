@@ -13,11 +13,11 @@
 ## Midway Help Guide ##
 
 * Check jobs: `squeue --user=<CNETID>` 
-   * And kill jobs: `scancel --user=<CNETID>`
-   * Run `sinfo -p broadwl` to see a list of allocated/idle nodes
+   * Kill jobs: `scancel --user=<CNETID>`
+   * View allocated/idle nodes `sinfo -p broadwl`
 
-* Checking error logs:
-   `cd /project2/bettencourt/mnp/prclz/logs`
+* Check error logs:
+  * `cd /project2/bettencourt/mnp/prclz/logs`
 
 * Using VIM:
     * `vim <JOB-NAME>.err`
@@ -28,7 +28,7 @@
     * `i` insert mode
     * `esc` leave inserty mode and leave command line mode
 
-* Rank order file sizes:
+* Sort by file size in directory:
     * `cd /project2/bettencourt/mnp/prclz/data/geojson_gadm/Africa/SLE`
     * `ls -l | sort -k 5nr`
 
