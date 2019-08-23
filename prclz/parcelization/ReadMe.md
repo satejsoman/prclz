@@ -17,7 +17,7 @@
     * View allocated/idle nodes `sinfo -p broadwl`
 
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
-    * Using VIM:
+    * Using VIM which functions as a text editor to view logs:
       * `vim <JOB-NAME>.err`
       * `:q` quit
       * `:wq` save and quit
