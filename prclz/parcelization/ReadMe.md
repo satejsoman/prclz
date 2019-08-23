@@ -16,7 +16,7 @@
    `cd /project2/bettencourt/mnp/prclz/logs`
 
    Using VIM:
-      * `vim parcels_SSD.err`
+      * `vim <JOB-NAME>.err`
       * `:q` quit
       * `:wq` save and quit
       * `:q!` quit and don't save
