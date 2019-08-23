@@ -25,8 +25,8 @@
       * `esc` leave inserty mode and leave command line mode
 
 6. Rank order file sizes:
-  `cd /project2/bettencourt/mnp/prclz/data/geojson_gadm/Africa/SLE`
-  `ls -l | sort -k 5nr`
+  * `cd /project2/bettencourt/mnp/prclz/data/geojson_gadm/Africa/SLE`
+  * `ls -l | sort -k 5nr`
 
 7. SLURM source docs: https://slurm.schedmd.com/sbatch.html 
 
