@@ -16,8 +16,7 @@
    * Kill jobs: `scancel --user=<CNETID>`
    * View allocated/idle nodes `sinfo -p broadwl`
 
-* Check error logs:
-  * `cd /project2/bettencourt/mnp/prclz/logs`
+* Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
 
 * Using VIM:
     * `vim <JOB-NAME>.err`
