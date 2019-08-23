@@ -1,5 +1,4 @@
 # Parcelization Job #
----------------
 
 ## How to run the job ##
 
@@ -10,7 +9,6 @@
 2. Update repo: `git pull`
 
 3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
-
 
 ## Midway Help Guide ##
 
