@@ -33,9 +33,9 @@ def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, 
         blocks.to_csv(filename)
         info("Serialized blocks from %s to %s", index, filename)
     except Exception as e:
-        error("%s while processing %s: %s", type(e), index, e)
-        with open(output_dir/("error_{}".format(index))) as error_file:
-            print(e, error_file)
+        error("%s while processing %s: %s", type(e).__name__, index, e)
+        with open(output_dir/("error_{}".format(index)), 'a') as error_file:
+            print(e, file=error_file)
 
 def main(gadm_path, linestrings_path, output_dir, level, parallelism):
     info("Reading geospatial data from files.")
