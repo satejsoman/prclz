@@ -100,7 +100,7 @@ buildings_file <- args['building']
 cat(sprintf("Reading buildings %s\n",buildings_file))
 
 # Parsing building path into blocks (input) and parcels (output) paths
-file_parse <- stringr::str_match_all(buildings_file, "data/geojson_gadm/(.*?)/(.*?)/buildings_(.*?).geojson")
+file_parse <- stringr::str_match_all(buildings_file, "data/buildings/(.*?)/(.*?)/buildings_(.*?).geojson")
 blocks_file <- paste0('data/blocks/',file_parse[[1]][2],'/',file_parse[[1]][3],'/blocks_',file_parse[[1]][4],'.csv')
 parcels_file <- paste0('data/parcels/',file_parse[[1]][2],'/',file_parse[[1]][3],'/parcels_',file_parse[[1]][4],'.geojson')
 
