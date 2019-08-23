@@ -20,7 +20,7 @@
       * `:q` quit
       * `:wq` save and quit
       * `:q!` quit and don't save
-      * `shift+G` autoscroll to bottom
+      * `shift+g` autoscroll to bottom
       * `i` insert mode
       * `esc` leave inserty mode and leave command line mode
 
