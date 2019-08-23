@@ -16,12 +16,11 @@ parcel_list=()
 for i in data/parcels/Africa/::COUNTRYCODE::/*.geojson; do
     parcel_list+=("$i")
 done
-parcel_list=("${parcel_list[@]/parcels/geojson_gadm}")
-parcel_list=("${parcel_list[@]/parcels/buildings}")
+parcel_list=("${parcel_list[@]//parcels/buildings}")
 echo "${parcel_list[@]}"
 
 building_list=()
-for i in data/geojson_gadm/Africa/::COUNTRYCODE::/*.geojson; do
+for i in data/buildings/Africa/::COUNTRYCODE::/*.geojson; do
     building_list+=("$i")
 done
 echo "${building_list[@]}"
