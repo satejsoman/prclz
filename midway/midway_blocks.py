@@ -1,6 +1,6 @@
 import argparse
 import logging
-from logging import info, warning
+from logging import info, warning, error
 from pathlib import Path
 from typing import List, Union
 
@@ -22,16 +22,20 @@ def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
 
 
 def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, MultiPolygon], ls_idx: List[int], output_dir: Path) -> None:
-    # minimize synchronization barrier by constructing a new extractor
-    block_polygons = BufferedLineDifference().extract(geometry, linestrings.iloc[ls_idx].unary_union)
-    blocks = gpd.GeoDataFrame(
-        [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
-        columns=["block_id", "geometry"])
-    blocks.set_index("block_id")
-    filename = output_dir/("blocks_{}.csv".format(index))
-    blocks.to_csv(filename)
-    info("Serialized blocks from %s to %s", index, filename)
-
+    try: 
+        # minimize synchronization barrier by constructing a new extractor
+        block_polygons = BufferedLineDifference().extract(geometry, linestrings.iloc[ls_idx].unary_union)
+        blocks = gpd.GeoDataFrame(
+            [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
+            columns=["block_id", "geometry"])
+        blocks.set_index("block_id")
+        filename = output_dir/("blocks_{}.csv".format(index))
+        blocks.to_csv(filename)
+        info("Serialized blocks from %s to %s", index, filename)
+    except Exception as e:
+        error("%s while processing %s: %s", type(e), index, e)
+        with open(output_dir/("error_{}".format(index))) as error_file:
+            print(e, error_file)
 
 def main(gadm_path, linestrings_path, output_dir, level, parallelism):
     info("Reading geospatial data from files.")
@@ -53,7 +57,7 @@ def main(gadm_path, linestrings_path, output_dir, level, parallelism):
 
     extractor = BufferedLineDifference()
     info("Extracting blocks for each delineation using method: %s.", extractor)
-    Parallel(n_jobs=parallelism, verbose=50)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
+    Parallel(n_jobs=parallelism, verbose=100)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
 
     info("Done.")
 
