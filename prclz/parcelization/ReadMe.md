@@ -35,6 +35,6 @@
 
 
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
-    * `--mem = 58000` is upper limit allowed on `broadwl`
+    * `--mem = 58000` is upper limit allowed on `broadwl` and is the memory allocated to the node
 
 
