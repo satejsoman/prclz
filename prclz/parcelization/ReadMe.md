@@ -24,4 +24,6 @@
       * `i` insert mode
       * `esc` leave inserty mode and leave command line mode
 
+6. SLURM source docs: https://slurm.schedmd.com/sbatch.html 
+
 
