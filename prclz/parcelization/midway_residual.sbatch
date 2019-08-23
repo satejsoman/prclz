@@ -9,12 +9,8 @@
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
-#SBATCH --time=8:00:00
+#SBATCH --time=28:00:00
 #SBATCH --account=pi-bettencourt
-
-module load R/3.6.1
-module load udunits/2.2
-module load gdal/2.4.1 
 
 parcel_list=()
 for i in data/parcels/Africa/*/*.geojson; do
