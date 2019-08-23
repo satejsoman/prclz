@@ -12,7 +12,6 @@
 #SBATCH --time=8:00:00
 #SBATCH --account=pi-bettencourt
 
-
 module load R/3.6.1
 module load udunits/2.2
 module load gdal/2.4.1 
