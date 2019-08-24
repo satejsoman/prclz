@@ -8,7 +8,9 @@
 
 2. Update repo: `git pull`
 
-3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
+3. Run this first script: `bash prclz/parcelization/midway_parcelization.sh`
+
+4. 
 
 ## Midway Help Guide ##
 
@@ -19,10 +21,10 @@
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
     * Using VIM which functions as a text editor to view logs:
       * `vim <JOB-NAME>.err`
+      * `shift+g` autoscroll to bottom
       * `:q` quit
       * `:wq` save and quit
       * `:q!` quit and don't save
-      * `shift+g` autoscroll to bottom
       * `i` insert mode
       * `esc` leave inserty mode and leave command line mode
 
