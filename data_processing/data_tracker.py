@@ -126,7 +126,7 @@ def do_buildings_gadm_check(row: pd.Series) -> (int, float, float, str):
 
     # The GADMs listed in the buildings summary should be the complete set of GADMs
     qc_gadm_set = set(match_counts[ ~match_counts['is_unmatched'] ]['gadm_code'])
-    assert qc_gadm_set == all_gadms, "GADM sets are in error"
+    assert all_gadms == qc_gadm_set, "Total GADM={} | splitter summ.={}".format(len(all_gadms), len(qc_gadm_set))
 
     # Identify gadm's that are not in the buildings folder AND have not been identified as having zero matches
     missing = all_gadms - all_gadms_in_buildings - set(gadms_w_zero_buildings)
@@ -151,7 +151,7 @@ def update_data_tracker(tt):
 
     # Add checks of the GADMs in the data/blocks
     gadm_check_cols = ['total_gadm_count', 'missing_gadm_block_count', 'missing_gadm_block']
-    tt[gadm_check_cols] = tt.apply(do_blocks_gadm_check, axis=1, result_type='expand')
+    #tt[gadm_check_cols] = tt.apply(do_blocks_gadm_check, axis=1, result_type='expand')
 
     # Add checks of the GADMs in the data/buildings
     buildings_check_cols = ['missing_gadm_bldg_count', 'pct_gadm_no_bldg', 'pct_bldg_unmatched', 'missing_gadm_bldg']
