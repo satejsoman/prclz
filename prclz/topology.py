@@ -1,11 +1,11 @@
-from itertools import chain, combinations
+from itertools import chain, combinations, product
 from typing import Sequence
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import shapely.geos
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, LineString
 
 """ implementation of planar graph """
 
@@ -249,7 +249,11 @@ class PlanarGraph(nx.Graph):
             for (face1, face2) in combinations(inner_facelist, 2):
                 edges1 = [e for e in face1.edges if not e.road]
                 edges2 = [e for e in face2.edges if not e.road]
-                if len(set(edges1).intersection(edges2)) > 0:
+
+                linestrings1 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in edges1]
+                linestrings2 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in edges2]
+
+                if len(set(edges1).intersection(edges2)) > 0 or any((e1.intersects(e2) and e1.touches(e2) and e1.intersection(e2).type != "Point") for (e1, e2) in product(linestrings1, linestrings2)):
                     dual.add_edge(Edge((face1.centroid(), face2.centroid())))
 
         return dual

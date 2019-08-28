@@ -31,7 +31,8 @@ def plot_polygons(
     facecolors: Optional[Iterator[Color]] = None, 
     edgecolors: Optional[Iterator[Color]] = None, 
     linewidth: float=0.5, 
-    zorder: int=10
+    zorder: int=10,
+    alpha: float=1.0
 ) -> matplotlib.figure.Figure:
     if not ax:
         ax = plt.gca()
@@ -41,7 +42,7 @@ def plot_polygons(
         edgecolors = cycle(['white'])
     
     for (polygon, fc, ec) in zip(polygons, facecolors, edgecolors):
-        ax.add_patch(PolygonPatch(polygon, fc=fc, ec=ec, linewidth=linewidth, zorder=zorder))
+        ax.add_patch(PolygonPatch(polygon, fc=fc, ec=ec, linewidth=linewidth, zorder=zorder, alpha=alpha))
     plt.autoscale()
 
     return plt.gcf()
