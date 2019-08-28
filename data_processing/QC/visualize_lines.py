@@ -15,12 +15,13 @@ import sys
 
 GEOJSON_PATH = "../data/geojson/Africa"
 
-l = ["congo-democratic-republic_lines.geojson",
-"egypt_lines.geojson",
-"kenya_lines.geojson",
-"malawi_lines.geojson"]
+# l = ["congo-democratic-republic_lines.geojson",
+# "egypt_lines.geojson",
+# "kenya_lines.geojson",
+# "malawi_lines.geojson"]
 
-#l = ["djibouti_lines.geojson"]
+l = ["djibouti_lines.geojson"]
+
 
 if __name__ == "__main__":
 
