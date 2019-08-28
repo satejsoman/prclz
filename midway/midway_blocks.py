@@ -72,7 +72,7 @@ def setup(args=None):
     parser.add_argument('--gadm',        required=True, type=Path, help='path to GADM file',   dest="gadm_path")
     parser.add_argument('--linestrings', required=True, type=Path, help='path to linestrings', dest="linestrings_path")
     parser.add_argument('--output',      required=True, type=Path, help='path to  output',     dest="output_dir")
-    parser.add_argument('--level',       default=3,     type=int,  help='GADM level to use')
+    parser.add_argument('--level',       default=4,     type=int,  help='GADM level to use')
     parser.add_argument('--parallelism', default=4,     type=int,  help='number of cores to use')
 
     return parser.parse_args(args)

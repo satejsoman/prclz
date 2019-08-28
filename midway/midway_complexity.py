@@ -32,10 +32,9 @@ def read_file(path, **kwargs):
 def calculate_complexity(index, block, centroids):
     sequence = get_weak_dual_sequence(block, centroids)
     complexity = get_complexity(sequence)
-    sequence_json = weak_dual_sequence_to_json_string(sequence)
     centroids_multipoint = MultiPoint(centroids)
 
-    return (index, complexity, centroids_multipoint, sequence_json)
+    return (index, complexity, centroids_multipoint)
 
 def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int):
     info("Reading geospatial data from files.")
@@ -51,10 +50,10 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph
     block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
 
     info("Calculating block complexity.")
-    complexity = Parallel(n_jobs=parallelism, verbose=50)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
+    complexity = Parallel(n_jobs=parallelism, verbose=100)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
     
     info("Restructuring complexity calculations by block_id index.")
-    block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint", "weak_duals"]).set_index("block_id"))
+    block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint"]).set_index("block_id"))
 
     info("Serializing complexity calculations to %s.", complexity_output)
     block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
