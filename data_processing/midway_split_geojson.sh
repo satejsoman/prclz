@@ -15,7 +15,12 @@ for countryfile in $(ls ../data/geojson/*/*buildings*); do
   type=${type/_/}
   type=${type/.geojson/}
 
-  countrycode=$(grep ${countryname} country_codes.csv | rev | cut -d, -f4 | rev)
+  if [[ ${countryname}=="guinea" ]]
+  then 
+  	countrycode="GIN"
+  else
+    countrycode=$(grep ${countryname} country_codes.csv | rev | cut -d, -f4 | rev)
+  fi
 
   echo file=$file
   echo countryname=$countryname 
