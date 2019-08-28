@@ -151,7 +151,7 @@ def update_data_tracker(tt):
 
     # Add checks of the GADMs in the data/blocks
     gadm_check_cols = ['total_gadm_count', 'missing_gadm_block_count', 'missing_gadm_block']
-    #tt[gadm_check_cols] = tt.apply(do_blocks_gadm_check, axis=1, result_type='expand')
+    tt[gadm_check_cols] = tt.apply(do_blocks_gadm_check, axis=1, result_type='expand')
 
     # Add checks of the GADMs in the data/buildings
     buildings_check_cols = ['missing_gadm_bldg_count', 'pct_gadm_no_bldg', 'pct_bldg_unmatched', 'missing_gadm_bldg']
