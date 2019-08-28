@@ -233,12 +233,12 @@ def map_matching_results_lines(lines_output, all_blocks=None, file_name=None):
     plt.title("Nonmatched count = {} or pct = {:.2f}%".format(int(nonmatched_count), nonmatched_pct))
     plt.savefig(file_name, bbox_inches='tight', pad_inches=0)
 
-def main(region, file_name, REPLACE):
+def main(file_name, REPLACE):
 
     start = time.time()
     
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name, _ = geofabrik_to_gadm(geofabrik_name)
+    gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     TYPE = "buildings" if "buildings" in file_name else "lines"
 
     # Ensure output summary paths exist
@@ -317,7 +317,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    region, file_name = args.path_to_file.split("/")[-2:]
+    file_name = args.path_to_file.split("/")[-1]
     REPLACE = args.replace 
 
-    main(region, file_name, REPLACE)
+    main(file_name, REPLACE)
