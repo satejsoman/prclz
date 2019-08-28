@@ -52,6 +52,9 @@ def do_gadm_check(row: pd.Series) -> (int, str):
     if pd.isnull(gadm_name):
         return None, None, None 
 
+    if gadm_name == "ZAF":
+        return None, None, None 
+
     all_gadms = get_all_gadms(gadm_name)
     all_gadms_in_blocks = get_all_gadm_blocks(gadm_name, region)
 
