@@ -63,7 +63,8 @@ def get_all_gadm_files_at(root_location: str, gadm_name:str, region: str) -> set
     if not os.path.isdir(path):
         return set()
     else:
-        return set(x.replace(".csv","").replace("blocks_","") for x in os.listdir(path) if "error" not in x)
+        return set(x.replace(".csv","").replace("blocks_","").replace("buildings_", "").replace(".geojson","") 
+            for x in os.listdir(path) if "error" not in x)
 
 
 
