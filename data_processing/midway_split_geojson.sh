@@ -17,10 +17,13 @@ for countryfile in $(ls ../data/geojson/*/*buildings*); do
 
   if [[ ${countryname} == "guinea" ]]
   then 
-  	countrycode="GIN"
+    countrycode="GIN"
   elif [[ ${countryname} == "mali" ]]
   then 
-  	countrycode="MLI"
+    countrycode="MLI"
+  elif [[ ${countryname} == "niger" ]]
+  then 
+    countrycode="NER"
   else
     countrycode=$(grep ${countryname} country_codes.csv | rev | cut -d, -f4 | rev)
   fi
