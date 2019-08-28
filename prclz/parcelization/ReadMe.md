@@ -8,7 +8,9 @@
 
 2. Update repo: `git pull`
 
-3. Run script: `bash prclz/parcelization/midway_parcelization.sh`
+3. Run this first script: `bash prclz/parcelization/midway_parcelization.sh`
+
+4. 
 
 ## Midway Help Guide ##
 
@@ -19,10 +21,10 @@
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
     * Using VIM which functions as a text editor to view logs:
       * `vim <JOB-NAME>.err`
+      * `shift+g` autoscroll to bottom
       * `:q` quit
       * `:wq` save and quit
       * `:q!` quit and don't save
-      * `shift+g` autoscroll to bottom
       * `i` insert mode
       * `esc` leave inserty mode and leave command line mode
 
@@ -36,5 +38,11 @@
 
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
     * Generally `--mem = 58000` is upper limit allowed on `broadwl` and this represents the memory allocated to the node
+    * To check memory useage [use this script](https://github.com/rcc-uchicago/R-large-scale/blob/master/monitor_memory.py) and run the following:
+      ```
+      module load python/3.7.0
+      export MEM_CHECK_INTERVAL=0.01
+      python3 monitor_memory.py <insert .R or .py script>
+      ```
 
 
