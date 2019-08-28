@@ -15,7 +15,7 @@ for countryfile in $(ls ../data/geojson/*/*buildings*); do
   type=${type/_/}
   type=${type/.geojson/}
 
-  if [[ ${countryname}=="guinea" ]]
+  if [[ ${countryname} == "guinea" ]]
   then 
   	countrycode="GIN"
   else
