@@ -32,9 +32,10 @@
     * `cd /project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE`
     * `ls -l | sort -k 5nr`
 
-* Copy Midway file to local directory: 
-    * `scp nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE/buildings_SLE.4.2.1_1.geojson /Users/nmarchio/Desktop`
-
+* Transfer files: 
+    * Transfer Midway file to local directory `scp nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/buildings/Africa/SLE/buildings_SLE.4.2.1_1.geojson /Users/nmarchio/Desktop`
+    * Transfer Midway folder to local directory `scp -r nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/complexity/Africa/SLE /Users/nmarchio/Desktop`
+    * Transfer local folder to Midway directory `scp -r /Users/nmarchio/Desktop/SLE_CSV nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/mapbox_test`
 
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
     * Generally `--mem = 58000` is upper limit allowed on `broadwl` and this represents the memory allocated to the node
