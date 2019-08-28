@@ -24,6 +24,9 @@ for countryfile in $(ls ../data/geojson/*/*buildings*); do
   elif [[ ${countryname} == "niger" ]]
   then 
     countrycode="NER"
+  elif [[ ${countryname} == "senegal-and-gambia" ]]
+  then 
+    countrycode="SEN"
   else
     countrycode=$(grep ${countryname} country_codes.csv | rev | cut -d, -f4 | rev)
   fi
