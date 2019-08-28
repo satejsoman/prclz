@@ -108,10 +108,10 @@ def do_buildings_gadm_check(row: pd.Series) -> (int, float, float, str):
     print("Doing Buildings check on : ", gadm_name)
 
     if pd.isnull(gadm_name):
-        return None, None, None 
+        return None, None, None, None  
 
     if gadm_name == "ZAF":
-        return None, None, None 
+        return None, None, None, None  
 
     all_gadms = get_all_gadms(gadm_name)
     all_gadms_in_buildings = get_all_gadm_files_at(BUILDINGS_PATH, gadm_name, region)
@@ -126,7 +126,7 @@ def do_buildings_gadm_check(row: pd.Series) -> (int, float, float, str):
 
     # The GADMs listed in the buildings summary should be the complete set of GADMs
     qc_gadm_set = set(match_counts[ ~match_counts['is_unmatched'] ]['gadm_code'])
-    assert all_gadms == qc_gadm_set, "Total GADM={} | splitter summ.={}".format(len(all_gadms), len(qc_gadm_set))
+    #assert all_gadms == qc_gadm_set, "Total GADM={} | splitter summ.={}".format(len(all_gadms), len(qc_gadm_set))
 
     # Identify gadm's that are not in the buildings folder AND have not been identified as having zero matches
     missing = all_gadms - all_gadms_in_buildings - set(gadms_w_zero_buildings)
