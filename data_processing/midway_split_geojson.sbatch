@@ -14,4 +14,4 @@
 
 set -e
 
-python3 split_geojson.py ::FILEPATH::
+python3 split_geojson.py ::FILEPATH:: --replace
