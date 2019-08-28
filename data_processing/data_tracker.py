@@ -116,6 +116,10 @@ def do_buildings_gadm_check(row: pd.Series) -> (int, float, float, str):
     all_gadms = get_all_gadms(gadm_name)
     all_gadms_in_buildings = get_all_gadm_files_at(BUILDINGS_PATH, gadm_name, region)
 
+    summary_file = os.path.join("splitter_output", "buildings", gadm_name, "matching_counts_summary.csv")
+    if not os.path.isfile(summary_file):
+        return None, None, None, None 
+
     match_counts = pd.read_csv(os.path.join("splitter_output", "buildings", gadm_name, "matching_counts_summary.csv"))
     match_counts['is_unmatched'] = match_counts['gadm_code']=='NO_GADM_DISTRICT'
     gadms_w_zero_buildings = match_counts[ (match_counts['match_count']==0) & (~match_counts['is_unmatched']) ]['gadm_code']
