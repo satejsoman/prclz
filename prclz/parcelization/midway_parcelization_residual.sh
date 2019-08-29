@@ -11,6 +11,7 @@ countryname=$(grep "$countrycode" data_processing/country_codes.csv | rev | cut 
 mkdir -p data/parcels/Africa/${countrycode}
 mkdir -p prclz/parcelization/filled_templates
 echo "$countryname ($countrycode)"
-< prclz/parcelization/midway_parcelization_residual.sbatch sed -e "s/::COUNTRYCODE::/${countrycode}/g" -e "s/::COUNTRYNAME::/${countryname}/g" > prclz/parcelization/filled_templates/${countrycode}_parcels_res.sbatch
+< prclz/parcelization/midway_parcelization_residual.sbatch sed -e "s/::COUNTRYCODE::/${countrycode}/g" -e "s/::COUNTRYNAME::/${countryname}/g" > prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
 sbatch prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
 done
+
