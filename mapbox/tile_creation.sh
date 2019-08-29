@@ -14,8 +14,6 @@ tippecanoe -o /project2/bettencourt/mnp/prclz/data/mapbox_test/mapbox_output/sle
 	--coalesce-densest-as-needed --coalesce-smallest-as-needed --extend-zooms-if-still-dropping \
 	/project2/bettencourt/mnp/prclz/data/mapbox_test/all_gadms.geojson
 
+# Join zoom levels
 tile-join -o /project2/bettencourt/mnp/prclz/data/mapbox_test/mapbox_output/sle_zoom_combined.mbtiles --force /project2/bettencourt/mnp/prclz/data/mapbox_test/mapbox_output/sle_zoom1.mbtiles /project2/bettencourt/mnp/prclz/data/mapbox_test/mapbox_output/sle_zoom2.mbtiles
-
-
-scp nmarchio@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/mapbox_test/mapbox_output/sle_zoom_combined.mbtiles /Users/nmarchio/Desktop
 
