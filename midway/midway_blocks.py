@@ -21,23 +21,26 @@ def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
     return gadm_level_column, level
 
 
-def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, MultiPolygon], ls_idx: List[int], output_dir: Path) -> None:
+def extract(linestrings: gpd.GeoDataFrame, index: str, geometry: Union[Polygon, MultiPolygon], ls_idx: List[int], output_dir: Path, overwrite: bool) -> None:
     try: 
-        # minimize synchronization barrier by constructing a new extractor
-        block_polygons = BufferedLineDifference().extract(geometry, linestrings.iloc[ls_idx].unary_union)
-        blocks = gpd.GeoDataFrame(
-            [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
-            columns=["block_id", "geometry"])
-        blocks.set_index("block_id")
         filename = output_dir/("blocks_{}.csv".format(index))
-        blocks.to_csv(filename)
-        info("Serialized blocks from %s to %s", index, filename)
+        if (not filename.exists()) or (filename.exists() and overwrite):
+            # minimize synchronization barrier by constructing a new extractor
+            block_polygons = BufferedLineDifference().extract(geometry, linestrings.iloc[ls_idx].unary_union)
+            blocks = gpd.GeoDataFrame(
+                [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
+                columns=["block_id", "geometry"])
+            blocks.set_index("block_id")
+            blocks.to_csv(filename)
+            info("Serialized blocks from %s to %s", index, filename)
+        else:
+            info("Skipping %s (file %s exists and no overwrite flag given)", index, filename)
     except Exception as e:
         error("%s while processing %s: %s", type(e).__name__, index, e)
         with open(output_dir/("error_{}".format(index)), 'a') as error_file:
             print(e, file=error_file)
 
-def main(gadm_path, linestrings_path, output_dir, level, parallelism):
+def main(gadm_path, linestrings_path, output_dir, level, parallelism, overwrite):
     info("Reading geospatial data from files.")
     gadm              = gpd.read_file(str(gadm_path))
     linestrings       = gpd.read_file(str(linestrings_path))
@@ -57,7 +60,7 @@ def main(gadm_path, linestrings_path, output_dir, level, parallelism):
 
     extractor = BufferedLineDifference()
     info("Extracting blocks for each delineation using method: %s.", extractor)
-    Parallel(n_jobs=parallelism, verbose=100)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
+    Parallel(n_jobs=parallelism, verbose=100)(delayed(extract)(linestrings, index, geometry, ls_idx, output_dir, overwrite) for (index, geometry, ls_idx) in gadm_aggregation.itertuples())
 
     info("Done.")
 
@@ -74,6 +77,7 @@ def setup(args=None):
     parser.add_argument('--output',      required=True, type=Path, help='path to  output',     dest="output_dir")
     parser.add_argument('--level',       default=5,     type=int,  help='GADM level to use')
     parser.add_argument('--parallelism', default=4,     type=int,  help='number of cores to use')
+    parser.add_argument('--overwrite',   default=False, type=bool, help='whether to overwrite existing block files')
 
     return parser.parse_args(args)
 
