@@ -44,6 +44,9 @@ def get_min_distance_of_nonmatched(gadm_code):
     # Non-matched bldgs
     splitter_output = "splitter_output/buildings"
     files = [x for x in os.listdir(os.path.join(splitter_output, gadm_code)) if "not_matched" in x]
+
+    if len(files) == 0:
+        return gadm_code, None, None, None, None 
     f = files[0]
     nonmatched_bldgs = gpd.read_file(os.path.join(splitter_output, gadm_code, f))
 
