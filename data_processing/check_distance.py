@@ -74,7 +74,15 @@ def main():
     cols = ['gadm_name', 'pct_50', 'pct_95', 'pct_100', 'total_nonmatched_count']
 
     all_gadm_codes = [x for x in os.listdir(splitter_output) if ".txt" not in x]
-    data = [get_min_distance_of_nonmatched(code) for code in all_gadm_codes]
+
+    data = []
+    for code in all_gadm_codes:
+        try:
+            d = get_min_distance_of_nonmatched(code)
+        except:
+            d = gadm_code, None, None, None, None 
+        data.append(d)
+    #data = [get_min_distance_of_nonmatched(code) for code in all_gadm_codes]
 
     df_data = pd.DataFrame.from_records(data, columns=cols)
 
