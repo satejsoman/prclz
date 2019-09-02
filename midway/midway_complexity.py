@@ -36,30 +36,33 @@ def calculate_complexity(index, block, centroids):
 
     return (index, complexity, centroids_multipoint)
 
-def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int):
-    info("Reading geospatial data from files.")
-    blocks    = read_file(str(blocks_path), index_col="block_id", usecols=["block_id", "geometry"], low_memory=False)
-    buildings = read_file(str(buildings_path), low_memory=False)
-    buildings["geometry"] = buildings.centroid
+def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int, overwrite: bool):
+    if (not complexity_output.exists) or (complexity_output.exists() and overwrite):
+        info("Reading geospatial data from files.")
+        blocks    = read_file(str(blocks_path), index_col="block_id", usecols=["block_id", "geometry"], low_memory=False)
+        buildings = read_file(str(buildings_path), low_memory=False)
+        buildings["geometry"] = buildings.centroid
 
-    info("Aggregating buildings by street block.")
-    block_aggregation = gpd.sjoin(blocks, buildings, how="right", op="intersects")
-    block_aggregation = block_aggregation[pd.notnull(block_aggregation["index_left"])].groupby("index_left")["geometry"].agg(list)
-    block_aggregation.name = "centroids"
-    block_buildings = blocks.join(block_aggregation)
-    block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
+        info("Aggregating buildings by street block.")
+        block_aggregation = gpd.sjoin(blocks, buildings, how="right", op="intersects")
+        block_aggregation = block_aggregation[pd.notnull(block_aggregation["index_left"])].groupby("index_left")["geometry"].agg(list)
+        block_aggregation.name = "centroids"
+        block_buildings = blocks.join(block_aggregation)
+        block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
 
-    info("Calculating block complexity.")
-    complexity = Parallel(n_jobs=parallelism, verbose=100)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
-    
-    info("Restructuring complexity calculations by block_id index.")
-    block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint"]).set_index("block_id"))
+        info("Calculating block complexity.")
+        complexity = Parallel(n_jobs=parallelism, verbose=100)(delayed(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples())
+        
+        info("Restructuring complexity calculations by block_id index.")
+        block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint"]).set_index("block_id"))
 
-    info("Serializing complexity calculations to %s.", complexity_output)
-    block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
-    if graph_output:
-        info("Serializing graph sequences to %s", graph_output)
-        block_buildings[['weak_duals']].to_csv(complexity_output)
+        info("Serializing complexity calculations to %s.", complexity_output)
+        block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
+        # if graph_output:
+        #     info("Serializing graph sequences to %s", graph_output)
+        #     block_buildings[['weak_duals']].to_csv(complexity_output)
+    else: 
+        info("Skipping processing %s (output %s exists and overwrite flag not given)")
 
 
 def setup(args=None):
@@ -74,6 +77,7 @@ def setup(args=None):
     parser.add_argument('--output',      required=True,  type=Path, help='path to output',      dest="complexity_output")
     parser.add_argument('--graphs',      required=False, type=Path, help='path to save graphs', dest="graph_output")
     parser.add_argument('--parallelism', default=4,      type=int,  help='number of cores to use')
+    parser.add_argument('--overwrite',   default=False,  type=bool, help='whether to overwrite existing block files')
 
     return parser.parse_args(args)
 
