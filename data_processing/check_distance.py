@@ -73,7 +73,8 @@ def main():
     splitter_output = "splitter_output/buildings"
     cols = ['gadm_name', 'pct_50', 'pct_95', 'pct_100', 'total_nonmatched_count']
 
-    all_gadm_codes = [x for x in os.listdir(splitter_output) if ".txt" not in x]
+    #all_gadm_codes = [x for x in os.listdir(splitter_output) if ".txt" not in x]
+    all_gadm_codes = ['AGO', 'TCD', 'COD', 'GAB', 'LBR', 'MRT', 'NAM']
 
     df_data = None
     for code in all_gadm_codes:
