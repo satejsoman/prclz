@@ -75,16 +75,23 @@ def main():
 
     all_gadm_codes = [x for x in os.listdir(splitter_output) if ".txt" not in x]
 
-    data = []
+    df_data = None
     for code in all_gadm_codes:
         try:
             d = get_min_distance_of_nonmatched(code)
         except:
-            d = gadm_code, None, None, None, None 
-        data.append(d)
+            d = code, None, None, None, None 
+        d_df = pd.DataFrame.from_records([d], columns=cols)
+        
+        if df_data is None:
+            df_data = d_df 
+        else:
+            df_data = df_data.append(d_df)
+
+        df_data.to_csv("summary_missing_distances.csv")
     #data = [get_min_distance_of_nonmatched(code) for code in all_gadm_codes]
 
-    df_data = pd.DataFrame.from_records(data, columns=cols)
+    #df_data = pd.DataFrame.from_records(data, columns=cols)
 
     df_data.to_csv("summary_missing_distances.csv")
 
