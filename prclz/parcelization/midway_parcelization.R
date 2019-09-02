@@ -109,7 +109,8 @@ sf_df_blocks <- sf::st_read(blocks_file) %>%
   sf::st_as_sf(., wkt = 'geometry') %>% 
   sf::st_set_crs(sf::st_crs(4326)) %>%
   lwgeom::st_make_valid()
-sf_df_buildings <- sf::st_read(buildings_file) 
+sf_df_buildings <- sf::st_read(buildings_file) %>%
+  lwgeom::st_make_valid()
 
 # Join block groupings into buildings spatial dataframes
 sf_df <- sf::st_join(x = sf_df_buildings, y = sf_df_blocks, largest = TRUE) %>% 
