@@ -12,7 +12,7 @@ from psutil._common import bytes2human
 from shapely.geometry import MultiLineString, MultiPolygon, Polygon
 
 from prclz.blocks.methods import BufferedLineDifference
-from prclz.utils import get_gadm_level_column, log_memory_info
+from prclz.utils import get_gadm_level_column
 
 
 def log_memory_info(index, logger):
