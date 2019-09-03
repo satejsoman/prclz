@@ -1,4 +1,5 @@
 import sys
+import logging
 from logging import info, warning
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from prclz.utils import get_gadm_level_column
 
 filename = sys.argv[1]
 output_dir = Path(sys.argv[2])
+
+logging.basicConfig(level=logging.INFO)
 
 gdf = gpd.read_file(filename)
 gid_column, level = get_gadm_level_column(gdf)
