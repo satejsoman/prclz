@@ -2,14 +2,14 @@
 
 #SBATCH --job-name=PARCELS_::COUNTRYCODE::
 #SBATCH --partition=broadwl
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=4
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
 #SBATCH --mem=56000
 #SBATCH --output=logs/parcels_::COUNTRYCODE::.out
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
-#SBATCH --time=28:00:00
+#SBATCH --time=36:00:00
 #SBATCH --account=pi-bettencourt
 
 parcel_list=()
