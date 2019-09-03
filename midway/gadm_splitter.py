@@ -15,4 +15,5 @@ n = len(gdf)
 for i in range(n):
     gid = gdf.iloc[i][gid_column]
     info("%s (%s/%s)", gid, i, n)
-    gdf.iloc[i:i+1].to_csv(output_dir/(gid + ".csv"))
+    with (output_dir/(gid + ".csv")).open('w') as target:
+        gdf.iloc[i:i+1].to_csv(target)
