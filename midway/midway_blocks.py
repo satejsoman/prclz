@@ -12,22 +12,13 @@ from psutil._common import bytes2human
 from shapely.geometry import MultiLineString, MultiPolygon, Polygon
 
 from prclz.blocks.methods import BufferedLineDifference
+from prclz.utils import get_gadm_level_column, log_memory_info
 
 
 def log_memory_info(index, logger):
     mem = psutil.virtual_memory()
     mem_info = ", ".join(['%s: %s' % (name, (lambda value: bytes2human(value) if value != 'percent' else value)(getattr(mem, name))) for name in mem._fields])
     logger.info("memory usage for %s: %s", index, mem_info)
-
-
-def get_gadm_level_column(gadm: gpd.GeoDataFrame, level: int) -> str:
-    gadm_level_column = "GID_{}".format(level)
-    while gadm_level_column not in gadm.columns and level > 0:
-        warning("GID column for GADM level %s not found, trying with level %s", level, level-1)
-        level -= 1
-        gadm_level_column = "GID_{}".format(level)
-    info("Using GID column for GADM level %s", level)
-    return gadm_level_column, level
 
 
 def extract(index: str, geometry: Union[Polygon, MultiPolygon], linestrings: gpd.GeoDataFrame, output_dir: Path, overwrite: bool, timestamp: str) -> None:
