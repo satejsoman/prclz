@@ -15,7 +15,7 @@ template="#!/bin/bash
 #SBATCH --account=pi-bettencourt
 set -e
 for block in data/blocks/Africa/::COUNTRYCODE::/*.csv; do
-    python midway/midway_complexity.py --blocks \$block --buildings data/geojson/::CONTINENT::/::COUNTRYNAME::_buildings.geojson --output ${block/blocks/complexity} --parallelism 24;
+    python midway/midway_complexity.py --blocks \$block --buildings data/geojson/::CONTINENT::/::COUNTRYNAME::_buildings.geojson --output \${block/blocks/complexity} --parallelism 24;
 done"
 
 grep "HTI\|NPL\|SLE\|LBR" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
