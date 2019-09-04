@@ -5,6 +5,7 @@ template="#!/bin/bash
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
 #SBATCH --ntasks=28
+#SBATCH --mem=45G
 #SBATCH --output=logs/sfb_::COUNTRYCODE::.out
 #SBATCH --error=logs/sfb_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
