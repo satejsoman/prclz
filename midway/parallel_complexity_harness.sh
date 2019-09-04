@@ -15,7 +15,7 @@ template="#!/bin/bash
 #SBATCH --account=pi-bettencourt
 set -e
 
-mkdir -p data/complexity/::CONTINENT::/::COUNTRYNAME::
+mkdir -p data/complexity/::CONTINENT::/::COUNTRYCODE::
 
 for block in data/blocks/Africa/::COUNTRYCODE::/*.csv; do
     python midway/midway_complexity.py --blocks \$block --buildings data/geojson/::CONTINENT::/::COUNTRYNAME::_buildings.geojson --output \${block//blocks/complexity} --parallelism 24;

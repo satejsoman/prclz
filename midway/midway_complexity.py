@@ -62,7 +62,7 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph
         #     info("Serializing graph sequences to %s", graph_output)
         #     block_buildings[['weak_duals']].to_csv(complexity_output)
     else: 
-        info("Skipping processing %s (output %s exists and overwrite flag not given)")
+        info("Skipping processing %s (output exists and overwrite flag not given)", complexity_output)
 
 
 def setup(args=None):
