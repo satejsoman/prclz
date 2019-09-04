@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import List, Union
 
 import geopandas as gpd
+import pandas as pd
 import psutil
+import shapely.wkt
 from psutil._common import bytes2human
 from shapely.geometry import MultiLineString, MultiPolygon, Polygon
 
@@ -18,6 +20,15 @@ def log_memory_info(index, logger):
     mem = psutil.virtual_memory()
     mem_info = ", ".join(['%s: %s' % (name, (lambda value: bytes2human(value) if value != 'percent' else value)(getattr(mem, name))) for name in mem._fields])
     logger.info("memory usage for %s: %s", index, mem_info)
+
+def read_file(path, **kwargs):
+    """ ensures geometry set correctly when reading from csv
+    otherwise, pd.BlockManager malformed when using gpd.read_file(*) """
+    if not path.endswith(".csv"):
+        return gpd.read_file(path)
+    raw = pd.read_csv(path, **kwargs)
+    raw["geometry"] = raw["geometry"].apply(shapely.wkt.loads)
+    return gpd.GeoDataFrame(raw, geometry="geometry")
 
 
 def extract(index: str, geometry: Union[Polygon, MultiPolygon], linestrings: gpd.GeoDataFrame, output_dir: Path, overwrite: bool, timestamp: str) -> None:
@@ -54,7 +65,7 @@ def main(gadm_path, linestrings_path, output_dir, level, overwrite):
 
     info("Reading geospatial data from files.")
     log_memory_info("main", logger)
-    gadm              = gpd.read_file(str(gadm_path))
+    gadm              = read_file(str(gadm_path))
     linestrings       = gpd.read_file(str(linestrings_path))
 
     info("Setting up indices.")
