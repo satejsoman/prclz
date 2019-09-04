@@ -239,12 +239,12 @@ def main(file_name, REPLACE, gadm_name):
     
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
 
-    if gamd_name is None:
+    if gadm_name is None:
     	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     else:
     	country_info = TRANS_TABLE[TRANS_TABLE['gadm_name'] == gadm_name]
-    	region = country_info['geofabrik_region'].title()
-    	
+    	region = country_info['geofabrik_region'].iloc[0].title()
+
     TYPE = "buildings" if "buildings" in file_name else "lines"
 
     # Ensure output summary paths exist
