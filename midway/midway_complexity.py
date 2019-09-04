@@ -37,7 +37,7 @@ def calculate_complexity(index, block, centroids):
     return (index, complexity, centroids_multipoint)
 
 def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, graph_output: Optional[Path], parallelism: int, overwrite: bool):
-    if (not complexity_output.exists) or (complexity_output.exists() and overwrite):
+    if (not complexity_output.exists()) or (complexity_output.exists() and overwrite):
         info("Reading geospatial data from files.")
         blocks    = read_file(str(blocks_path), index_col="block_id", usecols=["block_id", "geometry"], low_memory=False)
         buildings = read_file(str(buildings_path), low_memory=False)
