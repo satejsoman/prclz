@@ -59,7 +59,7 @@ def join_block_files(block_file_path: str) -> gpd.GeoDataFrame:
     return all_blocks
 
 
-def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks=False):
+def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks=False, gadm_name=None, region=None):
     '''
     Given a country buildings.geojson file string,
     it distributes those buildings according to the
@@ -67,7 +67,9 @@ def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks
     '''
 
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+    
+    if gadm_name is None or region is None:
+    	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     
     obj_type = "lines" if "lines" in file_name else "buildings"
 
@@ -233,12 +235,18 @@ def map_matching_results_lines(lines_output, all_blocks=None, file_name=None):
     plt.title("Nonmatched count = {} or pct = {:.2f}%".format(int(nonmatched_count), nonmatched_pct))
     plt.savefig(file_name, bbox_inches='tight', pad_inches=0)
 
-def main(file_name, REPLACE):
+def main(file_name, REPLACE, gadm_name):
 
     start = time.time()
     
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+
+    if gadm_name is None:
+    	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+    else:
+    	country_info = TRANS_TABLE[TRANS_TABLE['gadm_name'] == gadm_name]
+    	region = country_info['geofabrik_region'].iloc[0].title()
+
     TYPE = "buildings" if "buildings" in file_name else "lines"
 
     # Ensure output summary paths exist
@@ -258,7 +266,7 @@ def main(file_name, REPLACE):
 
     else:
         # Do the actual matching and splitting
-        rv, details = split_files_alt(file_name, TRANS_TABLE, return_all_blocks=True)
+        rv, details = split_files_alt(file_name, TRANS_TABLE, return_all_blocks=True, gadm_name=gadm_name, region=region)
 
         # Was a success
         if rv is not None:
@@ -312,6 +320,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("path_to_file", help="path to a country-specific *buildings.geojson or *lines.geojson file", type=str)
+    parser.add_argument("--gadm_name", help="if the geojson file corresponds to 2 countries, you can specify the unique GADM code", type=str)
     parser.add_argument("--replace", help="default behavior is to skip if the country has been processed. Adding this option replaces the files",
                          action="store_true")
 
@@ -320,4 +329,4 @@ if __name__ == "__main__":
     file_name = args.path_to_file.split("/")[-1]
     REPLACE = args.replace 
 
-    main(file_name, REPLACE)
+    main(file_name, REPLACE, args.gadm_name)
