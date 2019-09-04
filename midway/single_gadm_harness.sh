@@ -22,6 +22,7 @@ ulimit -u 10000
 find data/GADM_split/::COUNTRYCODE::/ -maxdepth 1 -type f | parallel --delay 0.2 -j \$SLURM_NTASKS --joblog runtask_::COUNTRYCODE::.log --resume -I{} \"srun --exclusive -N1 -n1 python midway/single_gadm_block.py --gadm {} --linestrings data/geojson/::CONTINENT::/::COUNTRYNAME::_lines.geojson --output data/blocks/::CONTINENT::/::COUNTRYCODE::\""
 
 grep "MEX\|CHN\|IRN\|IND\|MYS\|PHL\|THA\|IDN\|BRA" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
+    continent=$(python -c "print('${continent}'.split('/')[0].title())")
     echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g "> midway/filled_templates/sfb_${country_code}.sbatch
     echo "$(sbatch midway/filled_templates/sfb_${country_code}.sbatch) (${country_code})"
 done
