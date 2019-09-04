@@ -17,11 +17,12 @@ set -e
 
 mkdir -p data/complexity/::CONTINENT::/::COUNTRYCODE::
 
-for block in $(ls data/blocks/Africa/::COUNTRYCODE::/*.csv); do
+for block in \$(ls data/blocks/::CONTINENT::/::COUNTRYCODE::/*.csv); do
     python midway/midway_complexity.py --blocks \$block --buildings data/geojson/::CONTINENT::/::COUNTRYNAME::_buildings.geojson --output \${block//blocks/complexity} --parallelism 24;
 done"
 
-grep "HTI\|NPL\|SLE\|LBR" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
+#grep "HTI\|NPL\|SLE\|LBR" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
+grep "NPL" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
     continent=$(python -c "print('${continent}'.split('/')[0].title())")
     echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g "> midway/filled_templates/k_${country_code}.sbatch
     echo "$(sbatch midway/filled_templates/k_${country_code}.sbatch) (${country_code}/${country_name})"
