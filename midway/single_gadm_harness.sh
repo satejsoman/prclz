@@ -19,7 +19,7 @@ module load parallel
 
 ulimit -u 10000
 
-find data/GADM_split/::COUNTRYCODE::/ -maxdepth 1 -type f | parallel --delay 0.2 -j \$SLURM_NTASKS --joblog runtask_::COUNTRYCODE::.log --resume -I{} \"srun --exclusive -N1 -n1 python midway/single_gadm_block.py --gadm {} --linestrings data/geojson/::CONTINENT::/::COUNTRYNAME::_lines.geojson --output data/blocks/::CONTINENT::/::COUNTRYCODE::\""
+find data/GADM_split/::COUNTRYCODE::/ -maxdepth 1 -type f | parallel --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_runtask_::COUNTRYCODE::.log --resume -I{} \"srun --exclusive -N1 -n1 python midway/single_gadm_block.py --gadm {} --linestrings data/geojson/::CONTINENT::/::COUNTRYNAME::_lines.geojson --output data/blocks/::CONTINENT::/::COUNTRYCODE::\""
 
 grep "MEX\|CHN\|IRN\|IND\|MYS\|PHL\|THA\|IDN\|BRA" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
     continent=$(python -c "print('${continent}'.split('/')[0].title())")
