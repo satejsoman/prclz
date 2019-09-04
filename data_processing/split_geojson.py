@@ -59,7 +59,7 @@ def join_block_files(block_file_path: str) -> gpd.GeoDataFrame:
     return all_blocks
 
 
-def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks=False):
+def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks=False, gadm_name=None, region=None):
     '''
     Given a country buildings.geojson file string,
     it distributes those buildings according to the
@@ -67,7 +67,9 @@ def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks
     '''
 
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
-    gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+    
+    if gadm_name is None or region is None:
+    	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     
     obj_type = "lines" if "lines" in file_name else "buildings"
 
@@ -264,7 +266,7 @@ def main(file_name, REPLACE, gadm_name):
 
     else:
         # Do the actual matching and splitting
-        rv, details = split_files_alt(file_name, TRANS_TABLE, return_all_blocks=True)
+        rv, details = split_files_alt(file_name, TRANS_TABLE, return_all_blocks=True, gadm_name=gadm_name, region=region)
 
         # Was a success
         if rv is not None:
