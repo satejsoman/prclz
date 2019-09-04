@@ -71,7 +71,7 @@ def main(gadm_path, linestrings_path, output_dir, level, overwrite):
     info("Setting up indices.")
     log_memory_info("main", logger)
     gadm_column, level = get_gadm_level_column(gadm, level)
-    gadm               = gpd.GeoDataFrame(gadm.T.drop_duplicates().T, geometry="geometry").set_index(gadm_column, level) # remove duplicate columns
+    gadm               = gadm.set_index(gadm_column) 
 
     info("Overlaying GADM boundaries on linestrings.")
     log_memory_info("main", logger)
