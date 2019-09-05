@@ -23,7 +23,7 @@
     * Using a terminal pager to view logs:
       * `less <JOB-NAME>.err`
       * `q` quit
-    * Using VIM which functions as a text editor to view logs:
+    * Using VIM text editor to view logs:
       * `vim <JOB-NAME>.err`
       * `shift+g` autoscroll to bottom
       * `:q` quit
