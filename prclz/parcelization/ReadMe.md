@@ -32,8 +32,8 @@
       * `esc` leave inserty mode and leave command line mode
       
 * Setting up Git on Midway:
-    * Run `ssh-keygen` and hit enter at every prompt i.e., hit enter after `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
-    * Set `cd ~/.ssh` and copy SSH key (view key with `less id_rsa.pub`).
+    * Run `ssh-keygen` and hit enter at every prompt i.e., leave the following blank `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
+    * Set `cd ~/.ssh` and copy SSH key (view SSH key with `less id_rsa.pub` and hit `q` to exit)
     * Go to github.com, click Settings > SSH and GPG keys > New SSH key and paste in contents of `~/.ssh/id_rsa.pub` and save.
     * Now you are ready to `git pull` into `cd /project2/bettencourt/mnp/prclz`
 
