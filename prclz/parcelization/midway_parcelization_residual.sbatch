@@ -13,7 +13,7 @@
 #SBATCH --account=pi-bettencourt
 
 parcel_list=()
-for i in data/parcels/*/::COUNTRYCODE::/*.geojson; do
+for i in $(ls data/parcels/*/::COUNTRYCODE::/); do
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
