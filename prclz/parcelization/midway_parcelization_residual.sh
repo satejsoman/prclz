@@ -7,13 +7,13 @@ module load udunits/2.2
 module load gdal/2.4.1 
 
 parcel_list=()
-for i in data/parcels/Africa/*/*.geojson; do
+for i in data/parcels/*/*/*.geojson; do
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
 
 building_list=()
-for i in data/buildings/Africa/*/*.geojson; do
+for i in data/buildings/*/*/*.geojson; do
     building_list+=("$i")
 done
 
