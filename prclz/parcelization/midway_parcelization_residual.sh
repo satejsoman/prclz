@@ -34,7 +34,7 @@ country_list=()
 country_list=(`echo ${residual_list[@]} | tr ' ' '\n' | sort | cut -d'/' -f 4 | uniq`)
 printf '%s\n' "${country_list[@]}"
 
-country_list=(LBR NPL HTI)
+country_list=(NPL HTI)
 
 # Submit a job for each residual country
 for countrycode in ${country_list[@]}; do
