@@ -8,9 +8,7 @@
 
 2. Update repo: `git pull`
 
-3. Run this first script: `bash prclz/parcelization/midway_parcelization.sh`
-
-4. Run this script second to catch failures: `bash prclz/parcelization/midway_parcelization_residual.sh`
+3. Run this script to submit jobs: `bash prclz/parcelization/midway_parcelization_residual.sh`
 
 ## Midway Help Guide ##
 
