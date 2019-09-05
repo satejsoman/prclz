@@ -36,7 +36,7 @@
     * Set `cd ~/.ssh` and copy SSH key (view SSH key with `less id_rsa.pub` and hit `q` to exit)
     * Go to github.com, click 'Settings' > 'SSH and GPG keys' > 'New SSH key' and paste in contents of `~/.ssh/id_rsa.pub` and save.
     * To clone the repo `git clone git@github.com:mansueto-institute/prclz.git`
-    * To update the local Midway version from the lastest master run `git pull` into `cd /project2/bettencourt/mnp/prclz`
+    * To update the local Midway version from the lastest master run `cd /project2/bettencourt/mnp/prclz` then `git pull` 
 
 
 * Sort by file size in directory:
