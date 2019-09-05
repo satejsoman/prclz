@@ -35,6 +35,7 @@ country_list=(`echo ${residual_list[@]} | tr ' ' '\n' | sort | cut -d'/' -f 4 | 
 
 country_list=(LBR NPL HTI)
 
+# Submit a job for each residual country
 for countrycode in ${country_list[@]}; do
 	< prclz/parcelization/midway_parcelization.sbatch sed -e "s/::COUNTRYCODE::/${countrycode}/g" > prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
 	sbatch prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
