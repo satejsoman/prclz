@@ -32,6 +32,7 @@ residual_list=(`echo ${building_list[@]} ${parcel_list[@]} | tr ' ' '\n' | sort 
 # List residual countries
 country_list=()
 country_list=(`echo ${residual_list[@]} | tr ' ' '\n' | sort | cut -d'/' -f 4 | uniq`)
+printf '%s\n' "${country_list[@]}"
 
 country_list=(LBR NPL HTI)
 
