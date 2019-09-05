@@ -17,6 +17,7 @@ parcel_list=()
 for i in data/parcels/*/*/*.geojson; do
     parcel_list+=("$i")
 done
+
 parcel_list=("${parcel_list[@]//parcels/buildings}")
 
 # List existing input files
