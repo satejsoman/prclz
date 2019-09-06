@@ -39,7 +39,7 @@ country_list=(NPL HTI)
 # Submit a job for each residual country
 for countrycode in ${country_list[@]}; do
 echo "$countrycode"
-< prclz/parcelization/midway_parcelization.sbatch sed -e "s/::COUNTRYCODE::/${countrycode}/g" > prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
+< prclz/parcelization/midway_parcelization_residual.sbatch sed -e "s/::COUNTRYCODE::/${countrycode}/g" > prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
 sbatch prclz/parcelization/filled_templates/${countrycode}_parcels.sbatch
 done
 
