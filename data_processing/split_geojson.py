@@ -66,6 +66,8 @@ def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks
     GADM boundaries and block file
     '''
 
+    print("FILE IS HERE")
+
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     
     if gadm_name is None or region is None:
