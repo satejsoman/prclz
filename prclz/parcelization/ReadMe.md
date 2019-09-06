@@ -11,7 +11,7 @@
 3. Run this script to submit jobs: `bash prclz/parcelization/midway_parcelization_residual.sh`
     * If jobs fail this script will pick up from where the previous jobs left off
     * Assumes that if a building .geojson exists then a block .csv exists
-    * Writes all parcel .geojson files to `cd /project2/bettencourt/mnp/prclz/data/parceks/<continent>/<countrycode>/.geojson`
+    * Writes all parcel .geojson files to `cd /project2/bettencourt/mnp/prclz/data/parcels/*/*/*.geojson`
     
     
 ## Midway Help Guide ##
