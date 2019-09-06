@@ -1,3 +1,4 @@
+from logging import debug
 from typing import Sequence, Tuple, Union
 
 import geopandas as gpd
@@ -16,15 +17,19 @@ def get_s0_approximation(block: Polygon, centroids: Sequence[Tuple[float, float]
     boundary_set = set(boundary_points)
 
     # get internal parcels from the voronoi decomposition of space, given building centroids
+    debug("intersecting Voronoi decomposition with block geometry")
     intersected_polygons = [
         (Point(anchor), Polygon(vs).buffer(0).intersection(block)) 
         for (anchor, vs) in pytess.voronoi(centroids) 
         if (anchor and anchor not in boundary_set and len(vs) > 2)]
 
     # simplify geometry when multiple areas intersect original block
+    debug("simplifying multi-polygon intersections")
     simplified_polygons = [
         polygon if polygon.type == "Polygon" else next((segment for segment in polygon if segment.contains(anchor)), None)
         for (anchor, polygon) in intersected_polygons]
+    
+    debug("building planar graph approximation")
     return PlanarGraph.from_polygons([polygon for polygon in simplified_polygons if polygon])
 
 def get_weak_dual_sequence_for_dataframe(
@@ -39,7 +44,10 @@ def get_weak_dual_sequence_for_dataframe(
 
 def get_weak_dual_sequence(block: Polygon, centroids: Sequence[Point]) -> Sequence[PlanarGraph]:
     s_vector = [get_s0_approximation(block, [(c.x, c.y) for c in centroids])]
+    k = 0
     while s_vector[-1].number_of_nodes() > 0:
+        k += 1
+        debug("weak dual sequence running... (%s)", k)
         s_vector.append(s_vector[-1].weak_dual())
     s_vector.pop() # last graph has no nodes
     return s_vector

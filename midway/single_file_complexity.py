@@ -61,7 +61,7 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, overw
 def setup(args=None):
     # logging
     logging.basicConfig(format="%(asctime)s/%(filename)s/%(funcName)s | %(levelname)s - %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
-    logging.getLogger().setLevel("INFO")
+    logging.getLogger().setLevel("DEBUG")
 
     # read arguments
     parser = argparse.ArgumentParser(description='Run complexity workflow on midway2.')
