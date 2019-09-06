@@ -1,0 +1,31 @@
+#!/bin/bash
+
+template="#!/bin/bash
+#SBATCH --job-name=k_::COUNTRYCODE::
+#SBATCH --partition=broadwl
+#SBATCH --nodes=1
+#SBATCH --ntasks=28
+#SBATCH --mem=45G
+#SBATCH --output=logs/k_::COUNTRYCODE::.out
+#SBATCH --error=logs/k_::COUNTRYCODE::.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=satej@uchicago.edu
+#SBATCH --time=36:00:00
+#SBATCH --account=pi-bettencourt
+set -euo pipefail
+
+mkdir -p data/complexity/::CONTINENT::/::COUNTRYCODE::
+
+module load parallel
+
+ulimit -u 10000
+
+find data/buildings/::CONTINENT::/::COUNTRYCODE::/buildings*.geojson | 
+xargs -I% bash -c 'building=%; echo \$(echo \${building//buildings/blocks} | sed -e \"s/geojson/csv/g\") \$building \$(echo \${building//buildings/complexity} | sed -e \"s/geojson/csv/g\")' |
+parallel --colsep='\ ' -N3 --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} -N3 \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
+
+grep "africa" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
+    continent=$(python -c "print('${continent}'.split('/')[0].title())")
+    echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g "> midway/filled_templates/k_${country_code}.sbatch
+    echo "$(sbatch midway/filled_templates/k_${country_code}.sbatch) (${country_code})"
+done
