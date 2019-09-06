@@ -22,6 +22,7 @@
     * Kill jobs: `scancel --user=<CNETID>`
     * View allocated/idle nodes `sinfo -p broadwl`
     * Check account balance `rcchelp balance`
+    * Midway resources and job limits `rcchelp qos`
 
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
     * Using a terminal pager to view logs:
