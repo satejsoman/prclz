@@ -32,7 +32,7 @@ echo "${building_list[@]}"
 residual_list=()
 residual_list=(`echo ${building_list[@]} ${parcel_list[@]} | tr ' ' '\n' | sort | uniq -u`)
 
-# List residual countries
+# List countries with residual input files
 country_list=()
 country_list=(`echo ${residual_list[@]} | tr ' ' '\n' | sort | cut -d'/' -f 4 | uniq`)
 printf '%s\n' "${country_list[@]}"
