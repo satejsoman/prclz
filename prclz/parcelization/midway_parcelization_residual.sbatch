@@ -13,10 +13,12 @@
 #SBATCH --account=pi-bettencourt
 
 parcel_list=()
+if [[ find data/parcels/*/::COUNTRYCODE::/ ]] then
 for i in $(ls data/parcels/*/::COUNTRYCODE::/); do
-    parcel_list+=("$i")
+    parcel_list+=(data/parcels/*/::COUNTRYCODE::/"$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
+fi
 echo "${parcel_list[@]}"
 
 building_list=()
