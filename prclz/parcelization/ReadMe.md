@@ -19,9 +19,10 @@
 ## Midway Help Guide ##
 
 * Check jobs: `squeue --user=<CNETID>` 
-    * Kill jobs: `scancel --user=<CNETID>`
+    * Kill jobs: `scancel --user=<CNETID>` `scancel <JOBID>`
     * View allocated/idle nodes `sinfo -p broadwl`
     * Check account balance `rcchelp balance`
+    * Check how much balance each job used `rcchelp usage --byjob`
     * Midway resources and job limits `rcchelp qos`
 
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
