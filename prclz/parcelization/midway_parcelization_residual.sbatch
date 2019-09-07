@@ -37,6 +37,8 @@ echo "${residual_list[@]}"
 printf '%s\n' "${residual_list[@]}"
 
 set -e
+
+# Execute script on residual building input files
 for building in "${residual_list[@]}"; do
     Rscript prclz/parcelization/midway_parcelization.R --building ${building};
 done
