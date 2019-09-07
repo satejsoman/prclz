@@ -58,7 +58,7 @@
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
     * Generally `--mem = 58000` is upper limit allowed on `broadwl` and this represents the memory allocated to the node
     * To check memory useage [use this script](https://github.com/rcc-uchicago/R-large-scale/blob/master/monitor_memory.py) and run the following:
-    * Warning `bigmem2` is extremely expensive to use and only use sparingly.
+    * Warning `bigmem2` is extremely expensive, use sparingly.
       ```
       module load python/3.7.0
       export MEM_CHECK_INTERVAL=0.01
