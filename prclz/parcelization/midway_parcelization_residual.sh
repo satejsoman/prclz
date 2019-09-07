@@ -19,14 +19,14 @@ for i in data/parcels/*/*/*.geojson; do
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
-echo "${parcel_list[@]}"
+#echo "${parcel_list[@]}"
 
 # Add output files to array
 building_list=()
 for i in data/buildings/*/*/*.geojson; do
     building_list+=("$i")
 done
-echo "${building_list[@]}"
+#echo "${building_list[@]}"
 
 # List residual between output and input files
 residual_list=()
