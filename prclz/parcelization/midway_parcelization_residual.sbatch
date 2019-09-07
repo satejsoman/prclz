@@ -19,7 +19,7 @@ for i in data/parcels/*/::COUNTRYCODE::/*.geojson; do
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
-echo "${parcel_list[@]}"
+#echo "${parcel_list[@]}"
 
 # If input file exists in buildings directory add to array
 building_list=()
@@ -27,12 +27,12 @@ for i in data/buildings/*/::COUNTRYCODE::/*.geojson; do
     [ -f "$i" ] || continue
     building_list+=("$i")
 done
-echo "${building_list[@]}"
+#echo "${building_list[@]}"
 
 # Find residual building input files with no corresponding parcel output files
 residual_list=()
 residual_list=(`echo ${building_list[@]} ${parcel_list[@]} | tr ' ' '\n' | sort | uniq -u `)
-echo "${residual_list[@]}"
+#echo "${residual_list[@]}"
 
 printf '%s\n' "${residual_list[@]}"
 
