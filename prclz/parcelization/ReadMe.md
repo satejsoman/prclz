@@ -39,7 +39,7 @@
       
 * Setting up Git on Midway:
     * Set current directory to home with `cd` 
-    * Run `ssh-keygen` and hit enter at every prompt i.e., leave the following blank `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
+    * Run `ssh-keygen` and hit 'enter' at every prompt i.e., leave the following blank `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
     * Set `cd ~/.ssh` and copy SSH key (view SSH key with `less id_rsa.pub` and hit `q` to exit)
     * Go to github.com, click 'Settings' > 'SSH and GPG keys' > 'New SSH key' and paste in contents of `~/.ssh/id_rsa.pub` and save.
     * To clone the repo `git clone git@github.com:mansueto-institute/prclz.git`
