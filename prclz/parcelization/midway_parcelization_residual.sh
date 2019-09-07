@@ -12,18 +12,22 @@ for i in data/buildings/*/*; do
     mkdir -p "$j"
 done
 
-# List existing output files
+# If output file exists in parcels directory add to array
 parcel_list=()
 for i in data/parcels/*/*/*.geojson; do
+    [ -f "$i" ] || continue
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
+echo "${parcel_list[@]}"
 
-# List existing input files
+# If input file exists in buildings directory add to array
 building_list=()
 for i in data/buildings/*/*/*.geojson; do
+    [ -f "$i" ] || continue
     building_list+=("$i")
 done
+echo "${building_list[@]}"
 
 # List residual between output and input files
 residual_list=()
