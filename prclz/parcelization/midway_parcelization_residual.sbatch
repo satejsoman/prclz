@@ -3,14 +3,14 @@
 #SBATCH --job-name=parcels_::COUNTRYCODE::
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=16
+#SBATCH --ntasks-per-node=8
 #SBATCH --mem=56000
 #SBATCH --output=logs/parcels_::COUNTRYCODE::.out
 #SBATCH --error=logs/parcels_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
 #SBATCH --time=36:00:00
-#SBATCH --account=pi-bettencourt
+#SBATCH --account=rcc-staff
 
 # If output file exists in parcels directory add to array
 parcel_list=()
