@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=PARCELS_::COUNTRYCODE::
+#SBATCH --job-name=parcels_::COUNTRYCODE::
 #SBATCH --partition=broadwl
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
