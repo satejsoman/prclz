@@ -10,21 +10,20 @@ module load gdal/2.4.1
 for i in data/buildings/*/*; do
     j=("${i//buildings/parcels}")
     mkdir -p "$j"
+    echo "$j"
 done
 
-# If output file exists in parcels directory add to array
+# Add input files to array
 parcel_list=()
 for i in data/parcels/*/*/*.geojson; do
-    [ -f "$i" ] || continue
     parcel_list+=("$i")
 done
 parcel_list=("${parcel_list[@]//parcels/buildings}")
 echo "${parcel_list[@]}"
 
-# If input file exists in buildings directory add to array
+# Add output files to array
 building_list=()
 for i in data/buildings/*/*/*.geojson; do
-    [ -f "$i" ] || continue
     building_list+=("$i")
 done
 echo "${building_list[@]}"
