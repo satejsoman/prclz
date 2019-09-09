@@ -20,6 +20,9 @@ module load parallel
 
 ulimit -u 10000
 
+echo \" number of building files           : \$(ls data/buildings/::CONTINENT::/::COUNTRYCODE::/  | wc -l) \"
+echo \" number of existing complexity files: \$(ls data/complexity/::CONTINENT::/::COUNTRYCODE::/ | wc -l) \"
+
 find data/buildings/::CONTINENT::/::COUNTRYCODE::/buildings*.geojson | 
 xargs -I% bash -c 'building=%; echo \$(echo \${building//buildings/blocks} | sed -e \"s/geojson/csv/g\") \$building \$(echo \${building//buildings/complexity} | sed -e \"s/geojson/csv/g\")' |
 parallel --colsep='\ ' -N3 --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} -N3 \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
