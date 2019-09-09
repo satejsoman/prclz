@@ -9,13 +9,21 @@
 2. Update repo: `git pull`
 
 3. Run this script to submit jobs: `bash prclz/parcelization/midway_parcelization_residual.sh`
-
+    * If jobs fail this script will pick up from where the previous jobs left off
+    * Input file directories: 
+      * `cd /project2/bettencourt/mnp/prclz/data/buildings`  
+      * `cd /project2/bettencourt/mnp/prclz/data/blocks`
+    * Output file directory: 
+      * `cd /project2/bettencourt/mnp/prclz/data/parcels`
+    
 ## Midway Help Guide ##
 
 * Check jobs: `squeue --user=<CNETID>` 
-    * Kill jobs: `scancel --user=<CNETID>`
+    * Kill jobs: `scancel --user=<CNETID>` `scancel <JOBID>`
     * View allocated/idle nodes `sinfo -p broadwl`
     * Check account balance `rcchelp balance`
+    * Check how much balance each job used `rcchelp usage --byjob`
+    * Midway resources and job limits `rcchelp qos`
 
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
     * Using a terminal pager to view logs:
@@ -32,7 +40,7 @@
       
 * Setting up Git on Midway:
     * Set current directory to home with `cd` 
-    * Run `ssh-keygen` and hit enter at every prompt i.e., leave the following blank `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
+    * Run `ssh-keygen` and hit 'enter' at every prompt i.e., leave the following blank `Enter file in which to save the key (/home/nmarchio/.ssh/id_rsa):`, `Enter passphrase (empty for no passphrase):`, `Enter same passphrase again:`
     * Set `cd ~/.ssh` and copy SSH key (view SSH key with `less id_rsa.pub` and hit `q` to exit)
     * Go to github.com, click 'Settings' > 'SSH and GPG keys' > 'New SSH key' and paste in contents of `~/.ssh/id_rsa.pub` and save.
     * To clone the repo `git clone git@github.com:mansueto-institute/prclz.git`
@@ -51,7 +59,7 @@
 * SLURM source docs: https://slurm.schedmd.com/sbatch.html 
     * Generally `--mem = 58000` is upper limit allowed on `broadwl` and this represents the memory allocated to the node
     * To check memory useage [use this script](https://github.com/rcc-uchicago/R-large-scale/blob/master/monitor_memory.py) and run the following:
-    * Warning `bigmem2` is extremely expensive to use and only use sparingly.
+    * Warning `bigmem2` is extremely expensive, use sparingly.
       ```
       module load python/3.7.0
       export MEM_CHECK_INTERVAL=0.01
