@@ -33,7 +33,7 @@ grep "${filter}" data_processing/country_codes.csv |
 rev | cut -d, -f2,3,4 | rev | tr , ' ' | 
 while read country_code country_name continent; do
     continent=$(python -c "print('${continent}'.split('/')[0].title())")
-    echo -n "${country_code} ${country_name} ${continent} | "
+    echo -n "${country_code} ${country_name} ${continent}"
     echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g" > midway/filled_templates/k_${country_code}.sbatch
     sbatch midway/filled_templates/k_${country_code}.sbatch
-done
+done | column -t 
