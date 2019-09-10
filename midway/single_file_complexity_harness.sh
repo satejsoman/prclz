@@ -25,10 +25,15 @@ echo \" number of existing complexity files: \$(ls data/complexity/::CONTINENT::
 
 find data/buildings/::CONTINENT::/::COUNTRYCODE::/buildings*.geojson | 
 xargs -I% bash -c 'building=%; echo \$(echo \${building//buildings/blocks} | sed -e \"s/geojson/csv/g\") \$building \$(echo \${building//buildings/complexity} | sed -e \"s/geojson/csv/g\")' |
-parallel --colsep='\ ' -N3 --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} -N3 \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
+parallel --colsep='\ ' --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} -N3 \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
 
-grep "africa" data_processing/country_codes.csv | rev | cut -d, -f2,3,4 | rev | tr , ' ' | while read country_code country_name continent; do
+filter="SLE\|LBR\|NPL\|HTI"
+
+grep "${filter}" data_processing/country_codes.csv | 
+rev | cut -d, -f2,3,4 | rev | tr , ' ' | 
+while read country_code country_name continent; do
     continent=$(python -c "print('${continent}'.split('/')[0].title())")
-    echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g "> midway/filled_templates/k_${country_code}.sbatch
-    echo "$(sbatch midway/filled_templates/k_${country_code}.sbatch) (${country_code})"
+    echo -n "${country_code} ${country_name} ${continent} | "
+    echo "${template}" | sed -e "s/::COUNTRYCODE::/${country_code}/g" -e "s/::COUNTRYNAME::/${country_name}/g" -e "s'::CONTINENT::'${continent}'g" > midway/filled_templates/k_${country_code}.sbatch
+    sbatch midway/filled_templates/k_${country_code}.sbatch
 done
