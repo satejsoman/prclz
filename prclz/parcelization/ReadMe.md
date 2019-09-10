@@ -24,6 +24,7 @@
     * Check account balance `rcchelp balance`
     * Check how much balance each job used `rcchelp usage --byjob`
     * Midway resources and job limits `rcchelp qos`
+    * Check storage `accounts storage --account=<pi-account>`
 
 * Check error logs: `cd /project2/bettencourt/mnp/prclz/logs`
     * Using a terminal pager to view logs:
