@@ -5,7 +5,7 @@ import geopandas as gpd
 
 continent_name = sys.argv[1]
 
-exec(open("./prclz/prclz/topology.py").read(), globals())
+exec(open("/project2/bettencourt/mnp/prclz/prclz/topology.py").read(), globals())
 
 def read_file(path, **kwargs):
     """ ensures geometry set correctly when reading from csv
