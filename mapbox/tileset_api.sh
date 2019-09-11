@@ -1,60 +1,31 @@
 
-# CONVERT CSVs to GEOJSON
-module load intel/18.0
-module load gdal/2.2
-module load Anaconda3/5.1.0
+MAPBOX_API_TOKEN=()
+MAPBOX_USERNAME=(nmarchi0)
+TILESET_NAME=(tile_test)
+COMPLEXITY_GEOJSON_FILEPATH=()
+JSON_RECIPE_FILEPATH=()
 
-# CONCATENATE CSVs
-continent_list = ()
-cd /project2/bettencourt/mnp/prclz/data/complexity
-for i in $(ls -d */); do
-	continent_list+=("$i")
-	find /project2/bettencourt/mnp/prclz/data/complexity/${i}/* -name "*.csv" | while read file
-	do
-		head -1 ./Africa/SLE/complexity_SLE.3.4.10_1.csv > /project2/bettencourt/mnp/prclz/data/tilesets/${i}.csv
-	    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/${i}.csv
-	done
-	python /project2/bettencourt/mnp/prclz/mapbox/mapbox_conversion.py "$i"
-done
-printf '%s\n' "${continent_list[@]}"
+# DELETE TILESET SOURCE ID (only if overwriting tileset)
+curl -X DELETE "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
+# UPLOAD RAW GEOJSON TO MAPBOX
+curl -F file=@${COMPLEXITY_GEOJSON_FILEPATH} \
+  "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
-# DELETE TILESET SOURCE
-curl -X DELETE "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${CONTINENT_FILE}?access_token=${MAPBOX_API_TOKEN}"
+# TEST IF VALID RECIPE
+curl -X PUT "https://api.mapbox.com/tilesets/v1/validateRecipe?access_token=${MAPBOX_API_TOKEN}" \
+ -d @${JSON_RECIPE_FILEPATH} \
+ --header "Content-Type:application/json"
 
-# CREATE TILESET SOURCE ID
-curl -F file=@/Users/nmarchio/Desktop/sle_complexity_combined.geojson \
-  "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${CONTINENT_FILE}?access_token=${MAPBOX_API_TOKEN}"
+# DEFINE TILESET JOB FOR SPECIFIED GEOJSON SOURCE ID AND JSON RECIPE
+curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}" \
+ -d @${JSON_RECIPE_FILEPATH} \
+ --header "Content-Type:application/json"
 
-# CREATE TILESET RECIPE
-curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${CONTINENT_FILE}?access_token=${MAPBOX_API_TOKEN}" \
-  --header "Content-Type:application/json" \
-  -d @- <<END;
-{"recipe":
-  {
-    "version": 1,
-    "layers": {
-      "${CONTINENT_FILE}_zoomlayer1": {
-        "source": "mapbox://tileset-source/nmarchi0/${CONTINENT_FILE}",
-        "minzoom": 0,
-        "maxzoom": 10
-      },
-      "${CONTINENT_FILE}_zoomlayer2": {
-        "source": "mapbox://tileset-source/nmarchi0/${CONTINENT_FILE}",
-        "minzoom": 11,
-        "maxzoom": 13
-      }
-    }
-  },
-  "name": "${CONTINENT_FILE}"
-} 
-END
+# SUBMIT TILESET JOB
+curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${TILESET_NAME}/publish?access_token=${MAPBOX_API_TOKEN}"
 
-# PUBLISH TILESET SOURCE
-curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${CONTINENT_FILE}/publish?access_token=${MAPBOX_API_TOKEN}"
+# RETRIEVE TILESET JOB STATUS
+curl "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${TILESET_NAME}/status?access_token=${MAPBOX_API_TOKEN}"
 
-# RETRIEVE STATUS
-curl "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${CONTINENT_FILE}/status?access_token=${MAPBOX_API_TOKEN}"
-
-
-
+# IF SUCCESSFUL THE TILESET SHOULD BE AVAILABLE IN MAPBOX STUDIO ACCOUNT
