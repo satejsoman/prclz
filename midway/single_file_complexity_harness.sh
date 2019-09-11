@@ -6,8 +6,8 @@ template="#!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks=28
 #SBATCH --mem=45G
-#SBATCH --output=logs/k_::COUNTRYCODE::.out
-#SBATCH --error=logs/k_::COUNTRYCODE::.err
+#SBATCH --o=logs/k_::COUNTRYCODE::.out
+#SBATCH --e=logs/k_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=satej@uchicago.edu
 #SBATCH --time=36:00:00
@@ -25,7 +25,7 @@ echo \" number of existing complexity files: \$(ls data/complexity/::CONTINENT::
 
 find data/buildings/::CONTINENT::/::COUNTRYCODE::/buildings*.geojson | 
 xargs -I% bash -c 'building=%; echo \$(echo \${building//buildings/blocks} | sed -e \"s/geojson/csv/g\") \$building \$(echo \${building//buildings/complexity} | sed -e \"s/geojson/csv/g\")' |
-parallel --colsep='\ ' --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} -N3 \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
+parallel --colsep='\ ' --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
 
 filter="SLE\|LBR\|NPL\|HTI"
 
