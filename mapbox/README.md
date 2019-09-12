@@ -1,7 +1,7 @@
 
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
-### Method 1: Tileset API (cloud mbtile processing) ###
+### Preparing the files for upload  ###
 * Set `cd /project2/bettencourt/mnp/prclz`
 * Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_complexity.sh` to concatenate CSVs and write to `/project2/bettencourt/mnp/prclz/data/tilesets/`
 * Load modules
@@ -21,6 +21,7 @@
     JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
     ```
     
+ ### Method 1: Tileset API (cloud mbtile processing) ###
  * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
