@@ -2,7 +2,6 @@
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
 ### Preparing the files for upload  ###
-* Set `TILESET_NAME=(global_file)`
 * Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` 
   *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to GeoJSON)*
 
