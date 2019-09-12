@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "layers": {
+    "low_zoom_::TILESET_NAME::": {
+      "source": "mapbox://tileset-source/::MAPBOX_USERNAME::/::TILESET_NAME::",
+      "minzoom": 0,
+      "maxzoom": 13,
+      "features": {
+        "simplification": 0
+      }
+    }
+  }
+}
