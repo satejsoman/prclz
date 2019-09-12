@@ -29,8 +29,8 @@
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
    ```
    conda install -c conda-forge tippecanoe
-   conda activate tippecanoe
+   source activate tippecanoe
    ```
- * Set `COMPLEXITY_GEOJSON_FILEPATH=()` and run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
+ * Set `cd /project2/bettencourt/mnp/prclz/data/tilesets`, define `COMPLEXITY_GEOJSON_FILEPATH=()`, and run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
  * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
