@@ -27,4 +27,4 @@
         conda activate mnp
         conda install -c conda-forge tippecanoe
         ```
-    * Run `base prclz/mapbox/tippecanoe_tileset.sh`
+    * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
