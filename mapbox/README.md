@@ -2,6 +2,7 @@
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
 ### Preparing the files for upload (combine CSVs and convert to GeoJSON)  ###
+* Run `cd /project2/bettencourt/mnp/prclz` and `git pull`
 * Load modules and activate environment
   ``` 
   module load intel/18.0
