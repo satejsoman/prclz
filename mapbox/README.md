@@ -3,7 +3,7 @@
 
 ### Preparing the files for upload  ###
 * Set `TILESET_NAME=(<filename>)`
-* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` *warning: combines all CSVs files in complexity directory*
+* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` *warning: combines all CSVs files in complexity directory and converts to GeoJSON*
 
  ### Method 1: Tileset API (cloud mbtile processing) ###
  * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
