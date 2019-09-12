@@ -1,5 +1,5 @@
 
-## Mapbox ETL ##
+## Mapbox API Upload ##
 
 * Set `cd /project2/bettencourt/mnp/prclz`
 * Run `bash mapbox/cat_complexity.sh` to concatenate CSVs and write to `prclz/data/tilesets/`
