@@ -32,5 +32,7 @@
   * Go to "Select data" > "Data sources" > click uploaded tileset layer 
   * Go to "Style" > "Style across data range" > "Choose numeric data field": Complexity # Numeric
   * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity 20 = red)
-  * Publish
+  * Click "Share..." copy the "Your style URL" and the "Your access token"
+  * Paste the access token and the style URL [here](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html)
+  * Find map webpage here: https://mansueto-institute.github.io/
  
