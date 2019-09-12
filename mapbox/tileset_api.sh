@@ -1,3 +1,10 @@
+# SET PARAMETERS
+MAPBOX_API_TOKEN=()
+MAPBOX_USERNAME=(nmarchi0)
+TILESET_NAME=(global_file)
+COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson)
+JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
+
 # FILL IN JSON RECIPE TEMPLATE
 JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_recipe.json)
 sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" < ${JSON_RECIPE_TEMPLATE} > ${JSON_RECIPE_FILEPATH}
