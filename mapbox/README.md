@@ -12,7 +12,7 @@
 * Run `python mapbox/csv_to_geojson.py prclz/data/tilesets/<filename.csv>` to write GEOJSONs to `prclz/data/tilesets/`
 * Set the following parameters for file uploads to Mapbox:
     ```
-    MAPBOX_API_TOKEN=()
+    MAPBOX_API_TOKEN=() # HINT: https://account.mapbox.com/access-tokens/create and enable secret scopes
     MAPBOX_USERNAME=(nmarchi0)
     TILESET_NAME=(Africa)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
