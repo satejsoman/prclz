@@ -1,12 +1,12 @@
 {
   "version": 1,
   "layers": {
-    "countries": {
+    "low_zoom_::TILESET_NAME::": {
       "source": "mapbox://tileset-source/::MAPBOX_USERNAME::/::TILESET_NAME::",
       "minzoom": 0,
-      "maxzoom": 13,
+      "maxzoom": 10,
       "features": {
-        "simplification": 0
+        "simplification": 5
       }
     }
   }
