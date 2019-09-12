@@ -1,7 +1,4 @@
 
-module load intel/18.0
-module load gdal/2.4.1 
-
 # Concatenate CSVs
 head -1 /project2/bettencourt/mnp/prclz/mapbox/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv
 find /project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv -name "*.csv" | while read file
