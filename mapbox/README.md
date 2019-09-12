@@ -30,4 +30,5 @@
         conda install -c conda-forge tippecanoe
         ```
     * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
-    * Upload through the UI [here](https://studio.mapbox.com/tilesets/) limit is 1GB
+    * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
+    * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
