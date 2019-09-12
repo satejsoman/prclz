@@ -21,7 +21,7 @@
     JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/high_zoom_recipe.json)
     ```
     
- * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
+ * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
