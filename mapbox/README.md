@@ -14,13 +14,10 @@
  ### Method 1: Tileset API (cloud mbtile processing) ###
  * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
-    MAPBOX_API_TOKEN=()
-    MAPBOX_USERNAME=(nmarchi0)
-    TILESET_NAME=(global_file)
-    COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson)
-    JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
+    MAPBOX_API_TOKEN=(<INSERT TOKEN HERE>)
     ```
- * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
+ * Run `sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh > /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh`
+ * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
