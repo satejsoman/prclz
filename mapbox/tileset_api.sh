@@ -3,16 +3,16 @@ JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_recip
 sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" < ${JSON_RECIPE_TEMPLATE} > ${JSON_RECIPE_FILEPATH}
 
 # DELETE TILESET SOURCE ID (TO OVERWRITE EXISTING TILESET)
-curl -X DELETE "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
+# curl -X DELETE "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
 # UPLOAD AND CREATE GEOJSON SOURCE ID
 curl -F file=@${COMPLEXITY_GEOJSON_FILEPATH} \
   "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
 # TEST IF VALID RECIPE
-curl -X PUT "https://api.mapbox.com/tilesets/v1/validateRecipe?access_token=${MAPBOX_API_TOKEN}" \
- -d @${JSON_RECIPE_FILEPATH} \
- --header "Content-Type:application/json"
+# curl -X PUT "https://api.mapbox.com/tilesets/v1/validateRecipe?access_token=${MAPBOX_API_TOKEN}" \
+#  -d @${JSON_RECIPE_FILEPATH} \
+#  --header "Content-Type:application/json"
 
 # SET TILESET JOB SPECS (GEOJSON SOURCE ID AND JSON RECIPE)
 curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}" \
