@@ -6,6 +6,7 @@
 * Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_complexity.sh` to concatenate CSVs and write to `/project2/bettencourt/mnp/prclz/data/tilesets/`
 * Load modules
     ```
+    source activate mnp
     module load intel/18.0
     module load gdal/2.2
     module load Anaconda3/5.1.0
