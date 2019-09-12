@@ -34,3 +34,12 @@
  * Set `cd /project2/bettencourt/mnp/prclz/data/tilesets`, define `COMPLEXITY_GEOJSON_FILEPATH=()`, and run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
  * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
+ 
+  ### Basics of Mapbox Studio ###
+  * Verify that uploaded tileset is available [here](https://studio.mapbox.com/tilesets/)
+  * Go to https://studio.mapbox.com/ and select style for map
+  * Go to "Select data" > "Data sources" > click uploaded tileset layer 
+  * Go to "Style" > "Style across data range" > "Choose numeric data field": Complexity # Numeric
+  * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity 20 = red)
+  * Publish
+ 
