@@ -2,7 +2,7 @@
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
 ### Preparing the files for upload  ###
-* Set `TILESET_NAME=(<filename>)`
+* Set `TILESET_NAME=(global_file)`
 * Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` 
   *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to GeoJSON)*
 
@@ -11,7 +11,7 @@
     ```
     MAPBOX_API_TOKEN=()
     MAPBOX_USERNAME=(nmarchi0)
-    TILESET_NAME=(Africa)
+    TILESET_NAME=(global_file)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
     JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
     ```
