@@ -1,5 +1,5 @@
 # SET PARAMETERS
-MAPBOX_API_TOKEN=()
+MAPBOX_API_TOKEN=(::TOKEN::)
 MAPBOX_USERNAME=(nmarchi0)
 TILESET_NAME=(global_file)
 COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson)
