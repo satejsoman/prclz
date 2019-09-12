@@ -3,7 +3,7 @@
 
 ### Method 1: Tileset API (cloud mbtile processing) ###
 * Set `cd /project2/bettencourt/mnp/prclz`
-* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_complexity.sh` to concatenate CSVs and write to `prclz/data/tilesets/`
+* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_complexity.sh` to concatenate CSVs and write to `/project2/bettencourt/mnp/prclz/data/tilesets/`
 * Load modules
     ```
     module load intel/18.0
