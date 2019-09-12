@@ -18,7 +18,7 @@
     MAPBOX_USERNAME=(nmarchi0)
     TILESET_NAME=(Africa)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
-    JSON_RECIPE_FILEPATH=()
+    JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_recipe.json)
     sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" < high_zoom_recipe.json > ${JSON_RECIPE_FILEPATH}
     ```
     
