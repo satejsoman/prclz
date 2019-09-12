@@ -26,8 +26,8 @@
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe):
     * Build from source repo:
         ```
-        conda activate mnp
         conda install -c conda-forge tippecanoe
+        conda activate tippecanoe
         ```
     * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
     * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
