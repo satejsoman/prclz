@@ -23,12 +23,11 @@
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
- * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe):
-    * Build from source repo:
-      ```
-      conda install -c conda-forge tippecanoe
-      conda activate tippecanoe
-      ```
-    * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
-    * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
-    * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
+ * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
+   ```
+   conda install -c conda-forge tippecanoe
+   conda activate tippecanoe
+   ```
+ * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
+ * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
+ * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
