@@ -1,6 +1,7 @@
 
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
+### Tileset API (cloud mbtile processing) ###
 * Set `cd /project2/bettencourt/mnp/prclz`
 * Run `bash mapbox/cat_complexity.sh` to concatenate CSVs and write to `prclz/data/tilesets/`
 * Load modules
@@ -21,7 +22,7 @@
     
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
- 
+ ### tippecanoe (local mbtile processing) ###
  * If all else fails use the [tippencanoe package](https://github.com/mapbox/tippecanoe):
     * Build from source repo:
         ```
@@ -29,3 +30,4 @@
         conda install -c conda-forge tippecanoe
         ```
     * Run `base prclz/mapbox/tippecanoe_tileset.sh prclz/data/tilesets/<filename.geojson>`
+    * Upload through the UI [here](https://studio.mapbox.com/tilesets/) limit is 1GB
