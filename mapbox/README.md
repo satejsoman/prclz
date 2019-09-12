@@ -2,18 +2,9 @@
 ## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
 ### Preparing the files for upload  ###
-* Set `cd /project2/bettencourt/mnp/prclz`
-* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_complexity.sh` to concatenate CSVs and write to `/project2/bettencourt/mnp/prclz/data/tilesets/`
-* Load modules
-    ```
-    source activate mnp
-    module load intel/18.0
-    module load gdal/2.2
-    module load Anaconda3/5.1.0
-    ```
-    * Set `cd /project2/bettencourt/mnp/prclz/data/tilesets` 
-    * Run `python /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.py <filename.csv>` to convert CSVs to GEOJSONs
-    
+* Set `TILESET_NAME=(<filename>)`
+* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` *warning: combines all CSVs files in complexity directory
+
  ### Method 1: Tileset API (cloud mbtile processing) ###
  * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
