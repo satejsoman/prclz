@@ -5,10 +5,10 @@ TILESET_NAME=(tile_test)
 COMPLEXITY_GEOJSON_FILEPATH=()
 JSON_RECIPE_FILEPATH=()
 
-# DELETE TILESET SOURCE ID (only if overwriting tileset)
+# DELETE TILESET SOURCE ID (TO OVERWRITE EXISTING TILESET)
 curl -X DELETE "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
-# UPLOAD RAW GEOJSON TO MAPBOX
+# UPLOAD AND CREATE GEOJSON SOURCE ID
 curl -F file=@${COMPLEXITY_GEOJSON_FILEPATH} \
   "https://api.mapbox.com/tilesets/v1/sources/${MAPBOX_USERNAME}/${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}"
 
@@ -17,7 +17,7 @@ curl -X PUT "https://api.mapbox.com/tilesets/v1/validateRecipe?access_token=${MA
  -d @${JSON_RECIPE_FILEPATH} \
  --header "Content-Type:application/json"
 
-# DEFINE TILESET JOB FOR SPECIFIED GEOJSON SOURCE ID AND JSON RECIPE
+# SET TILESET JOB SPECS (GEOJSON SOURCE ID AND JSON RECIPE)
 curl -X POST "https://api.mapbox.com/tilesets/v1/${MAPBOX_USERNAME}.${TILESET_NAME}?access_token=${MAPBOX_API_TOKEN}" \
  -d @${JSON_RECIPE_FILEPATH} \
  --header "Content-Type:application/json"
