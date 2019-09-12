@@ -156,7 +156,7 @@ def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame,
 
     return parcels 
 
-# Just load our the data for one GADM in Sierra Leone
+# Just load our data for one GADM in Sierra Leone
 bldgs, blocks, parcels = load_geopandas_files(region, gadm_code, gadm)
 
 # Now build the parcel graph and prep the buildings
@@ -167,17 +167,21 @@ example_graph = graph_parcels.iloc[3]['planar_graph']
 example_buildings = graph_parcels.iloc[3]['buildings']
 
 print("\nGraph pre-adding building nodes:\n", example_graph, "\n")
-for bldg_node in example_buildings:
-    example_graph.add_node(bldg_node)
+total_blgds = len(example_buildings)
+for i, bldg_node in enumerate(example_buildings):
+    bldg_node.terminal = True
+    example_graph.add_node_to_closest_edge(bldg_node)
+    print("through {} of {} buildings".format(i, total_blgds))
 
 print("Graph post-adding building nodes:\n", example_graph)
+steiner = example_graph.steiner_tree_approx()
+example_graph.plot_reblock()
 
 # We just need to adjust the building centroid, but Geoefs function doesn't work for me
 
 import osmnx as ox 
 import networkx as nx 
 def test_osmnx():
-
     graph = nx.Graph()
     graph.add_edge((0,1), (0,0))
 
