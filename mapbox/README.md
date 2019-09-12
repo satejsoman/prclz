@@ -18,8 +18,8 @@
     MAPBOX_USERNAME=(nmarchi0)
     TILESET_NAME=(Africa)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
-    JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/mapbox/recipe_wo_toplevel.json)
-    sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" > ${JSON_RECIPE_FILEPATH}
+    JSON_RECIPE_FILEPATH=()
+    sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" < high_zoom_recipe.json > ${JSON_RECIPE_FILEPATH}
     ```
     
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
