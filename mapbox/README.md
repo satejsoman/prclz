@@ -10,7 +10,7 @@
     module load gdal/2.2
     module load Anaconda3/5.1.0
     ```
-* Run `python mapbox/csv_to_geojson.py prclz/data/tilesets/<filename.csv>` to convert CSVs to GEOJSONs and write to `prclz/data/tilesets/`
+* Set `cd /project2/bettencourt/mnp/prclz/data/tilesets` and run `python mapbox/csv_to_geojson.py <filename.csv>` to convert CSVs to GEOJSONs
 * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
     MAPBOX_API_TOKEN=()
