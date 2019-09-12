@@ -1,4 +1,5 @@
 
+module load intel/18.0
 module load gdal/2.4.1 
 
 # Concatenate CSVs
