@@ -18,7 +18,7 @@
     MAPBOX_USERNAME=(nmarchi0)
     TILESET_NAME=(Africa)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
-    JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/high_zoom_recipe.json)
+    JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
     ```
     
  * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
