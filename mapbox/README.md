@@ -2,8 +2,8 @@
 ## Mapbox ETL ##
 
 * Set `cd /project2/bettencourt/mnp/prclz`
-* Run `bash mapbox/cat_complexity.sh` to concatenate CSVs together and output to this directory `/project2/bettencourt/mnp/prclz/data/tilesets/`
-* Run `python mapbox/csv_to_geojson.py <filename.csv>` to convert to GEOJSON to this directory `/project2/bettencourt/mnp/prclz/data/tilesets/`
+* Run `bash mapbox/cat_complexity.sh` to concatenate CSVs and write to `prclz/data/tilesets/`
+* Run `python mapbox/csv_to_geojson.py <filename.csv>` to write GEOJSONs to `prclz/data/tilesets/`
 * Set the following parameters for file uploads to Mapbox:
     ```
     MAPBOX_API_TOKEN=()
