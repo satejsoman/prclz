@@ -1,10 +1,17 @@
 
 ## Mapbox ETL ##
 
-* 
-
-
-
+* Run `bash prclz/mapbox/cat_complexity.sh` to concatenate CSVs together and output to this directory `/project2/bettencourt/mnp/prclz/data/tilesets/`
+* Run `python prclz/mapbox/csv_to_geojson.py <filename.csv>` to convert to GEOJSON to this directory `/project2/bettencourt/mnp/prclz/data/tilesets/`
+* Set the following parameters for file uploads to Mapbox:
+    ```
+    MAPBOX_API_TOKEN=()
+    MAPBOX_USERNAME=(nmarchi0)
+    TILESET_NAME=(Africa)
+    COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
+    JSON_RECIPE_FILEPATH=(prclz/mapbox/recipe_wo_toplevel.json)
+    ```
+ * Run `bash prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
 
 
 
