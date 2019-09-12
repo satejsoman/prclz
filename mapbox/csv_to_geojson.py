@@ -1,6 +1,7 @@
 import getopt, sys
 import pandas as pd
 import shapely
+import fiona
 import geopandas as gpd
 
 continent_name = sys.argv[1]
