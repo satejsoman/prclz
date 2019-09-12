@@ -12,7 +12,9 @@
     ```
     * Set `cd /project2/bettencourt/mnp/prclz/data/tilesets` 
     * Run `python /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.py <filename.csv>` to convert CSVs to GEOJSONs
-* Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
+    
+ ### Method 1: Tileset API (cloud mbtile processing) ###
+ * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
     MAPBOX_API_TOKEN=()
     MAPBOX_USERNAME=(nmarchi0)
@@ -20,8 +22,6 @@
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
     JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
     ```
-    
- ### Method 1: Tileset API (cloud mbtile processing) ###
  * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
