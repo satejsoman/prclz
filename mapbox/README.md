@@ -1,5 +1,5 @@
 
-## Mapbox API Upload ##
+## [Mapbox API Upload](https://docs.mapbox.com/api/maps/#tilesets) ##
 
 * Set `cd /project2/bettencourt/mnp/prclz`
 * Run `bash mapbox/cat_complexity.sh` to concatenate CSVs and write to `prclz/data/tilesets/`
@@ -19,24 +19,12 @@
     JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/mapbox/recipe_wo_toplevel.json)
     ```
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
-
-
-
-## Archive ##
-
-* `tippencanoe` [package](https://github.com/mapbox/tippecanoe)
-* [How to access OSM building via Mapbox](https://github.com/mapbox/malaria-mapping)
-* [Mapbox API upload docs](https://docs.mapbox.com/api/maps/#datasets)
-
-
-### Build tippecanoe from the source repository ###
-```
-conda activate mnp
-conda install -c conda-forge tippecanoe
-```
-
-### Set current directory ###
-`cd /project2/bettencourt/mnp/prclz`
-
-### Make directory ###
-`mkdir /project2/bettencourt/mnp/prclz/data/mapbox`
+ 
+ 
+ * If all else fails use `tippencanoe` [package](https://github.com/mapbox/tippecanoe):
+    * Build tippecanoe from source repo:
+        ```
+        conda activate mnp
+        conda install -c conda-forge tippecanoe
+        ```
+    * Run `base prclz/mapbox/tippecanoe_tileset.sh`
