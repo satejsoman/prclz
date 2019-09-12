@@ -7,4 +7,5 @@ do
     tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/${i}.csv 
     echo "$file"
 done
+ogr2ogr -f "GeoJSON" /project2/bettencourt/mnp/prclz/data/tilesets/${i}.geojson /project2/bettencourt/mnp/prclz/data/tilesets/${i}.csv 
 done
