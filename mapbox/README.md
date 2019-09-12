@@ -10,14 +10,15 @@
     module load Anaconda3/5.1.0
     ```
 * Run `python mapbox/csv_to_geojson.py prclz/data/tilesets/<filename.csv>` to write GEOJSONs to `prclz/data/tilesets/`
-* Set the following parameters for file uploads to Mapbox:
+* Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
-    MAPBOX_API_TOKEN=() # [HINT](https://account.mapbox.com/access-tokens/create) and enable secret scopes
+    MAPBOX_API_TOKEN=()
     MAPBOX_USERNAME=(nmarchi0)
     TILESET_NAME=(Africa)
     COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/Africa.geojson)
     JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/mapbox/recipe_wo_toplevel.json)
     ```
+    
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  
