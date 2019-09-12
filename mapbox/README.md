@@ -21,8 +21,8 @@
  * Run `bash mapbox/tileset_api.sh` to upload GEOJSON to Mapbox
  
  
- * If all else fails use `tippencanoe` [package](https://github.com/mapbox/tippecanoe):
-    * Build tippecanoe from source repo:
+ * If all else fails use the [tippencanoe package](https://github.com/mapbox/tippecanoe):
+    * Build from source repo:
         ```
         conda activate mnp
         conda install -c conda-forge tippecanoe
