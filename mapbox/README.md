@@ -3,14 +3,7 @@
 
 ### Preparing the files for upload (combine CSVs and convert to GeoJSON.ld)  ###
 * Run `cd /project2/bettencourt/mnp/prclz` and `git pull`
-* Load modules and activate environment
-  ``` 
-  module load intel/18.0
-  module load gdal/2.4.1 
-  source activate mnp
-  ```
-* Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` 
-  *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
+* Run `bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh` *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
  ### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ###
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
