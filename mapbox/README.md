@@ -26,6 +26,10 @@
  ### Method 2: tippecanoe (local mbtile processing) ###
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
    ```
+   module load intel/18.0
+   module load gdal/2.2
+   module unload python
+   module load Anaconda3/5.1.0
    conda install -c conda-forge tippecanoe
    source activate tippecanoe
    ```
