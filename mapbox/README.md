@@ -33,7 +33,8 @@
    conda install -c conda-forge tippecanoe
    source activate tippecanoe
    ```
- * Set `cd /project2/bettencourt/mnp/prclz/data/tilesets`, define `COMPLEXITY_GEOJSON_FILEPATH=()`, and run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
+ * Set destination directory `cd /project2/bettencourt/mnp/prclz/data/tilesets`
+ * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
  * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
  
