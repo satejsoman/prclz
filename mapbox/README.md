@@ -10,7 +10,7 @@
   source activate mnp
   ```
 * Run `bash /project2/bettencourt/mnp/prclz/mapbox/cat_convert.sh` 
-  *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to GeoJSON)*
+  *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
  ### Method 1: Tileset API (cloud mbtile processing) ###
  * Set the following parameters for file uploads to Mapbox (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
