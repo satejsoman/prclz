@@ -40,6 +40,6 @@
   * Go to "Style" > "Style across data range" > "Choose numeric data field" > *Complexity # Numeric*
   * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity 20 = red)
   * Click "Share..." copy the "Your style URL" and the "Your access token"
-  * Commit changes and paste the access token and the style URL [here](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) (also adjust setView([longitude, latitude], zoom))
+  * Commit changes and paste the access token and the style URL [here](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) (setView([longitude, latitude], zoom))
   * The map now populate the webpage here: https://mansueto-institute.github.io/
  
