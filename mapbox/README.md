@@ -27,7 +27,7 @@
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from conda forge:
    ```
    module load intel/18.0
-   module load gdal/2.2
+   module load gdal/2.4.1 
    module unload python
    module load Anaconda3/5.1.0
    conda install -c conda-forge tippecanoe
