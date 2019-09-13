@@ -24,7 +24,7 @@
  * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON to Mapbox
  
  ### Method 2: tippecanoe (local mbtile processing) ###
- * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from source repo:
+ * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from conda forge:
    ```
    module load intel/18.0
    module load gdal/2.2
