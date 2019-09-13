@@ -7,7 +7,7 @@
         "minzoom": 0,
         "maxzoom": 13,
         "features": {
-          "simplification": 0
+          "simplification": 4
         }
       }
     }
