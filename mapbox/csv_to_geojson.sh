@@ -19,7 +19,7 @@ rm global_file.geojson
 rm global_file.geojson.ld
 
 # Convert CSV to GeoJSON
-ogr2ogr -f "GeoJSON" global_file.geojson -dialect sqlite -sql "SELECT block_id, cast(complexity AS int), GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
+ogr2ogr -f "GeoJSON" global_file.geojson -dialect sqlite -sql "SELECT block_id, CAST(complexity AS integer(5)), GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
 
 # Convert GeoJSON to GeoJSON-line delimited
 ogr2ogr -f "GeoJSONSeq" global_file.geojson.ld global_file.geojson
