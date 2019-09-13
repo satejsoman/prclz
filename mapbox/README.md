@@ -13,7 +13,7 @@
   *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
  ### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ###
- * Set Mapbox token (generate token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
+ * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes):
     ```
     MAPBOX_API_TOKEN=(<INSERT TOKEN HERE>)
     ```
