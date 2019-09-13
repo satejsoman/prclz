@@ -7,5 +7,5 @@ do
     echo "$file"
 done
 
-# Convert CSV to GeoJSON
-ogr2ogr -f "GeoJSON" /project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv 
+# Convert CSV to GeoJSON-line delimited
+ogr2ogr -f GeoJSONSeq /project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson.ld /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv 
