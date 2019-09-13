@@ -23,7 +23,6 @@
     ```
  * Then run the API calls
     ```
-
     # SET PARAMETERS
     MAPBOX_API_TOKEN=(::MAPBOX_API_TOKEN::)
     MAPBOX_USERNAME=(nmarchi0)
