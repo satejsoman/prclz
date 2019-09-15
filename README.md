@@ -33,7 +33,7 @@ module load Anaconda3/5.1.0
 1. Set up a conda virtual environment, and activate it.
 ```
 conda create --name mnp
-conda activate mnp 
+source activate mnp 
 ```
 2. Install the requirements. (Due to version pinning/compatibility, some packages aren't in the standard conda repos, so we install them with `pip`).
 ```
