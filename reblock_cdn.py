@@ -21,11 +21,15 @@ DATA_PATH = os.path.join(ROOT, "data")
 BLOCK_PATH = os.path.join(DATA_PATH, "blocks")
 BLDGS_PATH = os.path.join(DATA_PATH, "buildings")
 PARCELS_PATH = os.path.join(DATA_PATH, "parcels")
+LINES_PATH = os.path.join(DATA_PATH, "lines")
 
 # some test params
+# region = "Africa"
+# gadm_code = "SLE"
+# gadm = "SLE.2.2.5_1"
 region = "Africa"
-gadm_code = "SLE"
-gadm = "SLE.2.2.5_1"
+gadm_code = "DJI"
+gadm = "DJI.3.1_1"
 
 from prclz.topology import Node, Edge, PlanarGraph
 
@@ -106,12 +110,14 @@ def load_geopandas_files(region: str, gadm_code: str,
                          gadm: str) -> (gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame):
 
     bldgs_path = os.path.join(BLDGS_PATH, region, gadm_code, "buildings_{}.geojson".format(gadm))
+    lines_path = os.path.join(LINES_PATH, region, gadm_code, "lines_{}.geojson".format(gadm))
     parcels_path = os.path.join(PARCELS_PATH, region, gadm_code, "parcels_{}.geojson".format(gadm))
     blocks_path = os.path.join(BLOCK_PATH, region, gadm_code, "blocks_{}.csv".format(gadm))
 
     bldgs = gpd.read_file(bldgs_path)
     blocks = csv_to_geo(blocks_path)
     parcels = gpd.read_file(parcels_path)
+    lines = gpd.read_file(lines_path)
 
     return bldgs, blocks, parcels 
 
@@ -157,7 +163,7 @@ def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame,
     return parcels 
 
 # Just load our data for one GADM in Sierra Leone
-bldgs, blocks, parcels = load_geopandas_files(region, gadm_code, gadm)
+bldgs, blocks, parcels, lines = load_geopandas_files(region, gadm_code, gadm)
 
 # Now build the parcel graph and prep the buildings
 graph_parcels = prepare_parcels(bldgs, blocks, parcels)
@@ -165,6 +171,8 @@ graph_parcels = prepare_parcels(bldgs, blocks, parcels)
 # We can grab a graph, and just add the corresponding building Nodes
 example_graph = graph_parcels.iloc[3]['planar_graph']
 example_buildings = graph_parcels.iloc[3]['buildings']
+
+BOOM 
 
 print("\nGraph pre-adding building nodes:\n", example_graph, "\n")
 total_blgds = len(example_buildings)
@@ -174,8 +182,8 @@ for i, bldg_node in enumerate(example_buildings):
     print("through {} of {} buildings".format(i, total_blgds))
 
 print("Graph post-adding building nodes:\n", example_graph)
-steiner = example_graph.steiner_tree_approx()
-example_graph.plot_reblock()
+#steiner = example_graph.steiner_tree_approx()
+#example_graph.plot_reblock()
 
 # We just need to adjust the building centroid, but Geoefs function doesn't work for me
 
