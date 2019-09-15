@@ -63,4 +63,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # Make file paths
+    if not os.path.isdir(os.path.join(DATA_PATH, "lines", region)):
+        os.mkdir(os.path.join(DATA_PATH, "lines", region))
+    if not os.path.isdir(os.path.join(DATA_PATH, "lines", region, country_code)):
+        os.mkdir(os.path.join(DATA_PATH, "lines", region, country_code))
+        
+
     split_lines_by_gadm(args.country_code, args.region, args.block_file_path, args.linestring_path)
