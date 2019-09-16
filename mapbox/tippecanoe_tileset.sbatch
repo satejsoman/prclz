@@ -18,4 +18,8 @@ module load Anaconda3/5.1.0
 # How to activate tippecanoe (do when running)
 source activate mapbox
 
+# Set destination directory
+cd /project2/bettencourt/mnp/prclz/data/tilesets
+
+# Convert GeoJSON to mbtiles
 bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh
