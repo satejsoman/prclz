@@ -39,8 +39,11 @@
    # How to activate tippecanoe (do when running)
    source activate mapbox
    ```
- * Set destination directory `cd /project2/bettencourt/mnp/prclz/data/tilesets`
- * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
+ * Convert GeoJSON files to mbtiles
+   ```
+   cd /project2/bettencourt/mnp/prclz/data/tilesets
+   sbatch tippecanoe_tileset.sbatch
+   ```
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/)
  * Upload larger mbtiles via the S3 workflow [here](https://docs.mapbox.com/api/maps/#retrieve-s3-credentials)
  
