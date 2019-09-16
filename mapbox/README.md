@@ -20,11 +20,15 @@
  ### Method 2: tippecanoe (local mbtile processing) ###
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from conda forge:
    ```
+   # How to install tippecanoe (only do once)
    module load intel/18.0
    module load gdal/2.4.1 
    module unload python
    module load Anaconda3/5.1.0
-   conda install -c conda-forge tippecanoe
+   conda create --name mapbox # only do this once
+   conda install -n mapbox tippecanoe
+   
+   # How to activate tippecanoe (do when running)
    source activate tippecanoe
    ```
  * Set destination directory `cd /project2/bettencourt/mnp/prclz/data/tilesets`
