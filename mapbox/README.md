@@ -1,9 +1,17 @@
 
 ## Mapbox API Upload ##
 
-### Preparing the files for upload (combine CSVs and convert to GeoJSON.ld)  ###
-* Run `cd /project2/bettencourt/mnp/prclz` and `git pull`
-* Run `bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh` *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
+### Preparing the files for upload (combine CSVs and convert to GeoJSON and GeoJSON.ld)  ###
+* 
+  ```
+  # Update repo
+  cd /project2/bettencourt/mnp/prclz
+  git pull
+  
+  # Concatenate CSVs and convert to GeoJSON and GeoJSON.ld using ogr2ogr
+  bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh
+  ``` 
+* *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
  ### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ###
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
