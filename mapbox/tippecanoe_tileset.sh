@@ -1,4 +1,7 @@
 
+# Set destination directory
+cd /project2/bettencourt/mnp/prclz/data/tilesets
+
 # Convert geojson to mbtile object at zoom level 1 object
 tippecanoe -o zoom1.mbtiles --force --attribute-type=complexity:int \
 	--minimum-zoom=0 --maximum-zoom=10 -P  \
