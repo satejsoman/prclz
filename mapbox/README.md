@@ -37,7 +37,7 @@
    conda install -n mapbox tippecanoe
    
    # How to activate tippecanoe (do when running)
-   source activate tippecanoe
+   source activate mapbox
    ```
  * Set destination directory `cd /project2/bettencourt/mnp/prclz/data/tilesets`
  * Run `bash /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sh`
