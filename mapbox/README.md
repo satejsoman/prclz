@@ -46,3 +46,4 @@
   * Create a github.io account, create a repo, and commit changes and paste the access token and the style URL [in this HTML page](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) (also edit setView([longitude, latitude], zoom) and other stylings if needed)
   * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
  
+  ### Basics of Mapbox GL JS ###
