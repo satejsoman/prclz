@@ -2,7 +2,7 @@
 ## Mapbox API Upload ##
 
 ### Preparing the files for upload (combine CSVs and convert to GeoJSON and GeoJSON.ld)  ###
-* 
+* The first step is to combine the GADM-level output from the k block complexity workflow and put in a Mapbox-friendly format
   ```
   # Update repo
   cd /project2/bettencourt/mnp/prclz
