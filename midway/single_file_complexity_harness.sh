@@ -9,7 +9,7 @@ template="#!/bin/bash
 #SBATCH --output=logs/k_::COUNTRYCODE::.out
 #SBATCH --error=logs/k_::COUNTRYCODE::.err
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=satej@uchicago.edu
+#SBATCH --mail-user=nmarchio@uchicago.edu
 #SBATCH --time=36:00:00
 #SBATCH --account=pi-bettencourt
 set -euo pipefail
