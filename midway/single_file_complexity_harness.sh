@@ -16,6 +16,7 @@ set -euo pipefail
 
 mkdir -p data/complexity/::CONTINENT::/::COUNTRYCODE::
 
+source activate mnp
 module load parallel
 
 ulimit -u 10000
