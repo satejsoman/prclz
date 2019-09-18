@@ -26,6 +26,7 @@ def metric_closure(G, weight='weight', verbose=False):
         Metric closure of the graph `G`.
 
     """
+    print("in metric_closure in steiner_tree.py")
     M = nx.Graph()
 
     Gnodes = set(G)
@@ -97,6 +98,7 @@ def steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
     """
     # M is the subgraph of the metric closure induced by the terminal nodes of
     # G.
+    print("In steiner_tree within steiner_tree.py")
     M = metric_closure(G, weight=weight, verbose=verbose)
     # Use the 'distance' attribute of each edge provided by the metric closure
     # graph.
