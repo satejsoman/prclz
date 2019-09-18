@@ -42,9 +42,8 @@ print("Begin loading of data")
 bldgs, blocks, parcels, lines = topology_utils.load_geopandas_files(region, gadm_code, gadm)
 
 # (2) Now build the parcel graph and prep the buildings
-b = blocks['block_id'].apply(lambda x: x in example_blocks)
-blocks = blocks[b]
-parcels = parcels[b]
+blocks = blocks[blocks['block_id'].apply(lambda x: x in example_blocks)]
+parcels = parcels[parcels['block_id'].apply(lambda x: x in example_blocks)]
 print("Begin calculating of parcel graphs")
 graph_parcels = topology_utils.prepare_parcels(bldgs, blocks, parcels)
 
