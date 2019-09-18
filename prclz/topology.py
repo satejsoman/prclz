@@ -428,7 +428,7 @@ class PlanarGraph(nx.Graph):
 
             #Skip self-edges
             if edge_tuple[0] == edge_tuple[1]:
-                print("\nSKIPPING EDGE BC ITS A SELF-EDGE\n")
+                #print("\nSKIPPING EDGE BC ITS A SELF-EDGE\n")
                 continue 
             edge = Edge(edge_tuple)
             closest_node = edge.closest_point_to_node(node)
