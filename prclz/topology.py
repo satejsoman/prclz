@@ -7,6 +7,7 @@ from networkx.algorithms import approximation as nx_approx
 import numpy as np
 import shapely.geos
 from shapely.geometry import Polygon, LineString
+import pickle 
 
 """ implementation of planar graph """
 
@@ -125,30 +126,6 @@ class Edge:
             return node_proj2
         else:
             assert False, "Vector projection failed"
-
-        # a_vector = np.array(node.coordinates)
-
-        # b_vector_node = self.nodes[0] - self.nodes[1]
-        # b_vector = np.array(b_vector_node.coordinates)
-        # b_unit = b_vector / np.linalg.norm(b_vector)
-
-        # a_1 = np.sum(a_vector*b_unit)
-
-        # # Check angle 
-        # angle = np.math.atan2(np.linalg.det([a_vector,b_unit]),np.dot(a_vector,b_unit))
-        # angle_degrees = np.degrees(angle)
-        # print("Angle btwn {} and {} is: {} degrees".format(a_vector, b_unit, angle_degrees))
-        
-        # if angle_degrees == 90 or angle_degrees == -90:
-        #     mid_x = (self.nodes[0][0]+self.nodes[1][0]) / 2.
-        #     mid_y = (self.nodes[0][1]+self.nodes[1][1]) / 2.
-        #     return Node((mid_x, mid_y))
-        # elif angle_degrees < 90 and angle_degrees > -90:
-        #     a_proj = a_1 * b_unit
-        #     return Node(a_proj)+self.nodes[1]
-        # else:
-        #     a_proj = -a_1 * b_unit
-        #     return Node(a_proj)+self.nodes[1]
 
 
     def node_on_edge(self, node):
@@ -299,6 +276,17 @@ class PlanarGraph(nx.Graph):
             graph.add_edge(Edge(edge.nodes))
 
         return graph
+
+    @staticmethod
+    def load_planar(file_path):
+        '''
+        Loads a planar graph from a saved via
+        '''
+
+        with open(file_path, 'rb') as file:
+            graph = pickle.load(file)
+        return graph
+
 
     def __repr__(self):
         return "{}{} with {} nodes".format(
@@ -488,7 +476,7 @@ class PlanarGraph(nx.Graph):
         edge_kwargs['label'] = "_nolegend"
         edge_kwargs['pos'] = nlocs_all 
         edge_color_map = []
-        for e in list(self.edges):
+        for e in self.edges:
             c = 'r' if e in self.steiner_edges else 'b'
             edge_color_map.append(c)
         edge_kwargs["edge_color"] = edge_color_map
@@ -504,5 +492,14 @@ class PlanarGraph(nx.Graph):
             node_color_map.append(c)
         node_kwargs["node_color"] = node_color_map
         nx.draw_networkx_nodes(self, **node_kwargs)
+
+    def save(self, file_path):
+        '''
+        Saves planar graph to file via pickle 
+        '''
+
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file)
+ 
 
 

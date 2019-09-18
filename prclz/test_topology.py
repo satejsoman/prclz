@@ -134,7 +134,8 @@ b0 = Node((2,.3))
 b1 = Node((1,2))
 b2 = Node((1.5, 1))
 b3 = Node((5,1))
-all_blds = [b0, b1, b2, b3]
+b4 = Node((-.1,-.1))
+all_blds = [b0, b1, b2, b3, b4]
 
 # Original +buildings in raw locations
 orig_g = g.copy()
@@ -149,12 +150,10 @@ for bld in all_blds:
     bld.terminal = True 
     g.add_node_to_closest_edge(bld)
 g.plot_reblock()
-plt.show()
+#plt.show()
 
 # Now do steiner tree approx
 steiner = g.steiner_tree_approx()
 g.plot_reblock()
-#plt.show()
-
-
+plt.show()
 
