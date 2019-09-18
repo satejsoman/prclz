@@ -153,7 +153,7 @@ g.plot_reblock()
 #plt.show()
 
 # Now do steiner tree approx
-steiner = g.steiner_tree_approx()
+steiner = g.steiner_tree_approx(verbose=True)
 g.plot_reblock()
 plt.show()
 

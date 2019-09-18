@@ -9,6 +9,8 @@ import shapely.geos
 from shapely.geometry import Polygon, LineString
 import pickle 
 
+import steiner_tree 
+
 """ implementation of planar graph """
 
 
@@ -446,7 +448,7 @@ class PlanarGraph(nx.Graph):
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node)
 
-    def steiner_tree_approx(self):
+    def steiner_tree_approx(self, verbose=False):
         '''
         All Nodes within the graph have an attribute, Node.terminal, which is a boolean
         denoting whether they should be included in the set of terminal_nodes which
@@ -454,12 +456,13 @@ class PlanarGraph(nx.Graph):
         '''
         terminal_nodes = [n for n in self.nodes if n.terminal]
 
-        steiner_tree = nx_approx.steiner_tree(self, terminal_nodes)
+        #steiner_tree = nx_approx.steiner_tree(self, terminal_nodes)
+        stree = steiner_tree.steiner_tree(self, terminal_nodes, verbose=verbose)
 
         # Hold onto the optimal edges
-        self.steiner_edges = list(steiner_tree.edges)
+        self.steiner_edges = list(stree.edges)
 
-        return steiner_tree 
+        return stree 
 
     def plot(self, **kwargs):
         plt.axes().set_aspect(aspect=1)
