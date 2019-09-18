@@ -38,9 +38,14 @@ def process_block(graph, buildings):
 
 
 # (1) Just load our data for one GADM
+print("Begin loading of data")
 bldgs, blocks, parcels, lines = topology_utils.load_geopandas_files(region, gadm_code, gadm)
 
 # (2) Now build the parcel graph and prep the buildings
+b = blocks['block_id'].apply(lambda x: x in example_blocks)
+blocks = blocks[b]
+parcels = parcels[b]
+print("Begin calculating of parcel graphs")
 graph_parcels = topology_utils.prepare_parcels(bldgs, blocks, parcels)
 
 if not os.path.isdir("test_SLE"):
