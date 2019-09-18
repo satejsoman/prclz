@@ -34,7 +34,7 @@ module load parallel
 ```
 1. Set up a conda virtual environment, and activate it.
 ```
-. .midway/conda_setup.sh
+. ./midway/conda_setup.sh
 conda create --name mnp
 source activate mnp
 ```
