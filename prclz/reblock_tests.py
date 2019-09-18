@@ -31,8 +31,6 @@ def add_buildings(graph, buildings):
         graph.add_node_to_closest_edge(bldg_node)
         print("through {} of {} buildings".format(i, total_blgds))
 
-        if i == 10:
-            break 
     return graph 
 
 def clean_graph(graph):
