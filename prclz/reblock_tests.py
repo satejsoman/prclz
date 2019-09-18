@@ -78,9 +78,9 @@ for example_block in example_blocks:
     example_graph = graph_parcels[graph_parcels['block_id']==example_block]['planar_graph'].item()
     example_buildings = graph_parcels[graph_parcels['block_id']==example_block]['buildings'].item()
 
-    example_graph = add_buildings(example_graph)
+    example_graph = add_buildings(example_graph, example_buildings)
     example_graph = clean_graph(example_graph)
-    steiner, reblocked_graph = process_block(example_graph, example_buildings)
+    steiner, reblocked_graph = do_steiner(example_graph)
 
     reblocked_graph.save(os.path.join("test_SLE", example_block+".pg"))
     steiner.save(os.path.join("test_SLE", example_graph+"_steiner.pg"))
