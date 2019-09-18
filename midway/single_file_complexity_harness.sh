@@ -28,7 +28,7 @@ find data/buildings/::CONTINENT::/::COUNTRYCODE::/buildings*.geojson |
 xargs -I% bash -c 'building=%; echo \$(echo \${building//buildings/blocks} | sed -e \"s/geojson/csv/g\") \$building \$(echo \${building//buildings/complexity} | sed -e \"s/geojson/csv/g\")' |
 parallel --colsep='\ ' --delay 0.2 -j \$SLURM_NTASKS --joblog logs/parallel_k_::COUNTRYCODE::.log --resume -I{} \"srun --exclusive -N1 -n1 python midway/single_file_complexity.py --blocks {1} --buildings {2} --output {3} \""
 
-filter="BFA\|CMR\|TCD\|COD\|GIN\|LSO\|MWI\|MLI\|MAR\|MOZ\|NPL\|NGA\|SLE\|SSD\|TZA\|ZMB"
+filter="BFA\|CMR\|TCD\|COD\|GIN\|LSO\|MWI\|MLI\|MAR\|MOZ\|NGA\|SLE\|SSD\|ZMB"
 
 grep "${filter}" data_processing/country_codes.csv | 
 rev | cut -d, -f2,3,4 | rev | tr , ' ' | 
