@@ -1,4 +1,4 @@
-from itertools import combinations, chain
+from itertools import combinations, chain, permutations
 
 from networkx.utils import pairwise, not_implemented_for
 import networkx as nx
@@ -65,6 +65,33 @@ def metric_closure(G, weight='weight', verbose=False):
 
     return M
 
+def coopers_steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
+    '''
+    Just do pairwise dijkstra distances for the terminal nodes
+    we care about
+    Parameters
+    ----------
+    G : NetworkX graph
+
+    terminal_nodes : list
+         A list of terminal nodes for which minimum steiner tree is
+         to be found.
+
+    '''
+    H = nx.Graph()
+    for u,v in tqdm(combinations(terminal_nodes, 2)):
+
+        distance = nx.dijkstra_path_length(G, u, v, weight=weight)
+        path = nx.dijkstra_path(G, u, v, weight=weight)
+        H.add_edge(u, v, distance=distance, path=path)
+
+    mst_edges = nx.minimum_spanning_edges(H, weight='distance', data=True)
+
+    # Create an iterator over each edge in each shortest path; repeats are okay
+    #if verbose: print("Begin iterator thing")
+    edges = chain.from_iterable(pairwise(d['path']) for u, v, d in mst_edges)
+    T = G.edge_subgraph(edges)
+    return T
 
 
 @not_implemented_for('multigraph')
@@ -100,6 +127,7 @@ def steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
     """
     # M is the subgraph of the metric closure induced by the terminal nodes of
     # G.
+
     #print("In steiner_tree within steiner_tree.py")
     M = metric_closure(G, weight=weight, verbose=verbose)
     # Use the 'distance' attribute of each edge provided by the metric closure

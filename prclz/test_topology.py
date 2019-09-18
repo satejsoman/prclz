@@ -1,4 +1,5 @@
 from topology import *
+import time 
 
 # (1) Test that our test of determining whether a point is ON the line segment is correct
 
@@ -153,7 +154,12 @@ g.plot_reblock()
 #plt.show()
 
 # Now do steiner tree approx
-steiner = g.steiner_tree_approx(verbose=True)
-g.plot_reblock()
-plt.show()
+start = time.time()
+for _ in range(1000):
+    steiner = g.steiner_tree_approx(verbose=True)
+end = time.time()
+print("TAKES {} seconds".format(end-start))
+
+# g.plot_reblock()
+# plt.show()
 
