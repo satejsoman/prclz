@@ -23,7 +23,7 @@
     sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh > /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh
     ```
  * Then run the API calls `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON.ld to Mapbox
- * The beta version of the Tileset API automatically converts all attributes to strings so to colorize integer attributes according to a scale draw on these examples [here](https://docs.mapbox.com/mapbox-gl-js/example/style-ocean-depth-data/) and [here](https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/) - another option is to manually assigning a color to string formatted integer in Mapbox Studio
+ * The beta version of the Tileset API automatically converts all attributes to strings so to colorize integer attributes according to a scale draw on these examples [here](https://docs.mapbox.com/mapbox-gl-js/example/style-ocean-depth-data/) and [here](https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/) - another option is to manually assigning a color to string formatted integers in Mapbox Studio
  
  * A [Tileset CLI](https://github.com/mapbox/tilesets-cli/) is also available which is a wrapper for the Tileset API 
  
