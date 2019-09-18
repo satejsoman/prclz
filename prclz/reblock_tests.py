@@ -54,7 +54,7 @@ def clean_graph(graph):
 def do_steiner(graph):
     print("Graph post-adding building nodes:\n", graph)
     print("Performing Steiner Tree approximation...")
-    steiner = graph.steiner_tree_approx()
+    steiner = graph.steiner_tree_approx(verbose=True)
     print("DONE!!\n\n")
     return steiner, graph 
 
