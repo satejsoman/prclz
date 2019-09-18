@@ -105,6 +105,14 @@ class Edge:
         b_unit = b_vector / np.linalg.norm(b_vector)
 
         b_normal = np.array([-b_unit[1], b_unit[0]])
+
+        if np.abs(np.sum(b_normal*b_unit)) > 10e-4:
+            print()
+            print("a_vector = ", a_vector)
+            print("b_vector = ", b_vector)
+            print("b_normal = ", b_normal)
+            print("b_unit = ", b_unit)
+            print()
         assert np.abs(np.sum(b_normal*b_unit)) < 10e-4, "b_normal and b_unit are not orthog"
 
         #print("unit vector = {} | normal vector = {}".format(b_unit, b_normal))
