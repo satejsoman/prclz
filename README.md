@@ -28,12 +28,15 @@
 ```
 module load intel/18.0
 module load gdal/2.2
+module unload python
 module load Anaconda3/5.1.0
+module load parallel
 ```
 1. Set up a conda virtual environment, and activate it.
 ```
+. ./midway/conda_setup.sh
 conda create --name mnp
-source activate mnp 
+source activate mnp
 ```
 2. Install the requirements. (Due to version pinning/compatibility, some packages aren't in the standard conda repos, so we install them with `pip`).
 ```
