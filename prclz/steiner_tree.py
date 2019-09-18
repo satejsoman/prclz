@@ -26,13 +26,13 @@ def metric_closure(G, weight='weight', verbose=False):
         Metric closure of the graph `G`.
 
     """
-    print("in metric_closure in steiner_tree.py")
+    #print("in metric_closure in steiner_tree.py")
     M = nx.Graph()
 
     Gnodes = set(G)
 
     # check for connected graph while processing first node
-    print("begin dijkistra in metric_closure")
+    #print("begin dijkistra in metric_closure")
     all_paths_iter = nx.all_pairs_dijkstra(G, weight=weight)
     u, (distance, path) = next(all_paths_iter)
     if Gnodes - set(distance):
@@ -41,7 +41,7 @@ def metric_closure(G, weight='weight', verbose=False):
     Gnodes.remove(u)
 
     if verbose:
-        print("\nmetric_closure for-loop #1\n")
+        #print("\nmetric_closure for-loop #1\n")
         for v in tqdm(Gnodes):
             M.add_edge(u, v, distance=distance[v], path=path[v])        
     else:
@@ -51,6 +51,7 @@ def metric_closure(G, weight='weight', verbose=False):
     # first node done -- now process the rest
     if verbose:
         print("\nmetric_closure for-loop #2\n")
+        # NOTE: this loop takes FOREVER!
         for u, (distance, path) in tqdm(all_paths_iter):
             Gnodes.remove(u)
             for v in Gnodes:
@@ -99,7 +100,7 @@ def steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
     """
     # M is the subgraph of the metric closure induced by the terminal nodes of
     # G.
-    print("In steiner_tree within steiner_tree.py")
+    #print("In steiner_tree within steiner_tree.py")
     M = metric_closure(G, weight=weight, verbose=verbose)
     # Use the 'distance' attribute of each edge provided by the metric closure
     # graph.

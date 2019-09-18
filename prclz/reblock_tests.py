@@ -16,6 +16,7 @@ import argparse
 import networkx as nx 
 
 import topology_utils
+import time 
 
 region = "Africa"
 gadm_code = "SLE"
@@ -79,12 +80,18 @@ for example_block in example_blocks:
     example_graph = graph_parcels[graph_parcels['block_id']==example_block]['planar_graph'].item()
     example_buildings = graph_parcels[graph_parcels['block_id']==example_block]['buildings'].item()
 
+    t = time.time()
     example_graph = add_buildings(example_graph, example_buildings)
+    print("\t\tbuildings take = {} secs".format(time.time()-t))
+    
     example_graph = clean_graph(example_graph)
+
+    t = time.time()
     steiner, reblocked_graph = do_steiner(example_graph)
+    print("\t\tsteiner approx take = {} secs".format(time.time()-t))
 
     reblocked_graph.save(os.path.join("test_SLE", example_block+".pg"))
-    steiner.save(os.path.join("test_SLE", example_graph+"_steiner.pg"))
+    #steiner.save(os.path.join("test_SLE", example_graph+"_steiner.pg"))
 
 
 # print("\nGraph pre-adding building nodes:\n", example_graph, "\n")
