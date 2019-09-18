@@ -106,13 +106,14 @@ class Edge:
 
         b_normal = np.array([-b_unit[1], b_unit[0]])
 
-        
-        print()
-        print("a_vector = ", a_vector)
-        print("b_vector = ", b_vector)
-        print("b_normal = ", b_normal)
-        print("b_unit = ", b_unit)
-        print()
+        if not(np.abs(np.sum(b_normal*b_unit)) < 10e-4):
+            print()
+            print("a_vector = ", a_vector)
+            print("b_vector = ", b_vector)
+            print("b_normal = ", b_normal)
+            print("b_unit = ", b_unit)
+            print()
+
         assert np.abs(np.sum(b_normal*b_unit)) < 10e-4, "b_normal and b_unit are not orthog"
 
         #print("unit vector = {} | normal vector = {}".format(b_unit, b_normal))
@@ -424,6 +425,11 @@ class PlanarGraph(nx.Graph):
         edge_list = list(self.edges)
 
         for edge_tuple in edge_list:
+
+            #Skip self-edges
+            if edge_tuple[0] == edge_tuple[1]:
+                print("\nSKIPPING EDGE BC ITS A SELF-EDGE\n")
+                continue 
             edge = Edge(edge_tuple)
             closest_node = edge.closest_point_to_node(node)
             closest_distance = closest_node.distance(node)
