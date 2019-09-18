@@ -458,8 +458,8 @@ class PlanarGraph(nx.Graph):
 
         #steiner_tree = nx_approx.steiner_tree(self, terminal_nodes)
         #print("Calling steiner_tree fn within topology.py")
-        stree = steiner_tree.steiner_tree(self, terminal_nodes, verbose=verbose)
-        #stree = steiner_tree.coopers_steiner_tree(self, terminal_nodes, verbose=verbose)
+        #stree = steiner_tree.steiner_tree(self, terminal_nodes, verbose=verbose)
+        stree = steiner_tree.coopers_steiner_tree(self, terminal_nodes, verbose=verbose)
 
         # Hold onto the optimal edges
         self.steiner_edges = list(stree.edges)
