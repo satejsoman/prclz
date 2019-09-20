@@ -1,0 +1,141 @@
+ 
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <meta charset=utf-8 />
+  <title>Million Neighborhoods</title>
+  <link rel="canonical" href="https://mansueto-institute.github.io/" >
+  <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
+  <style>
+body { margin:0; padding:0; }
+#map { position:absolute; top:0; bottom:0; width:100%; }
+h2 { color:#222B30; }
+h3 { color:#222B30; }
+p { color:#222B30; }
+.map-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  margin-right: 20px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight:normal;
+  font-size:13px;
+  overflow: auto;
+  border-radius: 3px;
+}
+#legend {
+  padding: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  line-height: 15px;
+  height: 130px;
+  margin-bottom: 40px;
+  width: 195px;
+}
+.legend-key {
+  display: inline-block;
+  border-radius: 20%;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+}
+.button {
+  margin:2px;
+  padding:3px;
+}
+.button.active,
+.button:hover {
+  background-color:#005bb3;
+}
+.sidebar {
+  width: 100%;
+  background-color:transparent;       
+}
+</style>
+</head>
+<body>
+  
+<div id="sidebar" class="pin-topleft z1">
+    <div class="sidebar flex-scroll scroll-styled pad2">
+      <h2 style="margin-top:10px;">Million Neighborhoods</h2>
+      <p class="prose show-mobile" style="margin:5px;">
+Insert text\
+      </p>
+      <p class="prose hide-mobile" style="margin:5px;">
+Insert text
+      </p>
+      <div class="projects">
+        <h3 class="space-bottom0" style="margin:3px;">Visit a city</h3>
+        <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Freetown, Sierra Leone</span>
+        </div>
+          <br />
+        <div id="liberia" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Monrovia, Liberia</span>
+        </div>
+          <br />
+        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Cape Town, South Africa</span>
+        </div>
+          <br />
+        <div id="nigeria" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Lagos, Nigeria</span>
+        </div>
+          <br />
+        <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Nairobi, Kenya</span>
+        </div>
+          <br />
+        <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Harare, Zimbabwe</span>
+        </div>
+          <br />
+        <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Dar-es-Salaam, Tanzania</span>
+        </div>
+          <br />
+        <div id="ghana" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Accra, Ghana</span>
+        </div>
+          <br />
+        <div id="haiti" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Port-au-Prince, Haiti</span>
+        </div>
+          <br />
+        <div id="brasil" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Rio de Janeiro, Brasil</span>
+        </div>
+          <br />
+        <div id="philippines" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Manila, Philippines</span>
+        </div>
+          <br />
+        <div id="india" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Mumbai, India</span>
+        </div>
+          <br />
+        <div id="pakistan" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Karachi, Pakistan</span>
+        </div>
+          <br />
+        <div id="nepal" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Kathmandu, Nepal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+  <div class='map-overlay' id='legend'><h4 style="line-height:13px;margin:3px;">Neighborhood access to formal street networks</h4></div>
+  <script src='https://raw.githack.com/mansueto-institute/raw-files/master/mapbox/million_neighborhoods.js'></script>
+  
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="/__/firebase/6.6.2/firebase-app.js"></script>
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<!-- Initialize Firebase -->
+<script src="/__/firebase/init.js"></script>
+</body>
+</html>
