@@ -61,7 +61,7 @@
   * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
  
   #### Basics of Mapbox GL JS ####
-  * Here is the link to the [404.html and index.html](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) and [Mapbox JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visualization
+  * Here is the link to the [404.html, index.html, and index.js](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) that flow into the Mapbox visualization
   * Follow Mapbox examples for how to add [popups](https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/), [playback](https://docs.mapbox.com/mapbox-gl-js/example/playback-locations/), [style layers](https://docs.mapbox.com/mapbox-gl-js/example/setstyle/), or [choropleths](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2/)
   
 ### Deploying App ###
