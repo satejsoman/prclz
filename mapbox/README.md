@@ -64,8 +64,8 @@
   ### How to Deploy the Map on Hosting Service ###
   * Add the TXT and A records from the hosting site to the DNS providers website
   * When your domain is connected to the hosting service you can deploy the single page HTML app
-  * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/).
-  * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm). See [this](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info.
+  * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/)
+  * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm) -- see [this site](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info
   * Install the [Firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) `npm install -g firebase-tools`
     * If you get an [error](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) [follow this process](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) and run:
     ```
