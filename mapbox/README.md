@@ -79,7 +79,7 @@
     ```
     cd ~/prclz/mapbox/build # this directory should contain the index.html file
     firebase login # connect to local environment to cloud account
-    firbase init # initializes in the above current directory
+    firebase init # initializes in the above current directory
     
     # Firebase delivers a couple prompts:
     ? Which Firebase CLI features do you want to set up for this folder? Press Space to select features, then Enter to confirm your choices.
