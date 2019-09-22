@@ -88,6 +88,8 @@
     >> Delete (public) default and press return so that it works from existing directory 
     ? Configure as a single-page app (rewrite all urls to /index.html)? 
     >> No
+    ? File /404.html already exists. Overwrite? 
+    >> No
     ? File /index.html already exists. Overwrite? 
     >> No
     
