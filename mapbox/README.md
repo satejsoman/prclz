@@ -61,4 +61,35 @@
   * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
  
   ### Basics of Mapbox GL JS ###
-  * Here is the link to the [HTML](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) and [JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visaulization
+  * Here is the link to the [404.html and index.html](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) and [Mapbox JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visualization
+  
+  ### How to Deploy the App on Firebase ###
+  * Add the TXT and A records from the hosting site to the DNS providers website.
+  * When your domain is connected to the hosting service you can deploy the single page HTML app.
+  * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/).
+  * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm). See [this](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info.
+  * Install the [Firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) `npm install -g firebase-tools`
+    * If you get an error [follow this process](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) and run:
+    ```
+    # METHOD 1 -- must run each time you login to Firebase CLI
+    alias firebase="`npm config get prefix`/bin/firebase"` 
+    # METHOD 2 -- copy this into .bash_profile
+    export PATH="<directory path from `npm get prefix`>/bin:$PATH"
+    ```
+  * To deploy the app run the following steps:
+    ```
+    cd ~/prclz/mapbox/build # this directory should contain the index.html file
+    firebase login # connect to local environment to cloud account
+    firbase init # initializes in the above current directory
+    
+    # Firebase delivers a couple prompts:
+    ? Which Firebase CLI features do you want to set up for this folder? Press Space to select features, then Enter to confirm your choices.
+    >> Hosting: Configure and deploy Firebase Hosting sites
+    ? What do you want to use as your public directory? 
+    >> Delete (public) default and press return so that it works from existing directory 
+    ? Configure as a single-page app (rewrite all urls to /index.html)? 
+    >> No
+    ? File /index.html already exists. Overwrite? 
+    >> No
+    firebase deploy # pushes app to the domains that were linked to the hosting site
+    ```
