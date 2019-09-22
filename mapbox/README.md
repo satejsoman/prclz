@@ -68,7 +68,7 @@
   * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/).
   * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm). See [this](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info.
   * Install the [Firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) `npm install -g firebase-tools`
-    * If you get an error [follow this process](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) and run:
+    * If you get an [error](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) [follow this process](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) and run:
     ```
     # METHOD 1 -- must run each time you login to Firebase CLI
     alias firebase="`npm config get prefix`/bin/firebase"` 
@@ -92,4 +92,5 @@
     >> No
     
     firebase deploy # pushes app to the domains that were linked to the hosting site
+    firebase logout
     ```
