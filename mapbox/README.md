@@ -78,7 +78,7 @@
   * To deploy the app run the following steps:
     ```
     cd ~/prclz/mapbox/build # this directory should contain the index.html file
-    firebase login # connect to local environment to cloud account
+    firebase login # connect local environment to cloud account
     firebase init # initializes in the above current directory
     
     # Firebase delivers a couple prompts:
@@ -92,6 +92,7 @@
     >> No
     ? File /index.html already exists. Overwrite? 
     >> No
+    # adds firebase.json to the currect directory
     
     firebase deploy # pushes app to the domains that were linked to the hosting site
     firebase logout
