@@ -61,9 +61,9 @@
   * Here is the link to the [404.html and index.html](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) and [Mapbox JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visualization
   * Follow Mapbox examples for how to add [popups](https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/), [playback](https://docs.mapbox.com/mapbox-gl-js/example/playback-locations/), [style layers](https://docs.mapbox.com/mapbox-gl-js/example/setstyle/), or [choropleths](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2/)
   
-  ### How to Deploy the App on Firebase ###
-  * Add the TXT and A records from the hosting site to the DNS providers website.
-  * When your domain is connected to the hosting service you can deploy the single page HTML app.
+  ### How to Deploy the Map on Hosting Service ###
+  * Add the TXT and A records from the hosting site to the DNS providers website
+  * When your domain is connected to the hosting service you can deploy the single page HTML app
   * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/).
   * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm). See [this](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info.
   * Install the [Firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) `npm install -g firebase-tools`
