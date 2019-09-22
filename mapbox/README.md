@@ -1,5 +1,6 @@
+# Map Dev How to Guide #
 
-## Mapbox API Upload ##
+## File Prep ##
 
 ### Preparing the files for upload (combine CSVs and convert to GeoJSON and GeoJSON.ld)  ###
 * The first step is to combine the GADM-level output from the k block complexity workflow and put in a Mapbox-friendly format
@@ -12,6 +13,8 @@
   bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh
   ``` 
 * *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
+
+## Mapbox API Upload ##
 
  ### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ###
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
@@ -46,6 +49,8 @@
    ```
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/) (up to 25 GB mbtiles)
 
+## Mapbox Styling ##
+
   ### Basics of Mapbox Studio ###
   * Verify that uploaded tileset is available [here](https://studio.mapbox.com/tilesets/)
   * Go to https://studio.mapbox.com/ and select style for map
@@ -61,11 +66,13 @@
   * Here is the link to the [404.html and index.html](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) and [Mapbox JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visualization
   * Follow Mapbox examples for how to add [popups](https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/), [playback](https://docs.mapbox.com/mapbox-gl-js/example/playback-locations/), [style layers](https://docs.mapbox.com/mapbox-gl-js/example/setstyle/), or [choropleths](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2/)
   
+## Deploying App ##
+
   ### How to Deploy the Map on Hosting Service ###
   * Add the TXT and A records from the hosting site to the DNS providers website
   * When your domain is connected to the hosting service you can deploy the single page HTML app
   * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/)
-  * Install the [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm) -- see [this site](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info
+  * Install [node.js](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm) -- see [this site](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) for more info
   * Install the [Firebase CLI](https://firebase.google.com/docs/cli#install_the_firebase_cli) `npm install -g firebase-tools`
     * If you get an [error](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) [follow this process](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally) and run:
     ```
