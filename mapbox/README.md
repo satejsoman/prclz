@@ -1,8 +1,6 @@
-# Map Dev How to Guide #
+## Mapbox How to Guide ##
 
-## File Prep ##
-
-### Preparing the files for upload (combine CSVs and convert to GeoJSON and GeoJSON.ld)  ###
+#### Preparing the files for upload (combine CSVs and convert to GeoJSON and GeoJSON.ld)  ####
 * The first step is to combine the GADM-level output from the k block complexity workflow and put in a Mapbox-friendly format
   ```
   # Update repo
@@ -14,9 +12,9 @@
   ``` 
 * *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
-## Mapbox API Upload ##
+### Mapbox API Upload ###
 
- ### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ###
+ #### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ####
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
     ```
     MAPBOX_API_TOKEN=(<INSERT TOKEN HERE>)
@@ -28,7 +26,7 @@
  * Then run the API calls `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON.ld to Mapbox 
  * A [Tileset CLI](https://github.com/mapbox/tilesets-cli/) is also available which is a wrapper for the Tileset API 
  
- ### Method 2: tippecanoe (local mbtile processing) ###
+ #### Method 2: tippecanoe (local mbtile processing) ####
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from conda forge:
    ```
    # How to install tippecanoe (only do once)
@@ -49,9 +47,9 @@
    ```
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/) (up to 25 GB mbtiles)
 
-## Mapbox Styling ##
+### Mapbox Styling ###
 
-  ### Basics of Mapbox Studio ###
+  #### Basics of Mapbox Studio ####
   * Verify that uploaded tileset is available [here](https://studio.mapbox.com/tilesets/)
   * Go to https://studio.mapbox.com/ and select style for map
   * Go to "Select data" > "Data sources" > click uploaded tileset layer 
@@ -62,13 +60,13 @@
       * [Simple map HTML template](https://docs.mapbox.com/mapbox-gl-js/example/simple-map/) and [initialize map with data](https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/#initialize-a-map-with-data)
   * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
  
-  ### Basics of Mapbox GL JS ###
+  #### Basics of Mapbox GL JS ####
   * Here is the link to the [404.html and index.html](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) and [Mapbox JS](https://github.com/mansueto-institute/raw-files/blob/master/mapbox/million_neighborhoods.js) that flow into the Mapbox visualization
   * Follow Mapbox examples for how to add [popups](https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/), [playback](https://docs.mapbox.com/mapbox-gl-js/example/playback-locations/), [style layers](https://docs.mapbox.com/mapbox-gl-js/example/setstyle/), or [choropleths](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2/)
   
-## Deploying App ##
+### Deploying App ###
 
-  ### How to Deploy the Map on Hosting Service ###
+  #### How to Deploy the Map on Hosting Service ####
   * Add the TXT and A records from the hosting site to the DNS providers website
   * When your domain is connected to the hosting service you can deploy the single page HTML app
   * To deploy on Firebase [first setup an account](https://console.firebase.google.com/u/0/)
