@@ -101,3 +101,5 @@
     firebase deploy # pushes app to the domains that were linked to the hosting site
     firebase logout
     ```
+   * Make sure to add the [Firebase JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L143) to the end of the HTML body and the [Google Analytics JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L56) to the HTML head.
+    
