@@ -15,8 +15,11 @@ module load gdal/2.4.1
 
 cd /project2/bettencourt/mnp/prclz/data/tilesets
 
+rm  global_file.geojson
+rm global_file.geojson.ld
+
 # Convert CSV to GeoJSON
-ogr2ogr -f "GeoJSON" -overwrite global_file.geojson -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
+ogr2ogr -f "GeoJSON" global_file.geojson -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
 
 # Convert GeoJSON to GeoJSON-line delimited
-ogr2ogr -f "GeoJSONSeq" -overwrite global_file.geojson.ld global_file.geojson
+ogr2ogr -f "GeoJSONSeq" global_file.geojson.ld global_file.geojson
