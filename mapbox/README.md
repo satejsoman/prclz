@@ -29,21 +29,27 @@
  #### Method 2: tippecanoe (local mbtile processing) ####
  * Use the [tippencanoe package](https://github.com/mapbox/tippecanoe) and build from conda forge:
    ```
-   # How to install tippecanoe (only do once)
+   # Load necessary packages (do always)
    module load intel/18.0
    module load gdal/2.4.1 
    module unload python
    module load Anaconda3/5.1.0
+   
+   # How to install tippecanoe (only do once)
    conda create --name mapbox # only do this once
    conda install -n mapbox tippecanoe
    
-   # How to activate tippecanoe (do when running)
+   # Activate tippecanoe 
    source activate mapbox
    ```
  * Convert GeoJSON files to mbtiles
    ```
    cd /project2/bettencourt/mnp/prclz/data/tilesets
    sbatch /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sbatch
+   ```
+ * Tranfer to local
+   ```
+   scp <CNETID>@midway.rcc.uchicago.edu:/project2/bettencourt/mnp/prclz/data/tilesets/full_zoom.mbtiles  /Users/<USERNAME>/Desktop
    ```
  * Upload mbtiles through the UI [here](https://studio.mapbox.com/tilesets/) (up to 25 GB mbtiles)
 
