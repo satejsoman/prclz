@@ -55,17 +55,19 @@
   * Go to "Select data" > "Data sources" > click uploaded tileset layer 
   * Go to "Style" > "Style across data range" > "Choose numeric data field" > *Complexity # Numeric*
   * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity > 2 is red gradient)
-  * Click "Share..." copy the "Your style URL" and the "Your access token"
-  * Create a github.io account, create a repo, and commit changes and paste the access token and the style URL [in this HTML page](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) (also edit setView([longitude, latitude], zoom) and other stylings if needed)
-      * [Simple map HTML template](https://docs.mapbox.com/mapbox-gl-js/example/simple-map/) and [initialize map with data](https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/#initialize-a-map-with-data)
-  * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
- 
+  * Click "Share..." copy the "Your style URL" and the "Your access token" -- these go into your index.html file
+  
   #### Basics of Mapbox GL JS ####
   * Here is the link to the [404.html, index.html, and index.js](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) that flow into the Mapbox visualization
   * Follow Mapbox examples for how to add [popups](https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/), [playback](https://docs.mapbox.com/mapbox-gl-js/example/playback-locations/), [style layers](https://docs.mapbox.com/mapbox-gl-js/example/setstyle/), or [choropleths](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2/)
   
 ### Deploying App ###
 
+  #### How to Deploy the Map on GitHub Pages ####
+  * Create a github.io account, create a repo, and commit changes and paste the access token and the style URL [in this HTML page](https://github.com/mansueto-institute/mansueto-institute.github.io/blob/master/_includes/mapbox.html) (also edit setView([longitude, latitude], zoom) and other stylings if needed)
+      * [Simple map HTML template](https://docs.mapbox.com/mapbox-gl-js/example/simple-map/) and [initialize map with data](https://docs.mapbox.com/help/tutorials/mapbox-gl-js-expressions/#initialize-a-map-with-data)
+  * Wait a minute and the map should populate the webpage here: https://mansueto-institute.github.io/
+ 
   #### How to Deploy the Map on Hosting Service ####
   * Add the TXT and A records from the hosting site to the DNS providers website
   * When your domain is connected to the hosting service you can deploy the single page HTML app
