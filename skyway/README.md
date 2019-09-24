@@ -19,7 +19,7 @@
 - load modules
   ```bash
   module load parallel
-  module load anaconda3
+  module load miniconda3
   ```
 
 - pull `prclz` repo to cloud home folder 
