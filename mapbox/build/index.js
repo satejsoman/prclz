@@ -3,7 +3,7 @@ var mobile = document.documentElement.clientWidth <= 700;
 mapboxgl.accessToken = 'pk.eyJ1Ijoibm1hcmNoaTAiLCJhIjoiY2p6dTljeDhiMGRwcjNubnl2aXI0OThhYyJ9.4FdGkBJlOXMPRugyqiXrjg';
 window.map = new mapboxgl.Map({
   container: "map", // container id
-  style: "mapbox://styles/nmarchi0/ck0ms2hs24i4q1cqplaqbe0py", 
+  style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc", 
   center: [6.525479, 3.348520], // starting position
   zoom: 1,
   maxZoom: 17,
