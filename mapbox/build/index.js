@@ -6,7 +6,7 @@ window.map = new mapboxgl.Map({
   style: "mapbox://styles/nmarchi0/ck0ms2hs24i4q1cqplaqbe0py", 
   center: [6.525479, 3.348520], // starting position
   zoom: 1,
-  maxZoom: 15,
+  maxZoom: 17,
   minZoom: 1,
   hash: true
 });
