@@ -23,8 +23,14 @@
   ```
 
 - pull `prclz` repo to cloud home folder 
+  ```bash 
+  git pull https://github.com/mansueto-institute/prclz.git
+  ```
 
-- 
+- install conda env 
+  ```bash
+  conda env create -f environment.yml 
+  ```
 
 # resources
 - https://github.com/rcc-uchicago/skyway/wiki
