@@ -112,8 +112,8 @@ flyHandler('pakistan', {
   speed: .2
 });
 
-var layers = ['Highly connected', 'Fully connected', 'Partially disconnected', 'Moderately disconnected', 'Highly disconnected'];
-var colors = ['#a7f39a', '#d8f6d5', '#f7dbdb', '#f2b5b7', '#f55758'];
+var layers = ['Highly connected', 'Fully connected', 'Partially disconnected', 'Very disconnected', 'Severely disconnected'];
+var colors = ['#0571b0', '#92c5de', '#f4a582', '#d6604d', '#ca0020'];
 
 for (i = 0; i < layers.length; i++) {
   var layer = layers[i];
