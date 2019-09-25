@@ -134,7 +134,7 @@ class PlanarGraph(igraph.Graph):
     def from_edges(edges):
         graph = PlanarGraph()
         for edge in edges:
-            graph.add_edge(edge)
+            graph.add_edge(*edge)
         return graph
 
 
@@ -320,16 +320,49 @@ class PlanarGraph(igraph.Graph):
             self.es[i]['steiner'] = True 
 
 
-    def plot_reblock(self, output_file):
+    def plot_reblock(self, output_file, visual_style={}):
         
         vtx_color_map = {True: 'red', False: 'blue'}
         edg_color_map = {True: 'red', False: 'blue'}
-        visual_style = {}
-        visual_style['vertex_color'] = [vtx_color_map[t] for t in self.vs['terminal'] ]
-        visual_style['edge_color'] = [edg_color_map[t] for t in self.es['steiner'] ]
-        visual_style['layout'] = [(x[0],-x[1]) for x in self.vs['name']]
-        visual_style['vertex_label'] = [str(x) for x in self.vs['name']]
+        
+        if 'vertex_color' not in visual_style.keys():
+            visual_style['vertex_color'] = [vtx_color_map[t] for t in self.vs['terminal'] ]
+        
+        if 'edge_color' not in visual_style.keys():
+            visual_style['edge_color'] = [edg_color_map[t] for t in self.es['steiner'] ]
+            
+        if 'layout' not in visual_style.keys():
+            visual_style['layout'] = [(x[0],-x[1]) for x in self.vs['name']]
+            
+        if 'vertex_label' not in visual_style.keys():
+            visual_style['vertex_label'] = [str(x) for x in self.vs['name']]
 
         igraph.plot(self, output_file, **visual_style)
 
- 
+
+
+def plot_reblock(g, output_file):
+        vtx_color_map = {True: 'red', False: 'blue'}
+        edg_color_map = {True: 'red', False: 'blue'}
+        
+        visual_style = {}
+        if 'vertex_color' not in visual_style.keys():
+            visual_style['vertex_color'] = [vtx_color_map[t] for t in g.vs['terminal'] ]
+        
+        BIG = 5
+        SMALL = 1
+        if 'bbox' not in visual_style.keys():
+            visual_style['bbox'] = (900,900)
+        if 'vertex_size' not in visual_style.keys():
+            visual_style['vertex_size'] = [BIG if v['terminal'] else SMALL for v in g.vs]
+
+        if 'edge_color' not in visual_style.keys():
+            visual_style['edge_color'] = [edg_color_map[t] for t in g.es['steiner'] ]
+            
+        if 'layout' not in visual_style.keys():
+            visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
+            
+        # if 'vertex_label' not in visual_style.keys():
+        #     visual_style['vertex_label'] = [str(x) for x in g.vs['name']]
+
+        igraph.plot(g, output_file, **visual_style)
