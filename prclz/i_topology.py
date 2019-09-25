@@ -3,6 +3,7 @@ import igraph
 from itertools import combinations, chain, permutations
 from functools import reduce 
 import pickle 
+import os 
 
 def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     '''
@@ -143,19 +144,41 @@ class PlanarGraph(igraph.Graph):
         Loads a planar graph from a saved via
         '''
 
-        with open(file_path, 'rb') as file:
-            graph = pickle.load(file)
-        #graph = igraph.Graph.Read_Pickle(file_path)
+        # The mapping to recover coord is stored separately
+        file_path_mapping = file_path+".dict"
+        assert os.path.isfile(file_path_mapping), "There should be a corresponding .dict file associated with the graphml file"
+        with open(file_path_mapping, 'rb') as file:
+            idx_mapping = pickle.load(file)
+
+        # Now load the graphML file and join
+        graph = PlanarGraph.Read_GraphML(file_path)
+        graph.vs['name'] = [idx_mapping[i] for i in graph.vs['id']]
+        del graph.vs['id']
+
         return graph
 
     def save_planar(self, file_path):
         '''
-        Saves planar graph to file via pickle 
+        Pickling the object wasn't working and saving as
+        GraphML does. However, this can only maintain simple
+        boolean, string, numeric attributes so we create a dictionary
+        which can recover the lost coordinate pairs (which are python tuples) 
         '''
 
-        with open(file_path, 'wb') as file:
-            pickle.dump(self, file)
-        #super().write_pickle(file_path)
+        # with open(file_path, 'wb') as file:
+        #     pickle.dump(self, file)
+        # Save out idx->coord mapping
+        idx_mapping = {}
+        for i, v in enumerate(self.vs):
+            idx = "n{}".format(i)
+            idx_mapping[idx] = v['name']
+        file_path_mapping = file_path+".dict"
+        with open(file_path_mapping, 'wb') as file:
+            pickle.dump(idx_mapping, file)
+
+        # Save out the graph
+        self.save(file_path, format='graphml')
+
 
     def add_node(self, coords, terminal=False):
         '''
@@ -223,8 +246,6 @@ class PlanarGraph(igraph.Graph):
             self.add_edge(orig_coords0, coords, terminal1=terminal)
             self.add_edge(coords, orig_coords1, terminal0=terminal)
 
-########################################################################
-########################################################################
     @staticmethod
     def closest_point_to_node(edge_tuple, coords):
         '''
@@ -255,8 +276,6 @@ class PlanarGraph(igraph.Graph):
 
         return edge_tuple 
 
-########################################################################
-########################################################################
     def add_node_to_closest_edge(self, coords, terminal=False):
         '''
         Given the input node, this finds the closest point on each edge to that input node.
@@ -308,7 +327,7 @@ class PlanarGraph(igraph.Graph):
         visual_style = {}
         visual_style['vertex_color'] = [vtx_color_map[t] for t in self.vs['terminal'] ]
         visual_style['edge_color'] = [edg_color_map[t] for t in self.es['steiner'] ]
-        visual_style['layout'] = self.vs['name']
+        visual_style['layout'] = [(x[0],-x[1]) for x in self.vs['name']]
         visual_style['vertex_label'] = [str(x) for x in self.vs['name']]
 
         igraph.plot(self, output_file, **visual_style)
