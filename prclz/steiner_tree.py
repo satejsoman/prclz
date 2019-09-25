@@ -80,7 +80,7 @@ def coopers_steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
 
     '''
     H = nx.Graph()
-    for u,v in tqdm(combinations(terminal_nodes, 2)):
+    for u,v in combinations(terminal_nodes, 2):
 
         distance = nx.dijkstra_path_length(G, u, v, weight=weight)
         path = nx.dijkstra_path(G, u, v, weight=weight)

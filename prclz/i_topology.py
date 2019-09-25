@@ -2,6 +2,7 @@ import numpy as np
 import igraph 
 from itertools import combinations, chain, permutations
 from functools import reduce 
+import pickle 
 
 def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     '''
@@ -23,7 +24,7 @@ def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     # Now, we join the paths for all the mst_edge_idxs
     steiner_edge_idxs = list(chain.from_iterable(H.es[i]['path'] for i in mst_edge_idxs))
 
-    return H, steiner_edge_idxs
+    return steiner_edge_idxs
 
 def distance(a0, a1):
 
@@ -127,7 +128,6 @@ def vector_projection(edge_tuple, coords):
 class PlanarGraph(igraph.Graph):
     def __init__(self):
         super().__init__()
-        self.steiner_edges = [] 
 
     @staticmethod
     def from_edges(edges):
@@ -145,7 +145,17 @@ class PlanarGraph(igraph.Graph):
 
         with open(file_path, 'rb') as file:
             graph = pickle.load(file)
+        #graph = igraph.Graph.Read_Pickle(file_path)
         return graph
+
+    def save_planar(self, file_path):
+        '''
+        Saves planar graph to file via pickle 
+        '''
+
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file)
+        #super().write_pickle(file_path)
 
     def add_node(self, coords, terminal=False):
         '''
@@ -275,9 +285,6 @@ class PlanarGraph(igraph.Graph):
         closest_node = closest_edge_nodes[argmin]
         closest_edge = self.edge_to_coords(self.es[argmin])
 
-        # Set attributes
-        #closest_node.terminal = node.terminal 
-
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
 
@@ -287,32 +294,12 @@ class PlanarGraph(igraph.Graph):
         denoting whether they should be included in the set of terminal_nodes which
         are connected by the Steiner Tree approximation
         '''
-        terminal_nodes = [n for n in self.nodes if n.terminal]
+        terminal_nodes = self.vs.select(terminal_eq=True)
 
-        #steiner_tree = nx_approx.steiner_tree(self, terminal_nodes)
-        #print("Calling steiner_tree fn within topology.py")
-        #stree = steiner_tree.steiner_tree(self, terminal_nodes, verbose=verbose)
-        stree = steiner_tree.coopers_steiner_tree(self, terminal_nodes, verbose=verbose)
+        steiner_edge_idxs = igraph_steiner_tree(self, terminal_nodes)
+        for i in steiner_edge_idxs:
+            self.es[i]['steiner'] = True 
 
-        # Hold onto the optimal edges
-        self.steiner_edges = list(stree.edges)
-
-        return stree 
-
-    # def plot(self, **kwargs):
-    #     plt.axes().set_aspect(aspect=1)
-    #     plt.axis("off")
-    #     edge_kwargs = kwargs.copy()
-    #     nlocs = {node: (node.x, node.y) for node in self.nodes}
-    #     edge_kwargs["label"] = "_nolegend"
-    #     edge_kwargs["pos"] = nlocs
-    #     nx.draw_networkx_edges(self, **edge_kwargs)
-    #     node_kwargs = kwargs.copy()
-    #     node_kwargs["label"] = self.name
-    #     node_kwargs["pos"] = nlocs
-    #     nodes = nx.draw_networkx_nodes(self, **node_kwargs)
-    #     if nodes:
-    #         nodes.set_edgecolor("None")
 
     def plot_reblock(self, output_file):
         
@@ -322,25 +309,8 @@ class PlanarGraph(igraph.Graph):
         visual_style['vertex_color'] = [vtx_color_map[t] for t in self.vs['terminal'] ]
         visual_style['edge_color'] = [edg_color_map[t] for t in self.es['steiner'] ]
         visual_style['layout'] = self.vs['name']
-        visual_style['label'] = self.vs['name']
+        visual_style['vertex_label'] = [str(x) for x in self.vs['name']]
 
         igraph.plot(self, output_file, **visual_style)
 
-    def save(self, file_path):
-        '''
-        Saves planar graph to file via pickle 
-        '''
-
-        with open(file_path, 'wb') as file:
-            pickle.dump(self, file)
  
-
-
-g = PlanarGraph()
-g.add_node((0,0))
-g.add_node((1,1))
-
-g.add_edge((0,0),(1,1))
-
-
-#g.split_edge_by_node([(0,0),(1,1)], (1,0), terminal=True)
