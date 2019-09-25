@@ -46,8 +46,9 @@ def clean_graph(graph):
         print("--DISCONNECTED: has {} components".format(num_components))
         comp_sizes = [len(idxs) for idxs in components]
         arg_max = np.argmax(comp_sizes)
+        comp_indices = components[arg_max]
 
-        return components[arg_max]
+        return graph.subgraph(comp_indices)
 
 
 # (1) Just load our data for one GADM
