@@ -1,5 +1,29 @@
 import numpy as np 
 import igraph 
+from itertools import combinations, chain, permutations
+from functools import reduce 
+
+def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
+    '''
+    terminal_nodes is List of igraph.Vertex
+    '''
+
+    # Build closed graph of terminal_vertices where each weight is the shortest path distance
+    H = PlanarGraph()
+    for u,v in combinations(terminal_vertices, 2):
+        path_idxs = G.get_shortest_paths(u, v, weights='weight', output='epath')
+        path_edges = G.es[path_idxs[0]]
+        path_distance = reduce(lambda x,y : x+y, map(lambda x: x['weight'], path_edges))
+        kwargs = {'weight':path_distance, 'path':path_idxs[0]}
+        H.add_edge(u['name'], v['name'], **kwargs)
+
+    # Now get the MST of that complete graph of only terminal_vertices
+    mst_edge_idxs = H.spanning_tree(weights='weight', return_tree=False)
+
+    # Now, we join the paths for all the mst_edge_idxs
+    steiner_edge_idxs = list(chain.from_iterable(H.es[i]['path'] for i in mst_edge_idxs))
+
+    return H, steiner_edge_idxs
 
 def distance(a0, a1):
 
@@ -135,18 +159,20 @@ class PlanarGraph(igraph.Graph):
             seq = self.vs.select(name=coords)
             if len(seq) == 0:
                 self.add_vertex(name=coords, terminal=terminal)
+            elif len(seq) == 1:
+                seq[0]['terminal'] = terminal 
             elif len(seq) > 1:
                 assert False, "Hacky error - there are duplicate nodes in graph"
 
-    def add_edge(self, coords0, coords1):
+    def add_edge(self, coords0, coords1, terminal0=False, terminal1=False, **kwargs):
         '''
         Adds edge to the graph but checks if edge already exists. Also, if either
         coords is not already in the graph, it adds them
         '''
 
         # Safely add nodes
-        self.add_node(coords0)
-        self.add_node(coords1)
+        self.add_node(coords0, terminal0)
+        self.add_node(coords1, terminal1)
 
         v0 = self.vs.select(name=coords0)
         v1 = self.vs.select(name=coords1)
@@ -154,10 +180,13 @@ class PlanarGraph(igraph.Graph):
         # Safely add edge after checking whether edge exists already
         edge_seq = self.es.select(_between=(v0, v1))
         if len(edge_seq) == 0:
-            super().add_edge(v0[0], v1[0], weight=distance(coords0, coords1))
+            kwargs['steiner'] = False
+            if "weight" not in kwargs.keys():
+                kwargs['weight'] = distance(coords0, coords1)
+            super().add_edge(v0[0], v1[0], **kwargs)
 
 
-    def split_edge_by_node(self, edge_tuple, coords):
+    def split_edge_by_node(self, edge_tuple, coords, terminal=False):
         '''
         Given an existing edge btwn 2 nodes, and a third unconnected node, 
         replaces the existing edge with 2 new edges with the previously
@@ -170,20 +199,24 @@ class PlanarGraph(igraph.Graph):
         '''
         orig_coords0, orig_coords1 = edge_tuple
         if coords == orig_coords0:
-            self.vs.select(orig_coords0)['terminal'] = terminal
+            self.vs.select(name=orig_coords0)['terminal'] = terminal
         elif coords == orig_coords1:
-            orig_node1.terminal = node.terminal
-            self.vs.select(orig_coords1)['terminal'] = terminal
+            self.vs.select(name=orig_coords1)['terminal'] = terminal
         else:
-            edge_seq = self.es.select(_between=(orig_coords0, orig_coords1))
+            orig_vtx0 = self.vs.select(name=orig_coords0)
+            orig_vtx1 = self.vs.select(name=orig_coords1)
+            assert len(orig_vtx0) == 1, "Found {} vertices in orig_vtx0".format(len(orig_vtx0))
+            assert len(orig_vtx1) == 1, "Found {} vertices in orig_vtx1".format(len(orig_vtx1))
+            edge_seq = self.es.select(_between=(orig_vtx0, orig_vtx1))
             super().delete_edges(edge_seq)
 
-            self.add_edge(orig_coords0, coords)
-            self.add_edge(coords, orig_coords1)
+            self.add_edge(orig_coords0, coords, terminal1=terminal)
+            self.add_edge(coords, orig_coords1, terminal0=terminal)
 
 ########################################################################
 ########################################################################
-    def closest_point_to_node(self, edge_tuple, coords):
+    @staticmethod
+    def closest_point_to_node(edge_tuple, coords):
         '''
         The edge_tuple specifies an edge and this returns the point on that
         line segment closest to 
@@ -194,7 +227,7 @@ class PlanarGraph(igraph.Graph):
             return projected_node
         else:
             dist_node0 = distance(edge_tuple[0], coords)
-            dist_node0 = distance(edge_tuple[1], coords)
+            dist_node1 = distance(edge_tuple[1], coords)
             if dist_node0 <= dist_node1:
                 return edge_tuple[0]
             else:
@@ -214,7 +247,7 @@ class PlanarGraph(igraph.Graph):
 
 ########################################################################
 ########################################################################
-    def add_node_to_closest_edge(self, coords):
+    def add_node_to_closest_edge(self, coords, terminal=False):
         '''
         Given the input node, this finds the closest point on each edge to that input node.
         It then adds that closest node to the graph. It splits the argmin edge into two
@@ -222,7 +255,6 @@ class PlanarGraph(igraph.Graph):
         '''
         closest_edge_nodes = []
         closest_edge_distances = []
-        #edge_list = list(self.edges)
 
         for edge in self.es:
 
@@ -233,7 +265,7 @@ class PlanarGraph(igraph.Graph):
                 #print("\nSKIPPING EDGE BC ITS A SELF-EDGE\n")
                 continue 
 
-            closest_node = self.closest_point_to_node(edge_tuple, coords)
+            closest_node = PlanarGraph.closest_point_to_node(edge_tuple, coords)
             closest_distance = distance(closest_node, coords)
 
             closest_edge_nodes.append(closest_node)
@@ -247,7 +279,7 @@ class PlanarGraph(igraph.Graph):
         #closest_node.terminal = node.terminal 
 
         # Now add it
-        self.split_edge_by_node(closest_edge, closest_node)
+        self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
 
     def steiner_tree_approx(self, verbose=False):
         '''
@@ -267,51 +299,32 @@ class PlanarGraph(igraph.Graph):
 
         return stree 
 
-    def plot(self, **kwargs):
-        plt.axes().set_aspect(aspect=1)
-        plt.axis("off")
-        edge_kwargs = kwargs.copy()
-        nlocs = {node: (node.x, node.y) for node in self.nodes}
-        edge_kwargs["label"] = "_nolegend"
-        edge_kwargs["pos"] = nlocs
-        nx.draw_networkx_edges(self, **edge_kwargs)
-        node_kwargs = kwargs.copy()
-        node_kwargs["label"] = self.name
-        node_kwargs["pos"] = nlocs
-        nodes = nx.draw_networkx_nodes(self, **node_kwargs)
-        if nodes:
-            nodes.set_edgecolor("None")
+    # def plot(self, **kwargs):
+    #     plt.axes().set_aspect(aspect=1)
+    #     plt.axis("off")
+    #     edge_kwargs = kwargs.copy()
+    #     nlocs = {node: (node.x, node.y) for node in self.nodes}
+    #     edge_kwargs["label"] = "_nolegend"
+    #     edge_kwargs["pos"] = nlocs
+    #     nx.draw_networkx_edges(self, **edge_kwargs)
+    #     node_kwargs = kwargs.copy()
+    #     node_kwargs["label"] = self.name
+    #     node_kwargs["pos"] = nlocs
+    #     nodes = nx.draw_networkx_nodes(self, **node_kwargs)
+    #     if nodes:
+    #         nodes.set_edgecolor("None")
 
-    def plot_reblock(self):
-        edge_kwargs = {}
-        node_kwargs = {}
-
-        plt.axes().set_aspect(aspect=1)
-        plt.axis('off')
-
-        #nlocs_terminal = {node: (node.x, node.y) for node in self.nodes if node.terminal}
-        nlocs_all = {node: (node.x, node.y) for node in self.nodes}
+    def plot_reblock(self, output_file):
         
-        # Edges
-        edge_kwargs['label'] = "_nolegend"
-        edge_kwargs['pos'] = nlocs_all 
-        edge_color_map = []
-        for e in self.edges:
-            c = 'r' if e in self.steiner_edges else 'b'
-            edge_color_map.append(c)
-        edge_kwargs["edge_color"] = edge_color_map
-        nx.draw_networkx_edges(self, **edge_kwargs)
+        vtx_color_map = {True: 'red', False: 'blue'}
+        edg_color_map = {True: 'red', False: 'blue'}
+        visual_style = {}
+        visual_style['vertex_color'] = [vtx_color_map[t] for t in self.vs['terminal'] ]
+        visual_style['edge_color'] = [edg_color_map[t] for t in self.es['steiner'] ]
+        visual_style['layout'] = self.vs['name']
+        visual_style['label'] = self.vs['name']
 
-        # Nodes
-        node_kwargs["label"] = self.name
-        node_kwargs["pos"] = nlocs_all
-
-        node_color_map = []
-        for n in self.nodes:
-            c = 'r' if n.terminal else 'b'
-            node_color_map.append(c)
-        node_kwargs["node_color"] = node_color_map
-        nx.draw_networkx_nodes(self, **node_kwargs)
+        igraph.plot(self, output_file, **visual_style)
 
     def save(self, file_path):
         '''
