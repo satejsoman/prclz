@@ -78,8 +78,8 @@ for example_block in example_blocks:
 
     t = time.time()
     print("Performing Steiner Tree approximation...")
-    graph.steiner_tree_approx()
+    example_graph.steiner_tree_approx()
     print("DONE!!\n\n")    
     print("\t\tsteiner approx take = {} secs".format(time.time()-t))
 
-    graph.save_planar(os.path.join("test_SLE_igraph", example_block+".igraph"))
+    example_graph.save_planar(os.path.join("test_SLE_igraph", example_block+".igraph"))
