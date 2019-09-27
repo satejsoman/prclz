@@ -30,7 +30,7 @@ p { color:#222B30; }
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   line-height: 11px;
   height: 133px;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
   width: 145px;
 }
 .legend-key {
@@ -46,11 +46,14 @@ p { color:#222B30; }
 }
 .button.active,
 .button:hover {
-  background-color:#005bb3;
+  background-color:#0571b0;
 }
 .sidebar {
   width: 100%;
   background-color:transparent;       
+}
+.icon-uofc {
+  background-image: url('extra/images/uchicago.svg');
 }
 @font-face {
   font-family: 'GothamLight';
@@ -83,20 +86,30 @@ p { color:#222B30; }
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-5XWDNG9JPD');
 </script>
 </head>
 <body>
-  
 <div id="sidebar" class="pin-topleft z1">
     <div class="sidebar flex-scroll scroll-styled pad2">
-      <h2 style="margin-top:10px; font-family:GothamBold;">Million Neighborhoods</h2>
-      <p class="prose show-mobile" style="margin:5px;font-family:GothamMedium;">
-Insert text\
+      <h2 style=" margin-bottom:0px; font-family:GothamBold;">Million Neighborhoods</h2>
+      <p class="prose show-mobile" style="margin-top:0px;font-family:GothamMedium;line-height:14px;font-size:11px;">
+Million Neighborhoods is an initiative<br />
+that sets out to map communities that<br />
+lack basic services by looking at their<br />
+level of access to street networks.<br />
       </p>
-      <p class="prose hide-mobile" style="margin:5px;font-family:GothamMedium;">
-Insert text
+      <p class="prose hide-mobile" style="margin-top:0px;font-family:GothamMedium;line-height:14px;font-size:11px;">
+Streets are key to urban life: they carry clean water<br />
+and sanitation, electricity and internet, and provide<br /> 
+routes for emergency responders, trash collectors,<br /> 
+and buses. About a sixth of the global population live<br />
+in neighborhoods that lack these services partially <br />
+because they lack physical access to street networks.<br />
+Million Neighborhoods is an initiative that sets out to<br /> 
+map these critically underserviced communities by <br /> 
+showing their level of street access and exploring<br />
+how they can be made more accessible.<br />
       </p>
       <div class="projects">
         <h3 class="space-bottom0" style="margin:3px;font-family:GothamBold;">Visit a city</h3>
@@ -158,17 +171,19 @@ Insert text
       </div>
     </div>
   </div>
-
   <div id="map"></div>
+  <div class ='pin-bottomright' >
+    <img style="margin-top:11px; margin-bottom:3px; margin-right:335px;" src="extra/images/uchicago.svg" width="180px" />
+  </div>  
+  <div class ='pin-bottomright' >
+    <h3  style="margin-top:18px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Mansueto Institute for Urban Innovation</h3>
+    <h3  style="margin-top:7px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Research Computing Center</h3>
+  </div> 
   <div class='map-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access to street networks</h4></div>
-  <!-- <script src='https://raw.githack.com/mansueto-institute/raw-files/master/mapbox/million_neighborhoods.js'></script> -->
   <script src='index.js'></script>
-  
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="/__/firebase/6.6.2/firebase-app.js"></script>
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
-<!-- Initialize Firebase -->
+<!-- Add SDKs for Firebase products that you want to use https://firebase.google.com/docs/web/setup#available-libraries -->
 <script src="/__/firebase/init.js"></script>
 </body>
 </html>
