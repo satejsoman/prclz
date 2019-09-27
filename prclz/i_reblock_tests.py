@@ -104,7 +104,8 @@ for block in blocks['block_id']:
     example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
 
     steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
-    steiner_lines_dict[block] = times.append(steiner_lines)
+    times.append(steiner_lines)
+    steiner_lines_dict[block] = times 
     terminal_points_dict[block] = [terminal_points]
 
     example_graph.save_planar(os.path.join("test_SLE_igraph", block+".igraph"))
