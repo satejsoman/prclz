@@ -1,4 +1,5 @@
 import typing 
+from itertools import combinations, chain, permutations
 
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, LineString
@@ -206,6 +207,31 @@ def update_graph_with_edge_type(graph, lines:gpd.GeoDataFrame):
             edge_data['edge_type'] = "parcel"
 
 
+def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
+
+    block_coords = block.exterior.coords 
+    parcel_coords = list(chain.from_iterable(l.coords for l in parcel))
+
+    for block_coord in block_coord:
+        assert block_coord in parcel_coords
+
+
+def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon):
+
+    coords = set(block_polygon.exterior.coords)
+
+    for edge in parcel_graph.es:
+        coord_pair = parcel_graph.edge_to_coords(edge)
+        if coord_pair[0] in coords and coord_pair[1] in coords:
+            edge['edge_type'] = 'block'
+            edge['weight'] = 0.0
+        else:
+            edge['edge_type'] = 'parcel_boundary'
+    is_block = np.array(parcel_graph.es['edge_type']) == 'parcel_boundary'
+    print("{} of graph edges are new parcel boundaries".format(is_block.mean()))
+    
+
+
 
 if __name__ == "__main__":
 
@@ -233,7 +259,7 @@ if __name__ == "__main__":
 
 
     # (1) Just load our data for one GADM
-    bldgs, blocks, parcels, lines = load_geopandas_files(region, gadm_code, gadm)
+    bldgs, blocks, parcels, lines = load_geopandas_files(region, gadm_code, gadm) 
 
     # (2) Now build the parcel graph and prep the buildings
     graph_parcels = prepare_parcels(bldgs, blocks, parcels)
@@ -241,7 +267,7 @@ if __name__ == "__main__":
     # (3) We can grab a graph, and just add the corresponding building Nodes
     example_graph = graph_parcels[graph_parcels['block_id']==example_block]['planar_graph'].item()
     example_buildings = graph_parcels[graph_parcels['block_id']==example_block]['buildings'].item()
-
+    example_block = blocks[blocks['block_id']==example_block]['block_geom'].item()
     BOOM 
 
     print("\nGraph pre-adding building nodes:\n", example_graph, "\n")

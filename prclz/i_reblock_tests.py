@@ -102,6 +102,9 @@ for block in blocks['block_id']:
     print("----BEGIN {}----".format(block))
     example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
     example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
+    example_block = blocks[blocks['block_id']==block]['block_geom'].item()
+
+    i_topology_utils.update_edge_types(example_graph, example_block)
 
     steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
     times.append(steiner_lines)
