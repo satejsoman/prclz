@@ -16,6 +16,7 @@ import argparse
 import igraph
 
 import i_topology_utils
+from i_topology import *
 import time 
 
 region = "Africa"
