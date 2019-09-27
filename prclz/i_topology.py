@@ -4,6 +4,9 @@ from itertools import combinations, chain, permutations
 from functools import reduce 
 import pickle 
 import os 
+from shapely.geometry import LineString, MultiLineString, Point, MultiPoint
+from shapely.ops import unary_union
+from typing import Sequence
 
 def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     '''
@@ -340,29 +343,74 @@ class PlanarGraph(igraph.Graph):
         igraph.plot(self, output_file, **visual_style)
 
 
+    def get_steiner_linestrings(self) -> MultiLineString:
+        '''
+        Takes the Steiner optimal edges from g and converts them
+        '''
+        lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
+        multi_line = unary_union(lines)
+        return multi_line 
+
+    def get_terminal_points(self) -> MultiPoint:
+        '''
+        Takes all the terminal nodes (ie buildings) and returns them as 
+        shapely MultiPoint
+        '''
+        points = [Point(v['name']) for v in self.vs if v['terminal']]
+        multi_point = unary_union(points)
+        return multi_point
+
 
 def plot_reblock(g, output_file):
-        vtx_color_map = {True: 'red', False: 'blue'}
-        edg_color_map = {True: 'red', False: 'blue'}
-        
-        visual_style = {}
-        if 'vertex_color' not in visual_style.keys():
-            visual_style['vertex_color'] = [vtx_color_map[t] for t in g.vs['terminal'] ]
-        
-        BIG = 5
-        SMALL = 1
-        if 'bbox' not in visual_style.keys():
-            visual_style['bbox'] = (900,900)
-        if 'vertex_size' not in visual_style.keys():
-            visual_style['vertex_size'] = [BIG if v['terminal'] else SMALL for v in g.vs]
+    vtx_color_map = {True: 'red', False: 'blue'}
+    edg_color_map = {True: 'red', False: 'blue'}
+    
+    visual_style = {}
+    if 'vertex_color' not in visual_style.keys():
+        visual_style['vertex_color'] = [vtx_color_map[t] for t in g.vs['terminal'] ]
+    
+    BIG = 5
+    SMALL = 1
+    if 'bbox' not in visual_style.keys():
+        visual_style['bbox'] = (900,900)
+    if 'vertex_size' not in visual_style.keys():
+        visual_style['vertex_size'] = [BIG if v['terminal'] else SMALL for v in g.vs]
 
-        if 'edge_color' not in visual_style.keys():
-            visual_style['edge_color'] = [edg_color_map[t] for t in g.es['steiner'] ]
-            
-        if 'layout' not in visual_style.keys():
-            visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
-            
-        # if 'vertex_label' not in visual_style.keys():
-        #     visual_style['vertex_label'] = [str(x) for x in g.vs['name']]
+    if 'edge_color' not in visual_style.keys():
+        visual_style['edge_color'] = [edg_color_map[t] for t in g.es['steiner'] ]
+        
+    if 'layout' not in visual_style.keys():
+        visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
+        
+    # if 'vertex_label' not in visual_style.keys():
+    #     visual_style['vertex_label'] = [str(x) for x in g.vs['name']]
 
-        igraph.plot(g, output_file, **visual_style)
+    return igraph.plot(g, output_file, **visual_style)
+
+def write_reblock_svg(g, output_file):
+    vtx_color_map = {True: 'red', False: 'blue'}
+    edg_color_map = {True: 'red', False: 'blue'}
+    
+    visual_style = {}
+    if 'colors' not in visual_style.keys():
+        visual_style['colors'] = [vtx_color_map[t] for t in g.vs['terminal'] ]
+    
+    BIG = 5
+    SMALL = 1
+
+    visual_style['width'] = 600
+    visual_style['height'] = 600
+
+    if 'vertex_size' not in visual_style.keys():
+        visual_style['vertex_size'] = [BIG if v['terminal'] else SMALL for v in g.vs]
+
+    if 'edge_colors' not in visual_style.keys():
+        visual_style['edge_colors'] = [edg_color_map[t] for t in g.es['steiner'] ]
+        
+    if 'layout' not in visual_style.keys():
+        visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
+        
+    # if 'vertex_label' not in visual_style.keys():
+    #     visual_style['vertex_label'] = [str(x) for x in g.vs['name']]
+
+    g.write_svg(output_file, **visual_style)

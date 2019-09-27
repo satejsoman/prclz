@@ -22,7 +22,7 @@ region = "Africa"
 gadm_code = "SLE"
 gadm = "SLE.4.2.1_1"
 #example_blocks = ["SLE.4.2.1_1_1241", "SLE.4.2.1_1_1120", "SLE.4.2.1_1_965"]
-example_blocks = ["SLE.4.2.1_1_1120", "SLE.4.2.1_1_965"]
+example_blocks = ["SLE.4.2.1_1_1241"]
 
 def add_buildings(graph, buildings):
 
@@ -50,12 +50,41 @@ def clean_graph(graph):
 
         return graph.subgraph(comp_indices)
 
+def do_reblock(graph: PlanarGraph, buildings, verbose=False):
+    '''
+    Given a graph of the Parcel and the corresponding buildings,
+    does the reblocking
+    '''
+
+    # Step 1: add the buildings to the PlanarGraph
+    start = time.time()
+    graph = add_buildings(graph, buildings)
+    bldg_time = time.time() - start
+
+    # Step 2: clean the graph if it's disconnected
+    graph = clean_graph(graph)
+
+    # Step 3: do the Steiner Tree approx
+    start = time.time()
+    graph.steiner_tree_approx()
+    stiener_time = time.time() - start 
+
+    # Step 4: convert the stiener edges and terminal nodes to linestrings and points, respecitvely
+    steiner_lines = graph.get_steiner_linestrings()
+    terminal_points = graph.get_terminal_points()
+
+    if verbose:
+        return steiner_lines, terminal_points, [bldg_time, stiener_time]
+    else:
+        return steiner_lines, terminal_points
+
 
 # (1) Just load our data for one GADM
 print("Begin loading of data")
 bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm)
 
 # (2) Now build the parcel graph and prep the buildings
+# restrict to some example blocks within the GADM
 blocks = blocks[blocks['block_id'].apply(lambda x: x in example_blocks)]
 parcels = parcels[parcels['block_id'].apply(lambda x: x in example_blocks)]
 print("Begin calculating of parcel graphs")
@@ -66,21 +95,22 @@ if not os.path.isdir("test_SLE_igraph"):
 
 
 # (3) We can grab a graph, and just add the corresponding building Nodes
-for example_block in example_blocks:
-    print("----BEGIN {}----".format(example_block))
-    example_graph = graph_parcels[graph_parcels['block_id']==example_block]['planar_graph'].item()
-    example_buildings = graph_parcels[graph_parcels['block_id']==example_block]['buildings'].item()
+steiner_lines_dict = {}
+terminal_points_dict = {}
+time = {}
+for block in blocks['block_id']:
+    print("----BEGIN {}----".format(block))
+    example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
+    example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
 
-    t = time.time()
-    example_graph = add_buildings(example_graph, example_buildings)
-    print("\t\tbuildings take = {} secs".format(time.time()-t))
-    
-    example_graph = clean_graph(example_graph)
+    steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
+    steiner_lines_dict[block] = times.append(steiner_lines)
+    terminal_points_dict[block] = [terminal_points]
 
-    t = time.time()
-    print("Performing Steiner Tree approximation...")
-    example_graph.steiner_tree_approx()
-    print("DONE!!\n\n")    
-    print("\t\tsteiner approx take = {} secs".format(time.time()-t))
+    example_graph.save_planar(os.path.join("test_SLE_igraph", block+".igraph"))
 
-    example_graph.save_planar(os.path.join("test_SLE_igraph", example_block+".igraph"))
+# Now save out everything
+steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['bldg_time', 'steiner_time', 'geometry'])
+terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry'])
+steiner_df.to_file(os.path.join("test_SLE_igraph", "steiner_lines.geojson"), driver='GeoJSON')
+terminal_df.to_file(os.path.join("test_SLE_igraph", "terminal_points.geojson"), driver='GeoJSON')
