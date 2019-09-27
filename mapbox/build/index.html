@@ -26,12 +26,10 @@ p { color:#222B30; }
   border-radius: 3px;
 }
 #legend {
-  padding: 10px;
+  padding: 9px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  line-height: 11px;
-  height: 132px;
+  line-height: 10px;
   margin-bottom: 50px;
-  width: 145px;
 }
 .legend-key {
   display: inline-block;
@@ -92,25 +90,27 @@ p { color:#222B30; }
 <body>
 <div id="sidebar" class="pin-topleft z1">
     <div class="sidebar flex-scroll scroll-styled pad2">
-      <h2 class="hide-mobile" style=" margin-bottom:0px; font-family:GothamBold;">Million Neighborhoods</h2>
-      <h2 class="show-mobile" style=" margin-bottom:0px; font-family:GothamBold;">Million<br />Neighborhoods</h2>
+      <h2 class="hide-mobile" style="padding-bottom:0px;margin-bottom:0px; font-family:GothamBold;">Million Neighborhoods</h2>
+      <h2 class="show-mobile" style="padding-bottom:0px;margin-bottom:0px; font-family:GothamBold;">Million<br />Neighborhoods</h2>
       <p class="prose show-mobile" style="margin-top:0px;font-family:GothamMedium;line-height:15px;font-size:13px;">
       </p>
-      <p class="prose hide-mobile" style="margin-top:0px;font-family:GothamMedium;line-height:15px;font-size:13px;">
-        Streets are key to urban life: they hold pipes<br />  
-        that carry clean water and sanitation, connect<br />
-        homes to electricity and internet, and provide<br /> 
-        routes for emergency responders, trash<br /> 
-        collectors, and buses. About a sixth of the<br /> 
-        global population lives in neighborhoods that<br />
-        lack these services partially due to insufficient<br /> 
-        access to street networks. Million Neighborhoods<br />
-        is an initiative seeking to map critically<br /> 
-        underserviced communities and explore<br /> 
-        solutions — starting with access to streets.<br />
+      <p class="prose hide-mobile" style="margin-bottom:5px;margin-top:0px;font-family:GothamMedium;line-height:15px;font-size:13px;">
+        Streets are key to urban life: they<br />  
+        hold pipes that carry clean water and<br /> 
+        sanitation, connect homes to electricity<br /> 
+        and internet, and provide routes for<br /> 
+        emergency responders, trash collectors,<br /> 
+        and buses. About a sixth of the global<br /> 
+        population lives in neighborhoods that<br /> 
+        lack these services partially due to<br /> 
+        insufficient access to street networks.<br /> 
+        Million Neighborhoods is an initiative<br /> 
+        seeking to map critically underserviced<br /> 
+        communities and explore solutions —<br /> 
+        starting with access to streets.<br />
       </p>
       <div class="projects">
-        <h3 class="space-bottom0" style="margin:3px;font-family:GothamBold;">Explore a city</h3>
+        <h3 class="space-bottom0" style="padding-top:0px;margin-bottom:0px;margin:3px;font-family:GothamBold;">Explore a city</h3>
         <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Freetown, Sierra Leone</span>
         </div>
@@ -147,6 +147,7 @@ p { color:#222B30; }
           <span> Port-au-Prince, Haiti</span>
         </div>
           <br />
+          <!--
         <div id="brasil" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Rio de Janeiro, Brasil</span>
         </div>
@@ -163,6 +164,7 @@ p { color:#222B30; }
           <span> Karachi, Pakistan</span>
         </div>
           <br />
+          -->
         <div id="nepal" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Kathmandu, Nepal</span>
         </div>
@@ -171,13 +173,13 @@ p { color:#222B30; }
   </div>
   <div id="map"></div>
   <div class ='pin-bottomright' >
-    <img style="margin-top:11px; margin-bottom:3px; margin-right:335px;" src="extra/images/uchicago.svg" width="180px" />
+    <img style="margin-top:11px; margin-bottom:7px; margin-right:335px;" src="extra/images/uchicago.svg" width="180px" />
   </div>  
   <div class ='pin-bottomright hide-mobile' >
     <h3  style="margin-top:18px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Mansueto Institute for Urban Innovation</h3>
-    <h3  style="margin-top:7px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Research Computing Center</h3>
+    <h3  style="margin-top:9px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Research Computing Center</h3>
   </div> 
-  <div class='map-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access to street networks</h4></div>
+  <div class='map-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access<br />to street networks</h4></div>
   <script src='index.js'></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="/__/firebase/6.6.2/firebase-app.js"></script>
