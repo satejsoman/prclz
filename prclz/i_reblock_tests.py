@@ -98,7 +98,6 @@ if not os.path.isdir("test_SLE_igraph"):
 # (3) We can grab a graph, and just add the corresponding building Nodes
 steiner_lines_dict = {}
 terminal_points_dict = {}
-time = {}
 for block in blocks['block_id']:
     print("----BEGIN {}----".format(block))
     example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
