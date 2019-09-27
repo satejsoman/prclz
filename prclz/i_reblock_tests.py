@@ -110,6 +110,12 @@ for block in blocks['block_id']:
     example_graph.save_planar(os.path.join("test_SLE_igraph", block+".igraph"))
 
 # Now save out everything
+print("Stiner dict ")
+print(steiner_lines_dict)
+
+print("Termianl poitns dict ")
+print(terminal_points_dict)
+
 steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['bldg_time', 'steiner_time', 'geometry'])
 terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry'])
 steiner_df.to_file(os.path.join("test_SLE_igraph", "steiner_lines.geojson"), driver='GeoJSON')
