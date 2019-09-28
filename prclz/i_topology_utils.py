@@ -216,9 +216,19 @@ def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
         assert block_coord in parcel_coords
 
 
-def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon):
+def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False):
 
     coords = set(block_polygon.exterior.coords)
+
+    # Option to verify that each point in the block is in fact in the parcel
+    if check:
+        parcel_coords = set(chain.from_iterable(e['name'] for e in parcel_graph.es))
+        total = 0
+        is_in = 0
+        for coord in coords:
+            is_in = is_in+1 if coord in parcel_coords else is_in 
+            total += 1
+        print("{} of {} block coords are NOT in the parcel coords".format(total-is_in, total)) 
 
     for edge in parcel_graph.es:
         coord_pair = parcel_graph.edge_to_coords(edge)

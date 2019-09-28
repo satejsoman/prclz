@@ -95,7 +95,7 @@ if not os.path.isdir("test_SLE_igraph"):
     os.mkdir("test_SLE_igraph")
 
 
-# (3) We can grab a graph, and just add the corresponding building Nodes
+# (3) Do the reblocking, by block in the GADM, collecting the optimal paths
 steiner_lines_dict = {}
 terminal_points_dict = {}
 for block in blocks['block_id']:
