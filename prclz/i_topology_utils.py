@@ -222,7 +222,7 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
 
     # Option to verify that each point in the block is in fact in the parcel
     if check:
-        parcel_coords = set(chain.from_iterable(v['name'] for v in parcel_graph.vs))
+        parcel_coords = set(v['name'] for v in parcel_graph.vs)
         total = 0
         is_in = 0
         for coord in coords:
