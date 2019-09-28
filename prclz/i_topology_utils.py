@@ -1,4 +1,5 @@
 import typing 
+from typing import Union 
 from itertools import combinations, chain, permutations
 
 import geopandas as gpd
@@ -37,15 +38,19 @@ example_block = 'DJI.3.1_1_26'
 
 ### HELPER FUNCTIONS TO CONVERT shapely geometries INTO CLASSES USED
 ### IN topology.py
-def linestring_to_planar_graph(linestring: LineString, append_connection=True) -> PlanarGraph:
+def linestring_to_planar_graph(linestring: Union[LineString, Polygon], append_connection=True) -> PlanarGraph:
     '''
     Helper function to convert a single Shapely linestring
     to a PlanarGraph
     '''
 
     # linestring -> List[Nodes]
-    #nodes = [Node(p) for p in linestring.coords]
-    nodes = linestring.coords 
+    if isinstance(linestring, LineString):
+        nodes = linestring.coords
+    elif isinstance(linestring, Polygon):
+        nodes = linestring.exterior.coords
+    else:
+        assert False, "Hacky error - invalid type!"
 
     # List[Nodes] -> List[Edges]
     if append_connection:
@@ -218,7 +223,8 @@ def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
 
 def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False):
 
-    coords = set(block_polygon.exterior.coords)
+    coords_list = list(block_polygon.exterior.coords)
+    coords = set(coords_list)
 
     # Option to verify that each point in the block is in fact in the parcel
     if check:
@@ -230,16 +236,21 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
             total += 1
         print("{} of {} block coords are NOT in the parcel coords".format(total-is_in, total)) 
 
-    for edge in parcel_graph.es:
-        coord_pair = parcel_graph.edge_to_coords(edge)
-        if coord_pair[0] in coords and coord_pair[1] in coords:
-            edge['edge_type'] = 'block'
-            edge['weight'] = 0.0
+    # Get list of coord_tuples from the polygon
+    assert coords_list[0] == coords_list[-1], "Not a complete linear ring for polygon"
+    for i, n0 in enumerate(coords_list):
+        if i==0:
+            continue
         else:
-            edge['edge_type'] = 'parcel_boundary'
-    is_block = np.array(parcel_graph.es['edge_type']) == 'parcel_boundary'
-    print("{} of graph edges are new parcel boundaries".format(is_block.mean()))
-    
+            n1 = coords_list[i-1]
+            u = parcel_graph.vs.select(name_eq=n0)[0]
+            v = parcel_graph.vs.select(name_eq=n1)[0]
+            path_idxs = parcel_graph.get_shortest_paths(u, v, weights='weight', output='epath')[0]
+            if len(path_idxs) > 1:
+                print("Length of shortest path = {} edges".format(len(path_idxs)))
+            parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
+    parcel_graph.es.select(edge_type_eq='from_block')['weight'] = 0
+
 
 
 

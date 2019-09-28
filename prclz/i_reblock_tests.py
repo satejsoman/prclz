@@ -25,6 +25,11 @@ gadm = "SLE.4.2.1_1"
 #example_blocks = ["SLE.4.2.1_1_1241", "SLE.4.2.1_1_1120", "SLE.4.2.1_1_965"]
 example_blocks = ["SLE.4.2.1_1_1241"]
 
+# region = "Africa"
+# gadm_code = "DJI"
+# gadm = "DJI.3.1_1"
+# example_blocks = ['DJI.3.1_1_26']
+
 def add_buildings(graph, buildings):
 
     total_blgds = len(buildings)
@@ -105,6 +110,7 @@ for block in blocks['block_id']:
     example_block = blocks[blocks['block_id']==block]['block_geom'].item()
 
     i_topology_utils.update_edge_types(example_graph, example_block, check=True)
+    BOOM 
 
     steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
     times.append(steiner_lines)

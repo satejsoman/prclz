@@ -414,3 +414,21 @@ def write_reblock_svg(g, output_file):
     #     visual_style['vertex_label'] = [str(x) for x in g.vs['name']]
 
     g.write_svg(output_file, **visual_style)
+
+
+def find_edge_from_coords(g, coord0, coord1):
+    '''
+    Given a pair of coordinates, checks whether the graph g
+    contains an edge between that coordinate pair
+    '''
+    v0 = g.vs.select(name_eq=coord0)
+    v1 = g.vs.select(name_eq=coord1)
+    if len(v0)==0 or len(v1)==0:
+        return None 
+    else:
+        edge = g.es.select(_between=(v0, v1))
+        if len(edge)==0:
+            return None 
+        else:
+            return edge[0]
+
