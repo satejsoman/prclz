@@ -23,11 +23,22 @@ def read_file(path, **kwargs):
     return gpd.GeoDataFrame(raw, geometry="geometry")
 
 
-def calculate_complexity(index, block, centroids):
-    info("Calculating k for %s", index)
-    sequence = get_weak_dual_sequence(block, centroids)
-    complexity = get_complexity(sequence)
-    centroids_multipoint = MultiPoint(centroids)
+def calculate_complexity(index, output_dir, block, centroids):
+    block_cache = output_dir/(str(index) + ".block.cache")
+    if block_cache.exists():
+        info("Reading cached k-value for %s", index)
+        with block_cache.open('r') as f:
+            complexity, centroids_multipoint = f.readlines()
+            complexity = int(complexity)
+            centroids_multipoint = shapely.wkt.loads(centroids_multipoint.strip().replace('"', ''))
+    else: 
+        info("Calculating k for %s", index)
+        sequence = get_weak_dual_sequence(block, centroids)
+        complexity = get_complexity(sequence)
+        centroids_multipoint = MultiPoint(centroids)
+        with block_cache.open('w') as f:
+            print(complexity, file=f)
+            print(shapely.wkt.dumps(centroids_multipoint), file=f)
 
     return (index, complexity, centroids_multipoint)
 
@@ -47,7 +58,7 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, overw
         block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
 
         info("Calculating block complexity.")
-        complexity = [(calculate_complexity)(idx, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples()]
+        complexity = [(calculate_complexity)(idx, complexity_output, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples()]
         
         info("Restructuring complexity calculations by block_id index.")
         block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint"]).set_index("block_id"))
