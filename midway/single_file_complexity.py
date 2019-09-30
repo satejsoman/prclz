@@ -23,8 +23,8 @@ def read_file(path, **kwargs):
     return gpd.GeoDataFrame(raw, geometry="geometry")
 
 
-def calculate_complexity(index, output_dir, block, centroids):
-    block_cache = output_dir/(str(index) + ".block.cache")
+def calculate_complexity(index, output, block, centroids):
+    block_cache = output.parent/(str(index) + ".block.cache")
     if block_cache.exists():
         info("Reading cached k-value for %s", index)
         with block_cache.open('r') as f:
