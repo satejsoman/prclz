@@ -21,7 +21,9 @@ DATA_PATH = "../data"
 def geofabrik_to_gadm(geofabrik_name):
     country_info = TRANS_TABLE[TRANS_TABLE['geofabrik_name'] == geofabrik_name]
 
-    assert country_info.shape[0] == 1, "geofabrik -> gadm failed, CHECK csv mapping for {}".format(geofabrik_name)
+    if country_info.shape[0] != 1: 
+        print("geofabrik -> gadm failed, CHECK csv mapping for {}".format(geofabrik_name))
+        return None, None 
 
     gadm_name = country_info['gadm_name'].iloc[0]
     region = country_info['geofabrik_region'].iloc[0]
@@ -198,7 +200,14 @@ def check_building_file_already_processed(gadm_name, region, obj_type):
     '''
 
     p = os.path.join(DATA_PATH, obj_type, region, gadm_name)
-    return os.path.isdir(p)
+    if os.path.isdir(p):
+        files = os.listdir(p)
+        if len(files) > 0:
+            return True 
+        else:
+            return False
+    else:
+        return False 
 
 def map_matching_results_buildings(buildings_output, all_blocks, file_name):
 
@@ -245,6 +254,8 @@ def main(file_name, REPLACE, gadm_name):
 
     if gadm_name is None:
     	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+        if gadm_name is None and region is None:
+            return 
     else:
     	country_info = TRANS_TABLE[TRANS_TABLE['gadm_name'] == gadm_name]
     	region = country_info['geofabrik_region'].iloc[0].title()
