@@ -156,7 +156,7 @@ g.plot_reblock()
 # Now do steiner tree approx
 start = time.time()
 for _ in range(1000):
-    steiner = g.steiner_tree_approx(verbose=True)
+    steiner = g.steiner_tree_approx()
 end = time.time()
 print("TAKES {} seconds".format(end-start))
 

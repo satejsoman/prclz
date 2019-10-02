@@ -1,4 +1,5 @@
 from itertools import combinations, chain, permutations
+from functools import reduce 
 
 from networkx.utils import pairwise, not_implemented_for
 import networkx as nx
@@ -79,7 +80,7 @@ def coopers_steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
 
     '''
     H = nx.Graph()
-    for u,v in tqdm(combinations(terminal_nodes, 2)):
+    for u,v in combinations(terminal_nodes, 2):
 
         distance = nx.dijkstra_path_length(G, u, v, weight=weight)
         path = nx.dijkstra_path(G, u, v, weight=weight)
@@ -93,6 +94,28 @@ def coopers_steiner_tree(G, terminal_nodes, weight='weight', verbose=False):
     T = G.edge_subgraph(edges)
     return T
 
+def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
+    '''
+    terminal_nodes is List of igraph.Vertex
+    '''
+
+    # Build closed graph of terminal_vertices where each weight is the shortest path distance
+    H = PlanarGraph()
+    for u,v in combinations(terminal_vertices, 2):
+        path_idxs = G.get_shortest_paths(u, v, weights='weight', output='epath')
+        path_edges = G.es[path_idxs[0]]
+        path_distance = reduce(lambda x,y : x+y, map(lambda x: x['weight'], path_edges))
+        kwargs = {'weight':path_distance, 'path':path_idxs[0]}
+        H.add_edge(u['name'], v['name'], **kwargs)
+
+    # Now get the MST of that complete graph of only terminal_vertices
+    mst_edge_idxs = H.spanning_tree(weights='weight', return_tree=False)
+
+    # Now, we join the paths for all the mst_edge_idxs
+    steiner_edge_idxs = list(chain.from_iterable(H.es[i]['path'] for i in mst_edge_idxs))
+
+    return H, steiner_edge_idxs
+    #steiner_subgraph = G.subgraph_edges(steiner_edge_idxs, delete_vertices=True)
 
 @not_implemented_for('multigraph')
 @not_implemented_for('directed')
