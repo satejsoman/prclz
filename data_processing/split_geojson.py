@@ -325,8 +325,9 @@ if __name__ == "__main__":
     parser.add_argument("--gadm_name", help="if the geojson file corresponds to 2 countries, you can specify the unique GADM code", type=str)
     parser.add_argument("--replace", help="default behavior is to skip if the country has been processed. Adding this option replaces the files",
                          action="store_true")
-
+    
     args = parser.parse_args()
+
 
     file_name = args.path_to_file.split("/")[-1]
     REPLACE = args.replace 
