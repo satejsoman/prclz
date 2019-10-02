@@ -35,71 +35,15 @@ gadm_code = "DJI"
 gadm = "DJI.3.1_1"
 example_block = 'DJI.3.1_1_26'
 
-
-### HELPER FUNCTIONS TO CONVERT shapely geometries INTO CLASSES USED
-### IN topology.py
-def linestring_to_planar_graph(linestring: Union[LineString, Polygon], append_connection=True) -> PlanarGraph:
-    '''
-    Helper function to convert a single Shapely linestring
-    to a PlanarGraph
-    '''
-
-    # linestring -> List[Nodes]
-    if isinstance(linestring, LineString):
-        nodes = linestring.coords
-    elif isinstance(linestring, Polygon):
-        nodes = linestring.exterior.coords
-    else:
-        assert False, "Hacky error - invalid type!"
-
-    # List[Nodes] -> List[Edges]
-    if append_connection:
-        nodes.append(nodes[0])
-    edges = []
-    for i, n in enumerate(nodes):
-        if i==0:
-            continue
-        else:
-            edges.append( (n, nodes[i-1]) )
-
-    # List[Edges] -> PlanarGraph
-    pgraph = PlanarGraph.from_edges(edges)
-
-    return pgraph 
-
-def multilinestring_to_planar_graph(multilinestring: MultiLineString) -> PlanarGraph:
-    '''
-    Helper function to convert a Shapely multilinestring
-    to a PlanarGraph
-    '''
-
-    pgraph = PlanarGraph()
-
-    for linestring in multilinestring:
-        # linestring -> List[Nodes]
-        #nodes = [Node(p) for p in linestring.coords]
-        nodes = list(linestring.coords)
-
-        # List[Nodes] -> List[Edges]
-        nodes.append(nodes[0])
-        for i, n in enumerate(nodes):
-            if i==0:
-                continue
-            else:
-                pgraph.add_edge(n, nodes[i-1])
-
-    return pgraph
-
 def point_to_node(point: Point):
     '''
-    Helper function to convert shapely.Point -> Node
+    Helper function to convert shapely.Point -> Tuple
     '''
     return point.coords[0]
-######## END OF CONVERSION HELPERS to topology.py
 
-def csv_to_geo(csv_path, add_file_col=False):
+def csv_to_geo(csv_path, add_file_col=False) -> gpd.GeoDataFrame:
     '''
-    Loads the csv and returns a GeoDataFrame
+    Given a path to a block.csv file, returns as a GeoDataFrame
     '''
 
     df = pd.read_csv(csv_path, usecols=['block_id', 'geometry'])
@@ -165,7 +109,7 @@ def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame,
     parcels.reset_index(inplace=True)
 
     # Now, create the graph for each parcel
-    parcels['planar_graph'] = parcels['parcel_geometry'].apply(multilinestring_to_planar_graph)
+    parcels['planar_graph'] = parcels['parcel_geometry'].apply(PlanarGraph.multilinestring_to_planar_graph)
 
     # And convert the buildings from shapely.Points -> topology.Nodes
     parcels['buildings'] = parcels['buildings'].apply(lambda x: [point_to_node(p) for p in x])
@@ -180,36 +124,36 @@ def edge_list_from_linestrings(lines_df):
     all_edges = []
     lines_df_geom = lines_df.geometry 
     for l in lines_df_geom:
-        l_graph = linestring_to_planar_graph(l, False)
+        l_graph = PlanarGraph.linestring_to_planar_graph(l, False)
         l_graph_edges = l_graph.es 
         all_edges.extend(l_graph_edges)
     return all_edges
 
 
-def update_graph_with_edge_type(graph, lines:gpd.GeoDataFrame):
-    '''
-    Split the lines DataFrame into lists of edges of type 'waterway', 'highway', 
-    and 'natural'. Then loop over the graph's edges and update the weights 
-    and the edge_type accordingly
-    '''
+# def update_graph_with_edge_type(graph, lines:gpd.GeoDataFrame):
+#     '''
+#     Split the lines DataFrame into lists of edges of type 'waterway', 'highway', 
+#     and 'natural'. Then loop over the graph's edges and update the weights 
+#     and the edge_type accordingly
+#     '''
 
-    waterway_edges = edge_list_from_linestrings(lines[lines['waterway'].notna()])
-    natural_edges = edge_list_from_linestrings(lines[lines['natural'].notna()])
-    highway_edges = edge_list_from_linestrings(lines[lines['highway'].notna()])
+#     waterway_edges = edge_list_from_linestrings(lines[lines['waterway'].notna()])
+#     natural_edges = edge_list_from_linestrings(lines[lines['natural'].notna()])
+#     highway_edges = edge_list_from_linestrings(lines[lines['highway'].notna()])
 
-    for u, v, edge_data in graph.es(data=True):
-        edge_tuple = (u,v)
-        if edge_tuple in waterway_edges:
-            edge_data['weight'] = 999
-            edge_data['edge_type'] = "waterway"     
-        elif edge_tuple in natural_edges:
-            edge_data['weight'] = 999
-            edge_data['edge_type'] = "natural" 
-        elif edge_tuple in highway_edges:
-            edge_data['weight'] = 0
-            edge_data['edge_type'] = "highway" 
-        else:
-            edge_data['edge_type'] = "parcel"
+#     for u, v, edge_data in graph.es(data=True):
+#         edge_tuple = (u,v)
+#         if edge_tuple in waterway_edges:
+#             edge_data['weight'] = 999
+#             edge_data['edge_type'] = "waterway"     
+#         elif edge_tuple in natural_edges:
+#             edge_data['weight'] = 999
+#             edge_data['edge_type'] = "natural" 
+#         elif edge_tuple in highway_edges:
+#             edge_data['weight'] = 0
+#             edge_data['edge_type'] = "highway" 
+#         else:
+#             edge_data['edge_type'] = "parcel"
 
 
 def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):

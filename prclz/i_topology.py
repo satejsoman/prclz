@@ -1,12 +1,23 @@
+import typing 
+from typing import Union, Sequence
 import numpy as np 
 import igraph 
 from itertools import combinations, chain, permutations
 from functools import reduce 
 import pickle 
 import os 
-from shapely.geometry import LineString, MultiLineString, Point, MultiPoint
-from shapely.ops import unary_union
-from typing import Sequence
+from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, MultiPoint, LineString
+from shapely.ops import cascaded_union
+from shapely.wkt import loads
+import time 
+import matplotlib.pyplot as plt 
+import sys 
+import argparse
+
+# These two globals control the growth of the buffer when we search for intersecting
+#     lines when we add a node to the closest edge. They may be suboptimal
+BUF_EPS = 1e-4
+BUF_RATE = 2
 
 def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     '''
@@ -140,6 +151,59 @@ class PlanarGraph(igraph.Graph):
             graph.add_edge(*edge)
         return graph
 
+    @staticmethod
+    def linestring_to_planar_graph(linestring: Union[LineString, Polygon], append_connection=True):
+        '''
+        Helper function to convert a single Shapely linestring
+        to a PlanarGraph
+        '''
+
+        # linestring -> List[Nodes]
+        if isinstance(linestring, LineString):
+            nodes = linestring.coords
+        elif isinstance(linestring, Polygon):
+            nodes = linestring.exterior.coords
+        else:
+            assert False, "Hacky error - invalid type!"
+
+        # List[Nodes] -> List[Edges]
+        if append_connection:
+            nodes.append(nodes[0])
+        edges = []
+        for i, n in enumerate(nodes):
+            if i==0:
+                continue
+            else:
+                edges.append( (n, nodes[i-1]) )
+
+        # List[Edges] -> PlanarGraph
+        pgraph = PlanarGraph.from_edges(edges)
+
+        return pgraph 
+
+    @staticmethod
+    def multilinestring_to_planar_graph(multilinestring: MultiLineString):
+        '''
+        Helper function to convert a Shapely multilinestring
+        to a PlanarGraph
+        '''
+
+        pgraph = PlanarGraph()
+
+        for linestring in multilinestring:
+            # linestring -> List[Nodes]
+            #nodes = [Node(p) for p in linestring.coords]
+            nodes = list(linestring.coords)
+
+            # List[Nodes] -> List[Edges]
+            nodes.append(nodes[0])
+            for i, n in enumerate(nodes):
+                if i==0:
+                    continue
+                else:
+                    pgraph.add_edge(n, nodes[i-1])
+
+        return pgraph
 
     @staticmethod
     def load_planar(file_path):
@@ -279,7 +343,33 @@ class PlanarGraph(igraph.Graph):
 
         return edge_tuple 
 
-    def add_node_to_closest_edge(self, coords, terminal=False):
+    def setup_linestring_attr(self):
+        self.es['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
+
+    def cleanup_linestring_attr(self):
+        del self.es['linestring']
+
+    def find_candidate_edges(self, coords):
+
+        if 'linestring' not in self.es.attributes():
+            self.setup_linestring_attr()
+
+        point = Point(*coords)
+
+        # Initialize while loop
+        buf = BUF_EPS
+        buffered_point = point.buffer(buf)
+        edges = self.es.select(lambda e: e['linestring'].intersects(buffered_point))
+        i = 0
+        while len(edges) == 0:
+            buf *= BUF_RATE
+            buffered_point = point.buffer(buf)
+            edges = self.es.select(lambda e: e['linestring'].intersects(buffered_point))
+            i += 1
+        print("Found {}/{} possible edges thru {} tries".format(len(edges), len(self.es), i))
+        return edges 
+
+    def add_node_to_closest_edge(self, coords, terminal=False, fast=True):
         '''
         Given the input node, this finds the closest point on each edge to that input node.
         It then adds that closest node to the graph. It splits the argmin edge into two
@@ -288,7 +378,12 @@ class PlanarGraph(igraph.Graph):
         closest_edge_nodes = []
         closest_edge_distances = []
 
-        for edge in self.es:
+        if fast:
+            cand_edges = self.find_candidate_edges(coords)
+        else:
+            cand_edges = self.es 
+
+        for edge in cand_edges:
 
             edge_tuple = self.edge_to_coords(edge)
 
