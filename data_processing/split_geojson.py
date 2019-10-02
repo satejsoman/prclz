@@ -73,7 +73,7 @@ def split_files_alt(file_name: str, trans_table: pd.DataFrame, return_all_blocks
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
     
     if gadm_name is None or region is None:
-    	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+        gadm_name, region = geofabrik_to_gadm(geofabrik_name)
     
     obj_type = "lines" if "lines" in file_name else "buildings"
 
@@ -253,12 +253,12 @@ def main(file_name, REPLACE, gadm_name):
     geofabrik_name = file_name.replace("_buildings.geojson", "").replace("_lines.geojson", "")
 
     if gadm_name is None:
-    	gadm_name, region = geofabrik_to_gadm(geofabrik_name)
+        gadm_name, region = geofabrik_to_gadm(geofabrik_name)
         if gadm_name is None and region is None:
             return 
     else:
-    	country_info = TRANS_TABLE[TRANS_TABLE['gadm_name'] == gadm_name]
-    	region = country_info['geofabrik_region'].iloc[0].title()
+        country_info = TRANS_TABLE[TRANS_TABLE['gadm_name'] == gadm_name]
+        region = country_info['geofabrik_region'].iloc[0].title()
 
     TYPE = "buildings" if "buildings" in file_name else "lines"
 
