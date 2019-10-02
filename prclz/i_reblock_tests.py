@@ -92,6 +92,12 @@ def reblock_gadm(region, gadm_code, gadm):
     print("Begin loading of data--{}-{}".format(region, gadm))
     bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
 
+    #### REMOVE THIS -- just for testing
+    bl = "SLE.4.2.1_1_1241"
+    blocks = blocks[blocks['block_id'] == bl]
+    parcels = parcels[parcels['block_id'] == bl]
+    ####################################
+
     # (2) Now build the parcel graph and prep the buildings
     print("Begin calculating of parcel graphs--{}-{}".format(region, gadm))
     graph_parcels = i_topology_utils.prepare_parcels(bldgs, blocks, parcels)    
@@ -104,17 +110,12 @@ def reblock_gadm(region, gadm_code, gadm):
     if not os.path.isdir(graph_path):
         os.makedirs(graph_path)
 
-    #### REMOVE THIS -- just for testing
-    override = ["SLE.4.2.1_1_1241"]
-    ####################################
-
 
     # (4) Do the reblocking, by block in the GADM, collecting the optimal paths
     steiner_lines_dict = {}
     terminal_points_dict = {}
     print("Begin calculating of parcel graphs--{}-{}".format(region, gadm))
-    #for block in blocks['block_id']:
-    for block in override:
+    for block in blocks['block_id']:
         example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
         example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
@@ -150,3 +151,5 @@ def main(file_path:str):
 region = "Africa"
 gadm_code = "SLE"
 gadm = "SLE.4.2.1_1"
+
+reblock_gadm(region, gadm_code, gadm)
