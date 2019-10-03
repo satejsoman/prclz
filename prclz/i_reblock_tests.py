@@ -140,7 +140,7 @@ def main(file_path:str, replace):
     gadm_code = gadm[0:3]
     region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['region'].iloc[0]
 
-    reblock_gadm(region, gadm_code, gadm, replace )
+    reblock_gadm(region, gadm_code, gadm )
 
 if __name__ == "__main__":
 
