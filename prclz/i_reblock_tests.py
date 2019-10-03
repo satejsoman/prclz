@@ -60,7 +60,6 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     start = time.time()
     graph = add_buildings(graph, buildings)
     bldg_time = time.time() - start
-    print("***** BUILDING TIME IS {} SECS*******".format(bldg_time))
 
     # Step 2: clean the graph if it's disconnected
     graph = clean_graph(graph)
@@ -133,7 +132,7 @@ def reblock_gadm(region, gadm_code, gadm):
     steiner_df.to_file(os.path.join(reblock_path, "steiner_lines_{}.geojson".format(gadm)), driver='GeoJSON')
     terminal_df.to_file(os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm)), driver='GeoJSON')
 
-def main(file_path:str):
+def main(file_path:str, replace):
     
     # (1) Get the GADM code
     f = file_path.split("/")[-1]
@@ -141,7 +140,17 @@ def main(file_path:str):
     gadm_code = gadm[0:3]
     region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['region'].iloc[0]
 
-    reblock_gadm(region, gadm_code, gadm)
+    reblock_gadm(region, gadm_code, gadm, replace )
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file_path", help="path to a GADM-specific parcels or blocks file", type=str)
+    parser.add_argument("--replace", help="default behavior is to skip if the GADM has been processed. Adding this option replaces the files",
+                         action="store_true")
+    
+    args = parser.parse_args()
+    main(file_path = args.file_path, replace=args.replace)
 
 
 region = "Africa"

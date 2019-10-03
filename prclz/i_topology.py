@@ -7,7 +7,7 @@ from functools import reduce
 import pickle 
 import os 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, MultiPoint, LineString
-from shapely.ops import cascaded_union
+from shapely.ops import cascaded_union, unary_union
 from shapely.wkt import loads
 import time 
 import matplotlib.pyplot as plt 
@@ -368,7 +368,7 @@ class PlanarGraph(igraph.Graph):
             buffered_point = point.buffer(buf)
             edges = self.es.select(lambda e: e['linestring'].intersects(buffered_point))
             i += 1
-        print("Found {}/{} possible edges thru {} tries".format(len(edges), len(self.es), i))
+        #print("Found {}/{} possible edges thru {} tries".format(len(edges), len(self.es), i))
         return edges 
 
     def add_node_to_closest_edge(self, coords, terminal=False, fast=True):
