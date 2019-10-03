@@ -24,11 +24,6 @@ DATA = os.path.join(ROOT, "data")
 TRANS_TABLE = pd.read_csv(os.path.join(ROOT, "data_processing", 'country_codes.csv'))
 
 
-# region = "Africa"
-# gadm_code = "DJI"
-# gadm = "DJI.3.1_1"
-# example_blocks = ['DJI.3.1_1_26']
-
 def add_buildings(graph, buildings):
 
     total_blgds = len(buildings)
@@ -36,6 +31,7 @@ def add_buildings(graph, buildings):
     for i, bldg_node in enumerate(buildings):
         graph.add_node_to_closest_edge(bldg_node, terminal=True)
 
+    graph.cleanup_linestring_attr()
     return graph 
 
 def clean_graph(graph):

@@ -344,15 +344,17 @@ class PlanarGraph(igraph.Graph):
         return edge_tuple 
 
     def setup_linestring_attr(self):
-        self.es['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
+        if 'linestring' not in self.es.attributes():
+            self.es['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
+        else:
+            self.es.select(linestring_eq=None)['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
 
     def cleanup_linestring_attr(self):
         del self.es['linestring']
 
     def find_candidate_edges(self, coords):
 
-        if 'linestring' not in self.es.attributes():
-            self.setup_linestring_attr()
+        self.setup_linestring_attr()
 
         point = Point(*coords)
 
