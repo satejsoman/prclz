@@ -332,15 +332,18 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("path_to_file", help="path to a country-specific *buildings.geojson or *lines.geojson file", type=str)
+    parser.add_argument("--path_to_file", help="path to a country-specific *buildings.geojson or *lines.geojson file", type=str)
     parser.add_argument("--gadm_name", help="if the geojson file corresponds to 2 countries, you can specify the unique GADM code", type=str)
     parser.add_argument("--replace", help="default behavior is to skip if the country has been processed. Adding this option replaces the files",
                          action="store_true")
     
     args = parser.parse_args()
 
-
-    file_name = args.path_to_file.split("/")[-1]
+    if args.path_to_file is None:
+        geofabrik_name = TRANS_TABLE[TRANS_TABLE['gadm_name']==args.gadm_name]['geofabrik_name'].iloc[0]
+        file_name = geofabrik_name + "_buildings.geojson"
+    else:
+        file_name = args.path_to_file.split("/")[-1]
     REPLACE = args.replace 
 
     main(file_name, REPLACE, args.gadm_name)
