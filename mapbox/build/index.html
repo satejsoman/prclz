@@ -4,55 +4,13 @@
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <meta charset=utf-8 />
   <title>Million Neighborhoods</title>
+  <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet'/>
+  <!--<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.css' rel='stylesheet' />-->
   <link rel="canonical" href="https://mansueto-institute.github.io/" >
-  <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.js'></script>
   <style>
 body { margin:0; padding:0; }
 #map { position:absolute; top:0; bottom:0; width:100%; }
-h2 { color:#222B30; }
-h3 { color:#222B30; }
-p { color:#222B30; }
-.map-overlay {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.8);
-  margin-right: 20px;
-  font-family: GothamMedium;
-  font-weight:normal;
-  font-size:11px;
-  overflow: auto;
-  border-radius: 3px;
-}
-#legend {
-  padding: 9px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  line-height: 10px;
-  margin-bottom: 50px;
-}
-.legend-key {
-  display: inline-block;
-  border-radius: 20%;
-  width: 10px;
-  height: 10px;
-  margin-right: 5px;
-}
-.button {
-  margin:2px;
-  padding:3px;
-}
-.button.active,
-.button:hover {
-  background-color:#0571b0;
-}
-.sidebar {
-  width: 100%;
-  background-color:transparent;       
-}
-.icon-uofc {
-  background-image: url('extra/images/uchicago.svg');
-}
 @font-face {
   font-family: 'GothamLight';
   src: url('extra/gotham/GothamLight.ttf') format('truetype'); 
@@ -77,6 +35,77 @@ p { color:#222B30; }
        font-weight: 700;
        font-style: normal;
 }
+h2 { color:#222B30; }
+h3 { color:#222B30; }
+p { color:#222B30; }
+.text-overlay {
+  position: absolute;
+  top: 2;
+  width: 254px;
+  height: 220px;
+  padding: 5px;
+  font-family: GothamMedium;
+  font-size: 13px;
+  line-height: 13px;
+  margin-top: 10px;
+  margin-left: 0px;
+  font-weight:normal;
+  overflow: auto;
+  border-radius: 3px;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.legend-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  margin-right: 20px;
+  font-family: GothamMedium;
+  font-weight:normal;
+  font-size:11px;
+  overflow: auto;
+  border-radius: 3px;
+}
+.location-button.is-visible {
+  display: block;
+  position: absolute;
+  padding: 5px;
+}
+#legend {
+  padding: 9px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  line-height: 10px;
+  margin-bottom: 50px;
+}
+.legend-key {
+  display: inline-block;
+  border-radius: 20%;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+}
+.button {
+  font-family:GothamBold;
+  vertical-align: middle;
+  line-height:15px;
+  margin:2px;
+  padding: 8px 6px 0px 6px; 
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+}
+.button.active,
+.button:hover {
+  background-color:#0571b0;
+}
+.sidebar {
+  width: 100%;
+  background-color:transparent;       
+}
+.icon-uofc {
+  background-image: url('extra/images/uchicago.svg');
+}
 </style>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5XWDNG9JPD"></script>
@@ -90,25 +119,21 @@ p { color:#222B30; }
 <body>
 <div id="sidebar" class="pin-topleft z1">
     <div class="sidebar flex-scroll scroll-styled pad2">
-      <h2 class="hide-mobile" style="padding-bottom:0px;margin-bottom:0px; font-family:GothamBold;">Million Neighborhoods</h2>
-      <h2 class="show-mobile" style="padding-bottom:0px;margin-bottom:0px; font-family:GothamBold;">Million<br />Neighborhoods</h2>
-      <p class="prose show-mobile" style="margin-top:0px;font-family:GothamMedium;line-height:15px;font-size:13px;">
+      <h2 class="hide-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million Neighborhoods</h2>
+      <h2 class="show-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million<br />Neighborhoods</h2>
+
+      <div id="play-interactive" class="button fill-red dark hide-mobile" style="margin-top:0px;">
+        <span id='location-button'> Play interactive explainer</span>
+        <!--<span > Play interactive explainer</span>-->
+      </div>
+
+      <div id='popup-interactive' class='text-overlay hide-mobile'> 
+        <p id='location-title' style="font-family:GothamBold; font-size:18px; margin-top:5px; margin-bottom:5px;"></p>
+        <p id='location-description' style="font-family:GothamMedium;line-height:15px;font-size:12px;"></p>
+      </div>
+
       </p>
-      <p class="prose hide-mobile" style="margin-bottom:5px;margin-top:0px;font-family:GothamMedium;line-height:15px;font-size:13px;">
-        Streets are key to urban life: they<br />  
-        hold pipes that carry clean water and<br /> 
-        sanitation, connect homes to electricity<br /> 
-        and internet, and provide routes for<br /> 
-        emergency responders, trash collectors,<br /> 
-        and buses. About a sixth of the global<br /> 
-        population lives in neighborhoods that<br /> 
-        lack these services partially due to<br /> 
-        insufficient access to street networks.<br /> 
-        Million Neighborhoods is an initiative<br /> 
-        seeking to map critically underserviced<br /> 
-        communities and explore solutions —<br /> 
-        starting with access to streets.<br />
-      </p>
+      <div class="hide-mobile space-bottom0" style="padding-top:215px;"></div>
       <div class="projects">
         <h3 class="space-bottom0" style="padding-top:0px;margin-bottom:0px;margin:3px;font-family:GothamBold;">Explore a city</h3>
         <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
@@ -168,18 +193,24 @@ p { color:#222B30; }
         <div id="nepal" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Kathmandu, Nepal</span>
         </div>
+        <br />
       </div>
+      <div class ='pin-bottomleft hide-mobile' style="margin-left:20px;margin-bottom:3px;font-size:13px;" >
+        <p style="display:inline;font-family:GothamMedium;line-height:9px;margin-bottom:10px;">Find more at </p><a target='_blank' href='https://miurban.uchicago.edu'><p style="display:inline;font-family:GothamMedium;line-height:9px;margin-bottom:10px;">miurban.uchicago.edu</p></a>
+      </div> 
+
     </div>
   </div>
+
   <div id="map"></div>
   <div class ='pin-bottomright hide-mobile' >
     <img style="margin-top:11px; margin-bottom:7px; margin-right:335px;" src="extra/images/uchicago.svg" width="180px" />
   </div>  
   <div class ='pin-bottomright hide-mobile' >
-    <h3  style="margin-top:18px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Mansueto Institute for Urban Innovation</h3>
-    <h3  style="margin-top:9px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px; ">Research Computing Center</h3>
+    <h3  style="margin-top:18px; margin-right:20px; font-family:GothamBold; line-height:13px;color:#800000;">Mansueto Institute for Urban Innovation</h3>
+    <h3  style="margin-top:9px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3>
   </div> 
-  <div class='map-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access<br />to street networks</h4></div>
+  <div class='legend-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access<br />to street networks</h4></div>
   <script src='index.js'></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="/__/firebase/6.6.2/firebase-app.js"></script>
