@@ -153,8 +153,8 @@ if __name__ == "__main__":
     main(file_path = args.file_path, replace=args.replace)
 
 
-region = "Africa"
-gadm_code = "SLE"
-gadm = "SLE.4.2.1_1"
+# region = "Africa"
+# gadm_code = "SLE"
+# gadm = "SLE.4.2.1_1"
 
-reblock_gadm(region, gadm_code, gadm)
+# reblock_gadm(region, gadm_code, gadm)
