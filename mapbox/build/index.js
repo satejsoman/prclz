@@ -162,21 +162,21 @@ for (i = 0; i < layers.length; i++) {
 var title = document.getElementById('location-title');
 var description = document.getElementById('location-description');
 var buttontext = document.getElementById('location-button').textContent;
-
 var locations = [
 {"id": 1,
   "title": "Why street access matters",
-  "description": "Having a street alongside a building is something often taken for granted. Yet for over a billion people in over a million neighborhoods accessing nearby street networks is a daily challenge. In fact, limited street access is often indicative of deficits in infrastructure that relies on streets, such as fire hydrants, drains, power lines, or underground pipes to provide clean water and sanitation.",
-  "buttontext":"Continue explainer (2/10)",
+  "description": "Having a street alongside a building is something often taken for granted. Yet for over a billion people in millions of neighborhoods accessing nearby street networks is a daily challenge. In fact, limited street access is often indicative of deficits in street-dependent infrastructure like fire hydrants, drains, power lines, or underground pipes that provide clean water or sanitation.",
+  //"buttontext":"Continue explainer (2/10)",
   "camera": {
     center: [-72.34257, 18.52656],
     bearing: 0,
     pitch:0,
-    zoom: 13.75
+    zoom: 13.75,
+    speed: .6
   }
 },{"id": 2,
   "title": "How the map can help",
-  "description": "The Million Neighborhoods map is a first step towards identifying under-serviced neighborhoods at the global scale and democratizing resources to facilitate community-driven planning efforts to improve street access. Since the map relies on OpenStreetMap some neighborhoods are less well documented than others, but as data improves so can the map.",
+  "description": "The Million Neighborhoods map is a first step towards identifying under-serviced neighborhoods at the global scale and democratizing resources that can facilitate community-driven urban planning efforts. Since the map relies on OpenStreetMap some neighborhoods are less well documented than others, but as data improves so can the map.",
   //"buttontext":"Continue explainer (3/10)",
   "camera": {
     center: [-72.343405, 18.524463], 
@@ -186,13 +186,15 @@ var locations = [
     speed:.3
   }
 },{"id": 3,
-  "title": "Exploring Nairobi, Kenya",
+  "title": "Exploring Nairobi",
   "description": "To give a real life example of the kinds of neighborhoods covered in the map, let’s take a look at Nairobi, Kenya. Like many cities, Nairobi has wealthy and middle class neighborhoods alongside some of its poorest. To illustrate how differences in socioeconomic well-being relate to street access, let’s examine two areas of the city.",
   //"buttontext":,"Continue explainer (4/10)",
   "camera": {
     center: [36.82287, -1.28937],
     zoom: 12.61,
-    pitch: 50
+    pitch: 50,
+    speed:.6,
+    curve: 1.8
   }
 }, {
   "id": 4,
@@ -202,17 +204,19 @@ var locations = [
   "camera": {
     center: [36.825969, -1.284919],
     bearing: -8.9,
-    zoom: 16.5
+    zoom: 16.5,
+    speed: .4
   }
 }, {
   "id": 5,
   "title": "Kibera neighborhoods",
-  "description": "Now let’s check out an area with extremely limited street access. This is Kibera, an informal settlement near the city center that is home to more than 170,000 people. For residents of Kibera the lack of street access means limited economic opprtunities along with fewer sources of clean water and sanitation, and basic services like emergnency assistance and waste disposal.",
+  "description": "Now let’s visit an area with extremely limited street access. This is Kibera, an informal settlement near the city center that is home to more than 170,000 people. For residents of Kibera the lack of street access means more limited economic opprtunities along with fewer sources of clean water and sanitation, and basic services like emergnency assistance and waste disposal.",
   //"buttontext":,"Continue explainer (6/10)",
   "camera": {
     center: [36.794268, -1.316134],
     bearing: 25.3,
-    zoom: 16
+    zoom: 16,
+    speed: .4
   }
 }, {
   "id": 6,
@@ -233,7 +237,9 @@ var locations = [
   "camera": {
     center: [-10.80734, 6.32522], 
     bearing: 25.3,
-    zoom: 16.5
+    zoom: 16.5,
+    speed: 1,
+    curve: 1.2
   }
 }, {
   "id": 8,
@@ -244,21 +250,23 @@ var locations = [
     center: [-11.182, 7.278],
     bearing: 0,
     pitch:25,
-    zoom: 7.15
+    zoom: 7,
+    curve: 1.7,
+    speed: .6
   } 
 }, {
   "id": 9,
   "title": "What the map shows",
-  "description": "This map answers the basic question: How hard is it to get from the buildings in a block to the streets around it? Red areas contain buildings with more limited street access and blue areas contain buildings with higher levels of access. The data that underlies the map comes from OpenStreetMap, an open source GIS database crowdsourced from around the world.",
-  "buttontext":"Play interactive explainer",
+  "description": "This map answers the basic question: How hard is it to get from the buildings in a block to the streets around it? As show in the legend at the bottom right, red areas contain buildings with more limited street access and blue areas contain buildings with higher levels of access. The data that underlies the map comes from OpenStreetMap, an open source GIS database crowdsourced from around the world.",
+  //"buttontext":"Play interactive explainer",
   "camera": {
     center: [17.54, 8.84],
     bearing: 0,
     pitch:0,
-    zoom: 2
+    zoom: 2,
+    speed: .5
   }
 }];
-
 
 function debounce(func, wait, immediate) {
   var timeout;
