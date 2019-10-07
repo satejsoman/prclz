@@ -1,6 +1,8 @@
 import argparse
+import glob
 import json
 import logging
+import os
 from logging import info
 from pathlib import Path
 from typing import Optional
@@ -65,6 +67,14 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, overw
 
         info("Serializing complexity calculations to %s.", complexity_output)
         block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
+        # cleanup 
+        info("Removing cache files.")
+        cache_files = glob.glob(str(complexity_output.parent/"*.block.cache"))
+        for cache_file in cache_files:
+            os.remove(cache_file)
+
+        info("Done.")
+
     else: 
         info("Skipping processing %s (output exists and overwrite flag not given)", complexity_output)
 

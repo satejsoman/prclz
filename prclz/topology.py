@@ -9,8 +9,6 @@ import shapely.geos
 from shapely.geometry import Polygon, LineString
 import pickle 
 
-import steiner_tree 
-
 """ implementation of planar graph """
 
 
