@@ -117,7 +117,7 @@ def reblock_gadm(region, gadm_code, gadm):
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
 
         print("Block = {} | buildings len = {}".format(block, len(example_buildings)))
-        if len(example_buildings) == 0:
+        if len(example_buildings) <= 1:
             continue
 
         i_topology_utils.update_edge_types(example_graph, example_block, check=True) 
