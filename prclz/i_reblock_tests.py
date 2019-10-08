@@ -31,7 +31,8 @@ def add_buildings(graph, buildings):
     for i, bldg_node in enumerate(buildings):
         graph.add_node_to_closest_edge(bldg_node, terminal=True)
 
-    graph.cleanup_linestring_attr()
+    if total_blgds > 0:
+        graph.cleanup_linestring_attr()
     return graph 
 
 def clean_graph(graph):
