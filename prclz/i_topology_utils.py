@@ -187,8 +187,8 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
             continue
         else:
             n1 = coords_list[i-1]
-            u_list = parcel_graph.vs.select(name_eq=n0)[0]
-            v_list = parcel_graph.vs.select(name_eq=n1)[0]
+            u_list = parcel_graph.vs.select(name_eq=n0)
+            v_list = parcel_graph.vs.select(name_eq=n1)
             if len(u_list) > 0 and len(v_list) > 0:
                 u = u_list[0]
                 v = v_list[0]
