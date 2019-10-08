@@ -116,6 +116,7 @@ def reblock_gadm(region, gadm_code, gadm):
         example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
 
+        print("Block = {} | buildings len = {}".format(block, len(example_buildings)))
         if len(example_buildings) == 0:
             continue
 
