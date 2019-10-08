@@ -88,9 +88,9 @@ def reblock_gadm(region, gadm_code, gadm):
     bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
 
     #### REMOVE THIS -- just for testing
-    bl = "SLE.4.2.1_1_1241"
-    blocks = blocks[blocks['block_id'] == bl]
-    parcels = parcels[parcels['block_id'] == bl]
+    # bl = "SLE.4.2.1_1_1241"
+    # blocks = blocks[blocks['block_id'] == bl]
+    # parcels = parcels[parcels['block_id'] == bl]
     ####################################
 
     # (2) Now build the parcel graph and prep the buildings
@@ -153,8 +153,4 @@ if __name__ == "__main__":
     main(file_path = args.file_path, replace=args.replace)
 
 
-# region = "Africa"
-# gadm_code = "SLE"
-# gadm = "SLE.4.2.1_1"
 
-# reblock_gadm(region, gadm_code, gadm)
