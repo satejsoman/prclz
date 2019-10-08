@@ -187,12 +187,15 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
             continue
         else:
             n1 = coords_list[i-1]
-            u = parcel_graph.vs.select(name_eq=n0)[0]
-            v = parcel_graph.vs.select(name_eq=n1)[0]
-            path_idxs = parcel_graph.get_shortest_paths(u, v, weights='weight', output='epath')[0]
-            #if len(path_idxs) > 1:
-                #print("Length of shortest path = {} edges".format(len(path_idxs)))
-            parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
+            u_list = parcel_graph.vs.select(name_eq=n0)[0]
+            v_list = parcel_graph.vs.select(name_eq=n1)[0]
+            if len(u_list) > 0 and len(v_list) > 0:
+                u = u_list[0]
+                v = v_list[0]
+                path_idxs = parcel_graph.get_shortest_paths(u, v, weights='weight', output='epath')[0]
+                #if len(path_idxs) > 1:
+                    #print("Length of shortest path = {} edges".format(len(path_idxs)))
+                parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
     parcel_graph.es.select(edge_type_eq='from_block')['weight'] = 0
 
 
