@@ -116,6 +116,9 @@ def reblock_gadm(region, gadm_code, gadm):
         example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
 
+        if len(example_buildings) == 0:
+            continue
+
         i_topology_utils.update_edge_types(example_graph, example_block, check=True) 
 
         steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
