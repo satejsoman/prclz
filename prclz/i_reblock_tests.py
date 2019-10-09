@@ -144,8 +144,10 @@ def main(file_path:str, replace):
     gadm_split = f.split("_")
     if len(gadm_split) == 3:
         gadm = gadm_split[1] + "_1"
-    elif len(gadm_split) == 1:
+    elif len(gadm_split) == 2:
         gadm = gadm_split[0] + "_1"
+    else:
+        print("Check input!")
 
     gadm_code = gadm[0:3]
     region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['region'].iloc[0]
