@@ -141,10 +141,19 @@ def main(file_path:str, replace):
     
     # (1) Get the GADM code
     f = file_path.split("/")[-1]
-    gadm = f.split("_")[1] + "_1"
+    gadm_split = f.split("_")
+    if len(gadm_split) == 3:
+        gadm = gadm_split[1] + "_1"
+    elif len(gadm_split) == 1:
+        gadm = gadm_split[0] + "_1"
+
     gadm_code = gadm[0:3]
     region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['region'].iloc[0]
 
+    print("region = {}".format(region))
+    print("gadm_code = {}".format(gadm_code))
+    print("gadm = {}".format(gadm))
+   
     reblock_gadm(region, gadm_code, gadm )
 
 if __name__ == "__main__":
