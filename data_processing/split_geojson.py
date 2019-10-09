@@ -51,9 +51,11 @@ def csv_to_geo(csv_path, add_file_col=False):
 
 def join_block_files(block_file_path: str) -> gpd.GeoDataFrame:
 
-    block_files = os.listdir(block_file_path)
+    block_files = [f for f in os.listdir(block_file_path) if "csv" in f]
 
-    all_blocks = pd.concat([csv_to_geo(os.path.join(block_file_path, block_file), add_file_col=True) 
+    return block_files
+
+all_blocks = pd.concat([csv_to_geo(os.path.join(block_file_path, block_file), add_file_col=True) 
         for block_file in block_files if "error" not in block_file])
 
     all_blocks = gpd.GeoDataFrame(all_blocks, geometry='block_geom')
