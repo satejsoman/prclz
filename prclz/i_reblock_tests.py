@@ -39,7 +39,7 @@ def clean_graph(graph):
     is_conn = graph.is_connected()
     if is_conn:
         print("Graph is connected")
-        return graph 
+        return graph, 1
     else:
         #components = list(nx.connected_component_subgraphs(graph))
         components = graph.components(mode=igraph.WEAK)
@@ -49,7 +49,7 @@ def clean_graph(graph):
         arg_max = np.argmax(comp_sizes)
         comp_indices = components[arg_max]
 
-        return graph.subgraph(comp_indices)
+        return graph.subgraph(comp_indices), num_components
 
 def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     '''
@@ -63,7 +63,7 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     bldg_time = time.time() - start
 
     # Step 2: clean the graph if it's disconnected
-    graph = clean_graph(graph)
+    graph, num_components = clean_graph(graph)
 
     # Step 3: do the Steiner Tree approx
     start = time.time()
@@ -75,7 +75,7 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     terminal_points = graph.get_terminal_points()
 
     if verbose:
-        return steiner_lines, terminal_points, [bldg_time, stiener_time]
+        return steiner_lines, terminal_points, [bldg_time, stiener_time, num_components]
     else:
         return steiner_lines, terminal_points
 
@@ -110,6 +110,7 @@ def reblock_gadm(region, gadm_code, gadm):
     # (4) Do the reblocking, by block in the GADM, collecting the optimal paths
     steiner_lines_dict = {}
     terminal_points_dict = {}
+    summary_dict = {}
     print("Begin calculating of parcel graphs--{}-{}".format(region, gadm))
     for block in blocks['block_id']:
         example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
@@ -120,22 +121,28 @@ def reblock_gadm(region, gadm_code, gadm):
         if len(example_buildings) <= 1:
             continue
 
-        i_topology_utils.update_edge_types(example_graph, example_block, check=True) 
+        # Update edge types and do reblocking
+        missing, total_block_coords = i_topology_utils.update_edge_types(example_graph, example_block, check=True) 
+        steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
+        
+        # Collect and store the summary info from reblocking
+        summary = summary + [len(example_buildings), total_block_coords, missing, block]
+        summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps'] + ['bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
 
-        steiner_lines, terminal_points, times = do_reblock(example_graph, example_buildings, verbose=True)
-        times.append(steiner_lines)
-        times.append(block)
-        steiner_lines_dict[block] = times 
+        summary_dict[block] = summary 
+        steiner_lines_dict[block] = [steiner_lines, block] 
         terminal_points_dict[block] = [terminal_points, block]
 
         example_graph.save_planar(os.path.join(graph_path, block+".igraph"))
 
     # Now save out everything
-    steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['bldg_time', 'steiner_time', 'geometry', 'block_id'])
+    steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id'])
     terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry', 'block_id'])
+    summary_df = pd.DataFrame.from_dict(summary_dict, orient='index', columns=summary_columns)
 
     steiner_df.to_file(os.path.join(reblock_path, "steiner_lines_{}.geojson".format(gadm)), driver='GeoJSON')
     terminal_df.to_file(os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm)), driver='GeoJSON')
+    summary_df.to_csv(os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm)))
 
 def main(file_path:str, replace):
     
