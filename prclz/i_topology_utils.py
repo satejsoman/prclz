@@ -170,6 +170,7 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
     coords_list = list(block_polygon.exterior.coords)
     coords = set(coords_list)
 
+    rv = (None, None)
     # Option to verify that each point in the block is in fact in the parcel
     if check:
         parcel_coords = set(v['name'] for v in parcel_graph.vs)
@@ -179,6 +180,7 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
             is_in = is_in+1 if coord in parcel_coords else is_in 
             total += 1
         print("{} of {} block coords are NOT in the parcel coords".format(total-is_in, total)) 
+        rv = (total-is_in, total)
 
     # Get list of coord_tuples from the polygon
     assert coords_list[0] == coords_list[-1], "Not a complete linear ring for polygon"
@@ -197,6 +199,9 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
                     #print("Length of shortest path = {} edges".format(len(path_idxs)))
                 parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
     parcel_graph.es.select(edge_type_eq='from_block')['weight'] = 0
+
+    return rv 
+
 
 
 
