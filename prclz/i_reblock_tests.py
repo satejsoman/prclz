@@ -23,6 +23,15 @@ ROOT = "../"
 DATA = os.path.join(ROOT, "data")
 TRANS_TABLE = pd.read_csv(os.path.join(ROOT, "data_processing", 'country_codes.csv'))
 
+def add_buildings_slow(graph, buildings):
+
+    total_blgds = len(buildings)
+    print("\t\tbuildings....")
+    for i, bldg_node in enumerate(buildings):
+        print("{}/{}".format(i, total_blgds))
+        graph.add_node_to_closest_edge(bldg_node, terminal=True, fast=False)
+
+    return graph
 
 def add_buildings(graph, buildings):
 
