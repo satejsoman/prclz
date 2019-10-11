@@ -3,6 +3,7 @@
 <head>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <meta charset=utf-8 />
+  <meta name="description" content="The Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
   <title>Million Neighborhoods</title>
   <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet'/>
   <!--<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.css' rel='stylesheet' />-->
@@ -13,31 +14,30 @@ body { margin:0; padding:0; }
 #map { position:absolute; top:0; bottom:0; width:100%; }
 @font-face {
   font-family: 'GothamLight';
-  src: url('extra/gotham/GothamLight.ttf') format('truetype'); 
+  src: url('extra/gotham/GothamLight.otf') format('opentype'); 
        font-weight: 300;
-       font-style: normal;
 }
 @font-face {
   font-family: 'GothamMedium';
-  src: url('extra/gotham/GothamMedium.ttf') format('truetype'); 
+  src: url('extra/gotham/GothamMedium.otf') format('opentype'); 
        font-weight: 400;
-       font-style: normal;
-}
-@font-face {
-  font-family: 'GothamBook';
-  src: url('extra/gotham/GothamBook.ttf')  format('truetype'); 
-       font-weight: 300;
-       font-style: normal;
 }
 @font-face {
   font-family: 'GothamBold';
-  src: url('extra/gotham/GothamBold.ttf')  format('truetype'); 
+  src: url('extra/gotham/GothamBold.otf') format('opentype'); 
        font-weight: 700;
-       font-style: normal;
 }
-h2 { color:#222B30; }
-h3 { color:#222B30; }
-p { color:#222B30; }
+h2 { color:#222B30;}
+h3 { color:#222B30;}
+p { color:#222B30;}
+.mapbox-attribution-container {
+  top: 0;
+  right: 0;
+  font-size:10px;
+  position: absolute;
+  display: block;
+  margin: 0 10 5;
+}
 .text-overlay {
   position: absolute;
   top: 2;
@@ -67,15 +67,19 @@ p { color:#222B30; }
   overflow: auto;
   border-radius: 3px;
 }
+#location-button, #video-button
+{
+  display:inline;
+}
 .location-button.is-visible {
   display: block;
   position: absolute;
   padding: 5px;
 }
 #legend {
-  padding: 9px;
+  padding: 6px 9px 6px 9px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  line-height: 10px;
+  line-height: 13px;
   margin-bottom: 50px;
 }
 .legend-key {
@@ -86,11 +90,11 @@ p { color:#222B30; }
   margin-right: 5px;
 }
 .button {
-  font-family:GothamBold;
+  font-family: GothamBold;
   vertical-align: middle;
   line-height:15px;
   margin:2px;
-  padding: 8px 6px 0px 6px; 
+  padding: 3px 6px 3px 6px; 
   cursor: pointer;
   text-align: center;
   display: inline-block;
@@ -124,10 +128,14 @@ p { color:#222B30; }
 
       <div id="play-interactive" class="button fill-red dark hide-mobile" style="margin-top:0px;">
         <span id='location-button'> </span>
-        <!--<span > Play interactive explainer</span>-->
+      </div>
+      <div class="button fill-red dark hide-mobile" style="margin-top:0px;">
+        <a style='color:#fff;' target='_blank' href='https://www.youtube.com/watch?v=lw-6-PrzMVk'>
+        <span id='video-button'>Play video</span>
+        </a>
       </div>
 
-      <div  class='text-overlay hide-mobile'> 
+      <div class='text-overlay hide-mobile'> 
         <p id='location-title' style="font-family:GothamBold; font-size:18px; margin-top:5px; margin-bottom:5px;"></p>
         <p id='location-description' style="font-family:GothamMedium;line-height:15px;font-size:12px;"></p>
       </div>
@@ -144,24 +152,12 @@ p { color:#222B30; }
           <span> Monrovia, Liberia</span>
         </div>
           <br />
-        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Cape Town, South Africa</span>
-        </div>
-          <br />
         <div id="nigeria" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Lagos, Nigeria</span>
         </div>
           <br />
         <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Nairobi, Kenya</span>
-        </div>
-          <br />
-        <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Harare, Zimbabwe</span>
-        </div>
-          <br />
-        <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Dar-es-Salaam, Tanzania</span>
         </div>
           <br />
         <div id="ghana" class="button fill-navy-dark dark" style="margin-top:2px;">
@@ -173,6 +169,18 @@ p { color:#222B30; }
         </div>
           <br />
           <!--
+        <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Dar-es-Salaam, Tanzania</span>
+        </div>
+          <br />
+        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Cape Town, South Africa</span>
+        </div>
+          <br />
+        <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Harare, Zimbabwe</span>
+        </div>
+          <br />
         <div id="brasil" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Rio de Janeiro, Brasil</span>
         </div>
@@ -195,22 +203,58 @@ p { color:#222B30; }
         </div>
         <br />
       </div>
-      <div class ='pin-bottomleft hide-mobile' style="margin-left:20px;margin-bottom:3px;font-size:13px;" >
-        <p style="display:inline;font-family:GothamMedium;line-height:9px;margin-bottom:10px;">Find more at </p><a target='_blank' href='https://miurban.uchicago.edu'><p style="display:inline;font-family:GothamMedium;line-height:9px;margin-bottom:10px;">miurban.uchicago.edu</p></a>
-      </div> 
+
+      <div class ='pin-bottomleft' style="margin-left:20px;margin-bottom:3px;">
+
+      <a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https%3A%2F%2Fmillionneighborhoods.org'>
+      <div style='display:inline-block;vertical-align:middle; padding:0px;'>
+        <img src="extra/images/twitter.svg" width="31px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://github.com/mansueto-institute/prclz'>
+      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding-bottom:2px;'>
+        <img src="extra/images/github.svg" width="29px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>
+      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding:2px 2px;'>
+        <img src="extra/images/google-scholar.svg" width="30px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf'>
+      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding:0px;' >
+        <img src="extra/images/researchgate.svg" width="28px"/> 
+      </div>  
+      </a>
+
+      </div>
 
     </div>
   </div>
 
   <div id="map"></div>
+
+  <a target='_blank' href='https://urban.uchicago.edu'>
   <div class ='pin-bottomright hide-mobile' >
-    <img style="margin-top:11px; margin-bottom:7px; margin-right:335px;" src="extra/images/uchicago.svg" width="180px" />
+    <img style="margin-top:11px; margin-bottom:7px; margin-right:375px;" src="extra/images/uchicago.svg" width="180px" />
   </div>  
+  </a>
   <div class ='pin-bottomright hide-mobile' >
-    <h3  style="margin-top:18px; margin-right:20px; font-family:GothamBold; line-height:13px;color:#800000;">Mansueto Institute for Urban Innovation</h3>
-    <h3  style="margin-top:9px; margin-bottom:3px; margin-right:20px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3>
+    <a target='_blank' href='https://miurban.uchicago.edu'>
+    <h3  style="margin-bottom:10px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Mansueto Institute for Urban Innovation</h3>  </a>
+    <a target='_blank' href='https://rcc.uchicago.edu'>
+    <h3  style="margin-bottom:9px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3> </a>
   </div> 
-  <div class='legend-overlay' id='legend'><h4 style="line-height:13px;margin:3px;font-family:GothamMedium;">Level of access<br />to street networks</h4></div>
+  <div class="mapbox-attribution-container hide-mobile">
+   <a target='_blank' href="https://www.uchicago.edu/">© The University of Chicago | </a>
+   <a target='_blank' href="https://www.mapbox.com/about/maps/">© Mapbox | </a>
+   <a target='_blank' href="http://www.openstreetmap.org/copyright">© OpenStreetMap | </a>
+   <a target='_blank' href="https://www.hotosm.org"><strong>Improve this map</strong></a>
+  </div>
+  <div class='legend-overlay' id='legend'><p style="line-height:13px;margin-top:0px;margin-bottom:4px;font-family:GothamMedium;">Level of access<br />to street networks</p></div>
   <script src='index.js'></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="/__/firebase/6.6.2/firebase-app.js"></script>
