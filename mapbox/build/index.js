@@ -165,9 +165,9 @@ var buttontext = document.getElementById('location-button');
 
 var locations = [
 {"id": 1,
-  "title": "Why street access matters",
-  "description": "Having a street alongside a building is something often taken for granted. Yet for over a billion people in millions of neighborhoods accessing nearby street networks is a daily challenge. In fact, limited street access is often indicative of deficits in street-dependent infrastructure like fire hydrants, drains, power lines, or underground pipes that provide clean water or sanitation.",
-  "buttontext":"Continue explainer (2/9)",
+  "title": "Why street access",
+  "description": "Streets mediate most basic capabilities and basic services in each home or place of work. Without street access there is no sanitation or electricity. There are also no addresses or routes for emergency responders, trash collectors, and buses. Around the world, over a million neighborhoods lack adequate access. We are mapping them here, block by block.",
+  "buttontext":"Continue explainer (2/8)",
   "camera": {
     center: [-72.34257, 18.52656],
     bearing: 0,
@@ -177,8 +177,8 @@ var locations = [
   }
 },{"id": 2,
   "title": "How the map can help",
-  "description": "The Million Neighborhoods map is a first step towards identifying under-serviced neighborhoods at the global scale and democratizing resources that can facilitate community-driven urban planning efforts. Since the map relies on OpenStreetMap some neighborhoods are less well documented than others, but as data improves so can the map.",
-  "buttontext":"Continue explainer (3/9)",
+  "description": "Starting with crowdsourced maps, expressing each neighborhood in detail, it is now possible to create new models of urban planning that are people-centric, built from local knowledge and enhanced with technology. People-centered approaches that also embrace data and technology, like the Million Neighborhoods approach, can help create solutions in millions of neighborhoods, worldwide.",
+  "buttontext":"Continue explainer (3/8)",
   "camera": {
     center: [-72.343405, 18.524463], 
     bearing: 0,
@@ -188,8 +188,8 @@ var locations = [
   }
 },{"id": 3,
   "title": "Exploring Nairobi",
-  "description": "To give a real life example of the kinds of neighborhoods covered in the map, let’s take a look at Nairobi, Kenya. Like many cities, Nairobi has wealthy and middle class neighborhoods alongside some of its poorest. To illustrate how differences in socioeconomic well-being relate to street access, let’s examine two areas of the city.",
-  "buttontext":"Continue explainer (4/9)",
+  "description": "Let’s take a look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced.  These differences are apparent by comparing street access in each place.",
+  "buttontext":"Continue explainer (4/8)",
   "camera": {
     center: [36.82287, -1.28937],
     zoom: 12.61,
@@ -200,8 +200,8 @@ var locations = [
 }, {
   "id": 4,
   "title": "Nairobi Central",
-  "description": "Here is a very typical street grid in downtown Nairobi. Notice how every building is adjacent to a city street and can easily access it? This is what we would call a ‘High access’ city block. This pattern is most common in highly planned urban areas which are more likely to receive a broad array of city services.",
-  "buttontext":"Continue explainer (5/9)",
+  "description": "Here is a typical street grid in downtown Nairobi. Notice how every building is adjacent to a street and can easily access it? This pattern is typical in developed urban areas, with full  access to opportunities and services.",
+  "buttontext":"Continue explainer (5/8)",
   "camera": {
     center: [36.825969, -1.284919],
     bearing: -8.9,
@@ -210,9 +210,9 @@ var locations = [
   }
 }, {
   "id": 5,
-  "title": "Kibera neighborhoods",
-  "description": "Now let’s visit an area with extremely limited street access. This is Kibera, an informal settlement near the city center that is home to more than 170,000 people. For residents of Kibera the lack of street access means more limited economic opprtunities along with fewer sources of clean water and sanitation, and basic services like emergnency assistance and waste disposal.",
-  "buttontext":"Continue explainer (6/9)",
+  "title": "Kibera",
+  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets. A street network that expands public access to services and places of work to more Kibera residents, will greatly improve their well-being and access to socioeconomic opportunities...",
+  "buttontext":"Continue explainer (6/8)",
   "camera": {
     center: [36.794268, -1.316134],
     bearing: 25.3,
@@ -222,8 +222,8 @@ var locations = [
 }, {
   "id": 6,
   "title": "Reblocking Kibera",
-  "description": "Render notional reblock routes after gradual zoom in. Explain how new tools and data make it possible to propose reblocked networks that grant more complete access.",
-  "buttontext":"Continue explainer (7/9)",
+  "description": "The process of growing new street networks, known as reblocking, is often difficult and time consuming, requiring a lengthy drafting process involving the community and local administrators. Using this data and network algorithms, it is possible to generate a minimally disruptive street network that grants universal access to existing buildings, offering a precise GIS map that communities can improve upon.",
+  "buttontext":"Continue explainer (7/8)",
   "camera": {
     center: [36.794268, -1.316134],
     bearing: 25.3,
@@ -232,21 +232,9 @@ var locations = [
   }
 }, {
   "id": 7,
-  "title": "Reblocking Westpoint",
-  "description": "Show that we can generate notional reblock routes in other neighborhoods (the approach is scalable).",
-  "buttontext":"Continue explainer (8/9)",
-  "camera": {
-    center: [-10.80734, 6.32522], 
-    bearing: 25.3,
-    zoom: 16.5,
-    speed: 1,
-    curve: 1.2
-  }
-}, {
-  "id": 8,
   "title": "About the project",
-  "description": "Something about data, code, history, whos involved, whats next, how to get involved, contact info",
-  "buttontext":"Continue explainer (9/9)",
+  "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center and a collaboration between Luís Bettencourt, Anni Beukes, Satej Soman, Cooper Nederhood, and Nicholas Marchio with technical contributions from Christa Brelsford, Taylor Martin, Joe Hand, Annie Yang, and Parmanand Sinha. Special thanks to Grace Cheung, Anne Dodge, Heidi Lee, Diana Petty for their generous support.",
+  "buttontext":"Continue explainer (8/8)",
   "camera": {
     center: [-11.182, 7.278],
     bearing: 0,
@@ -256,10 +244,10 @@ var locations = [
     speed: .6
   } 
 }, {
-  "id": 9,
+  "id": 8,
   "title": "What the map shows",
-  "description": "This map answers the basic question: How hard is it to get from the buildings in a block to the streets around it? As show in the legend at the bottom right, red areas contain buildings with more limited street access and blue areas contain buildings with higher levels of access. The data that underlies the map comes from OpenStreetMap, an open source GIS database crowdsourced from around the world.",
-  "buttontext":"Play interactive explainer",
+  "description": "How much access do buildings have to streets? This turns out to be a measure of infrastructure and basic service access in every neighborhood on Earth. Red areas contain buildings with more limited street access. Blue areas buildings with higher access.",
+  "buttontext":"Interactive explainer",
   "camera": {
     center: [17.54, 8.84],
     bearing: 0,
