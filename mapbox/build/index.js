@@ -1,4 +1,3 @@
-
 // Mobile default width
 var mobile = document.documentElement.clientWidth <= 700;
                        
@@ -291,4 +290,3 @@ buttontext.textContent = locations[locations.length - 1].buttontext;
 
 
 playback('play-interactive',0)
-
