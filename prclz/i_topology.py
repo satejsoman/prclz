@@ -196,7 +196,7 @@ class PlanarGraph(igraph.Graph):
             nodes = list(linestring.coords)
 
             # List[Nodes] -> List[Edges]
-            nodes.append(nodes[0])
+            #nodes.append(nodes[0])
             for i, n in enumerate(nodes):
                 if i==0:
                     continue
@@ -457,6 +457,20 @@ class PlanarGraph(igraph.Graph):
         points = [Point(v['name']) for v in self.vs if v['terminal']]
         multi_point = unary_union(points)
         return multi_point
+
+    def get_linestrings(self) -> MultiLineString:
+        '''
+        Takes the Steiner optimal edges from g and converts them
+        '''
+        lines = [LineString(self.edge_to_coords(e)) for e in self.es]
+        multi_line = unary_union(lines)
+        return multi_line 
+
+def convert_to_lines(planar_graph) -> MultiLineString:
+    lines = [LineString(planar_graph.edge_to_coords(e)) for e in planar_graph.es]
+    multi_line = unary_union(lines)
+    return multi_line 
+
 
 
 def plot_reblock(g, output_file):

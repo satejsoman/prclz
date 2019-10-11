@@ -88,6 +88,22 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     else:
         return steiner_lines, terminal_points
 
+def debug(region, gadm_code, gadm):
+    
+    # (1) Just load our data for one GADM
+    print("Begin loading of data--{}-{}".format(region, gadm))
+    bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
+
+    blocks = blocks[blocks['block_id']=='KEN.30.10.1_1_1']
+    parcels = parcels[parcels['block_id']=='KEN.30.10.1_1_1']
+    lines = lines[lines['block_id']=='KEN.30.10.1_1_1']
+
+    # (2) Now build the parcel graph and prep the buildings
+    print("Begin calculating of parcel graphs--{}-{}".format(region, gadm))
+    graph_parcels = i_topology_utils.prepare_parcels(bldgs, blocks, parcels)    
+
+    return bldgs, blocks, parcels, graph_parcels
+
 def reblock_gadm(region, gadm_code, gadm):
     '''
     Does reblocking for an entire GADM boundary
@@ -184,5 +200,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(file_path = args.file_path, replace=args.replace)
 
+    # region = 'Africa'
+    # gadm_code = 'KEN'
+    # gadm = 'KEN.30.10.1_1'
 
+    # bldgs, blocks, parcels, graph_parcels = debug(region, gadm_code, gadm)
+    # g = graph_parcels['planar_graph'].iloc[0]
+    # g_lines = g.get_linestrings()  
+    # parcel = gpd.GeoSeries(graph_parcels['parcel_geometry'].iloc[0])   
+    # g_lines_geo = gpd.GeoSeries(g_lines)
 
+    # ax = parcel.plot(color='blue', alpha=0.5)
+    # g_lines_geo.plot(color='blue', alpha=0.5, ax=ax)
+    # plt.show()
