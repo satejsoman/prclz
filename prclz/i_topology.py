@@ -196,7 +196,7 @@ class PlanarGraph(igraph.Graph):
             nodes = list(linestring.coords)
 
             # List[Nodes] -> List[Edges]
-            nodes.append(nodes[0])
+            #nodes.append(nodes[0])
             for i, n in enumerate(nodes):
                 if i==0:
                     continue
@@ -347,7 +347,8 @@ class PlanarGraph(igraph.Graph):
         if 'linestring' not in self.es.attributes():
             self.es['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
         else:
-            self.es.select(linestring_eq=None)['linestring'] = [LineString(self.edge_to_coords(e)) for e in self.es]
+            no_linestring_attr = self.es.select(linestring_eq=None)
+            no_linestring_attr['linestring'] = [LineString(self.edge_to_coords(e)) for e in no_linestring_attr]
 
     def cleanup_linestring_attr(self):
         del self.es['linestring']
@@ -402,7 +403,7 @@ class PlanarGraph(igraph.Graph):
 
         argmin = np.argmin(closest_edge_distances)
         closest_node = closest_edge_nodes[argmin]
-        closest_edge = self.edge_to_coords(self.es[argmin])
+        closest_edge = self.edge_to_coords(cand_edges[argmin])
 
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
@@ -457,6 +458,20 @@ class PlanarGraph(igraph.Graph):
         multi_point = unary_union(points)
         return multi_point
 
+    def get_linestrings(self) -> MultiLineString:
+        '''
+        Takes the Steiner optimal edges from g and converts them
+        '''
+        lines = [LineString(self.edge_to_coords(e)) for e in self.es]
+        multi_line = unary_union(lines)
+        return multi_line 
+
+def convert_to_lines(planar_graph) -> MultiLineString:
+    lines = [LineString(planar_graph.edge_to_coords(e)) for e in planar_graph.es]
+    multi_line = unary_union(lines)
+    return multi_line 
+
+
 
 def plot_reblock(g, output_file):
     vtx_color_map = {True: 'red', False: 'blue'}
@@ -466,8 +481,8 @@ def plot_reblock(g, output_file):
     if 'vertex_color' not in visual_style.keys():
         visual_style['vertex_color'] = [vtx_color_map[t] for t in g.vs['terminal'] ]
     
-    BIG = 5
-    SMALL = 1
+    BIG = 20
+    SMALL = 20
     if 'bbox' not in visual_style.keys():
         visual_style['bbox'] = (900,900)
     if 'vertex_size' not in visual_style.keys():

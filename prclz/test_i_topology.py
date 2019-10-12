@@ -104,12 +104,16 @@ g.add_edge(p2,p3)
 g.add_edge(p0,p3)
 
 print("PlanarGraph g before:\n", g)
-new_point0 = (-.1, -.1)
-g.add_node_to_closest_edge(new_point0)
+i_topology.plot_reblock(g, "test_orig0.png")
+
+#new_point0 = (-.1, -.1)
+#g.add_node_to_closest_edge(new_point0)
+#i_topology.plot_reblock(g, "test_orig1.png")
 
 new_point1 = (0, .75)
-g.add_node_to_closest_edge(new_point1)
-print("PlanarGraph g after:\n", g)
+g.add_node_to_closest_edge(new_point1, fast=True)
+print("\nPlanarGraph g after:\n", g)
+i_topology.plot_reblock(g, "test_orig1.png")
 
 
 # (5) Test of Steiner Tree Algorithm
@@ -117,12 +121,12 @@ p0 = (0,0)
 p1 = (0,2)
 g = PlanarGraph()
 g.add_edge(p0,p1)
-g.plot_reblock("test0.png")
+i_topology.plot_reblock(g, "test0.png")
 
 # Now add a building
 b0 = (.1, 1)
 g.add_node_to_closest_edge(b0, terminal=True)
-g.plot_reblock("test1.png")
+i_topology.plot_reblock(g, "test1.png")
 
 p0 = (0,0)
 p1 = (0,2)
@@ -140,7 +144,7 @@ g.add_edge(p1,p2)
 g.add_edge(p2,p3)
 
 # Original "parcel"
-g.plot_reblock("0_original_parcel.png")
+i_topology.plot_reblock(g, "0_original_parcel.png")
 
 
 b0 = (2,.3)
@@ -154,25 +158,25 @@ all_blds = [b0, b1, b2, b3, b4]
 orig_g = g.copy()
 for bld in all_blds: 
     orig_g.add_node(bld, terminal = True)
-orig_g.plot_reblock("1_add_buildings_raw.png")
+i_topology.plot_reblock(orig_g, "1_add_buildings_raw.png")
 
 # Original +buildings in closest locations
 for bld in all_blds:
     g.add_node_to_closest_edge(bld, terminal=True)
-g.plot_reblock("2_add_buildings_closest.png")
+i_topology.plot_reblock(g, "2_add_buildings_closest.png")
 
 # term = g.vs.select(terminal_eq=True)
 # H, steiner_edge_idxs = igraph_steiner_tree(g, term)
 # for i in steiner_edge_idxs:
 #     g.es[i]['steiner'] = True 
 g.steiner_tree_approx()
-g.plot_reblock("3_reblocked.png")
+i_topology.plot_reblock(g, "3_reblocked.png")
 
 
 # Test saving and reloading
 g.save_planar("test.ig")
 g_new = PlanarGraph.load_planar("test.ig")
-g_new.plot_reblock("restored_graph.png")
+i_topology.plot_reblock(g, "restored_graph.png")
  
 
 # Now do steiner tree approx
