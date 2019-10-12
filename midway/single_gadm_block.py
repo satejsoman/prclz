@@ -32,21 +32,16 @@ def read_file(path, **kwargs):
 
 
 def extract(index: str, geometry: Union[Polygon, MultiPolygon], linestrings: gpd.GeoDataFrame, target: Path, output_dir: Path) -> None:
-    try: 
-        info("Running extraction for %s", index)
-        log_memory_info(index, logging.getLogger())
-        block_polygons = BufferedLineDifference().extract(geometry, linestrings.unary_union)
-        blocks = gpd.GeoDataFrame(
-            [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
-            columns=["block_id", "geometry"])
-        blocks.set_index("block_id")
-        blocks.to_csv(target)
-        info("Serialized blocks from %s to %s", index, target)
-        log_memory_info(index, logging.getLogger())
-    except Exception as e:
-        error("%s while processing %s: %s", type(e).__name__, index, e)
-        with open(output_dir/("error_{}".format(index)), 'a') as error_file:
-            print(e, file=error_file)
+    info("Running extraction for %s", index)
+    log_memory_info(index, logging.getLogger())
+    block_polygons = BufferedLineDifference().extract(geometry, linestrings.unary_union)
+    blocks = gpd.GeoDataFrame(
+        [(index + "_" + str(i), polygon) for (i, polygon) in enumerate(block_polygons)], 
+        columns=["block_id", "geometry"])
+    blocks.set_index("block_id")
+    blocks.to_csv(target)
+    info("Serialized blocks from %s to %s", index, target)
+    log_memory_info(index, logging.getLogger())
 
 
 def main(gadm_path, linestrings_path, output_dir, level, overwrite):
@@ -83,7 +78,12 @@ def main(gadm_path, linestrings_path, output_dir, level, overwrite):
         info("Extracting blocks for each delineation using method: %s.", extractor)
         log_memory_info("main", logger)
         for (index, geometry, ls_idx) in gadm_aggregation.itertuples():
-            extract(index, geometry, linestrings.iloc[ls_idx], filename, output_dir) 
+            try:
+                extract(index, geometry, linestrings.iloc[ls_idx], filename, output_dir) 
+            except Exception as e:
+                error("%s while processing %s: %s", type(e).__name__, index, e)
+                with open(output_dir/("error_{}".format(index)), 'a') as error_file:
+                    print(e, file=error_file)
         log_memory_info("main", logger)
     else:
         info("Skipping %s (file %s exists and no overwrite flag given)", index, filename)
