@@ -43,25 +43,35 @@ REBLOCK = os.path.join(DATA, "reblock")
 
 class ReblockPlotter:
 
-    def __init__(self, gadm, region, add_buildings=False, add_parcels=False):
+    def __init__(self, gadm_list, region, add_buildings=False, add_parcels=False):
 
-        self.gadm_code = gadm[0:3]
+        self.gadm_code = gadm_list[0][0:3]
         self.region = region 
-        self.gadm = gadm
+        self.gadm_list = gadm_list
+        self.gadm_count = len(gadm_list)
         self.add_buildings = add_buildings
         self.add_parcels = add_parcels
         
-        steiner_lines_path = os.path.join(REBLOCK, region, self.gadm_code, "steiner_lines_{}.geojson".format(gadm))
-        terminal_points_path = os.path.join(REBLOCK, region, self.gadm_code, "terminal_points_{}.geojson".format(gadm))
-        blocks_path = os.path.join(DATA, "blocks", region, self.gadm_code, "blocks_{}.csv".format(gadm))
-        buildings_path = os.path.join(DATA, "buildings", region, self.gadm_code, "buildings_{}.geojson".format(gadm))
-        parcels_path = os.path.join(DATA, "parcels", region, self.gadm_code, "parcels_{}.geojson".format(gadm))
+        for i, gadm in enumerate(self.gadm_list):
+            steiner_lines_path = os.path.join(REBLOCK, region, self.gadm_code, "steiner_lines_{}.geojson".format(gadm))
+            terminal_points_path = os.path.join(REBLOCK, region, self.gadm_code, "terminal_points_{}.geojson".format(gadm))
+            blocks_path = os.path.join(DATA, "blocks", region, self.gadm_code, "blocks_{}.csv".format(gadm))
+            buildings_path = os.path.join(DATA, "buildings", region, self.gadm_code, "buildings_{}.geojson".format(gadm))
+            parcels_path = os.path.join(DATA, "parcels", region, self.gadm_code, "parcels_{}.geojson".format(gadm))
 
-        self.steiner = gpd.read_file(steiner_lines_path)
-        self.terminal = gpd.read_file(terminal_points_path)
-        self.blocks = i_topology_utils.csv_to_geo(blocks_path)
-        self.buildings = gpd.read_file(buildings_path) if self.add_buildings else None 
-        self.parcels = gpd.read_file(parcels_path) if self.add_parcels else None 
+            if i == 0:
+                self.steiner = gpd.read_file(steiner_lines_path)
+                self.terminal = gpd.read_file(terminal_points_path)
+                self.blocks = i_topology_utils.csv_to_geo(blocks_path)
+                self.buildings = gpd.read_file(buildings_path) if self.add_buildings else None 
+                self.parcels = gpd.read_file(parcels_path) if self.add_parcels else None 
+            else:
+                self.steiner = pd.concat([gpd.read_file(steiner_lines_path), self.steiner], axis=0)
+                self.terminal = pd.concat([gpd.read_file(terminal_points_path), self.terminal], axis=0)
+                self.blocks = pd.concat([i_topology_utils.csv_to_geo(blocks_path), self.blocks], axis=0)
+                self.buildings = pd.concat([gpd.read_file(buildings_path), self.buildings], axis=0) if self.add_buildings else None 
+                self.parcels = pd.concat([gpd.read_file(parcels_path), self.parcels], axis=0) if self.add_parcels else None 
+
         self.graph_dict = {}
 
         self.block_ids = self.blocks['block_id']
@@ -74,6 +84,11 @@ class ReblockPlotter:
         return PlanarGraph.load_planar(graph_path)        
 
     def view_block(self, block_id, add_buildings=None, add_parcels=None, line_types='steiner'):
+        '''
+        Allows user to visualize reblocking for a single specified block, as determined by the block_id
+        Note, if you've imported building and parcels when constructing the viewer, you can choose
+        to include/not include them when viewing
+        '''
         
         if isinstance(block_id, int):
             block_id = "{}_{}".format(self.gadm, int)
@@ -100,6 +115,9 @@ class ReblockPlotter:
 
 
     def view_all(self, add_buildings=None, add_parcels=None):
+        '''
+        Calling this will visualize the reblocking for the entire area you've specified in your constructor
+        '''
 
         # Allow user to override and just view without buildings
         add_buildings = self.add_buildings if add_buildings is None else add_buildings
@@ -114,6 +132,32 @@ class ReblockPlotter:
         if add_parcels:
             self.parcels.plot(color='blue', alpha=0.4, ax=ax)
 
-#viewer = ReblockPlotter('LBR.7.4.1_1', 'Africa')
+    def export_parcels(self, output_filename):
+        self.parcels.to_file(output_filename, driver='GeoJSON')
 
+    def export_steiner(self, output_filename):
+        self.steiner.to_file(output_filename, driver='GeoJSON')
+
+
+
+if __name__ == "__main__":
+    gadm_list = ['KEN.30.10.1_1',
+     'KEN.30.10.2_1',
+     'KEN.30.10.3_1',
+     'KEN.30.10.4_1',
+     'KEN.30.10.5_1',
+     'KEN.30.11.2_1']
+
+    region = 'Africa'
+
+    viewer = ReblockPlotter(gadm_list, region)
+
+    # This will allow you to view the optimal paths
+    # viewer.view_all()
+    # plt.show()
+
+    # Now we export to files, assuming we've sanity checked the output and it looks good
+    viewer.export_parcels(os.path.join(DATA, 'KEN_parcels.geojson'))
+    viewer.export_steiner(os.path.join(DATA, 'KEN_opt_path.geojson'))
+    
 
