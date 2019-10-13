@@ -162,6 +162,10 @@ def reblock_gadm(region, gadm_code, gadm):
         if len(example_buildings) <= 1:
             continue
 
+        # One wonky block in KEN, just skip for now, doesn't seem to be systematic
+        if block == 'KEN.30.11.2_1_437':
+            continue
+
         # Update edge types -- first check if the linestrings have natural/waterway or if they're all highways
         # This is WIP
         #if np.all(example_lines['highway']!=""):
