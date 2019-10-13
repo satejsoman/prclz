@@ -3,8 +3,34 @@
 <head>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <meta charset=utf-8 />
-  <meta name="description" content="The Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
-  <title>Million Neighborhoods</title>
+  
+  <!-- SEO Meta Tags -->
+  <title>Million Neighborhoods Initiative</title>
+  <meta name="description" content="Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
+  <meta name="keywords" content="slum,informal settlement,map,million,neighborhoods,reblock,global,world,earth,africa,university,chicago,mansueto,data,urban,science,algorithms,bettencourt,marchio,soman,nederhood,sdg,sustainable,poverty,development">
+
+  <!-- Google / Search Engine Tags -->
+  <meta itemprop="name" content="Global Map Helps Identify Urban Slums">
+  <meta itemprop="description" content="The Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
+  <meta itemprop="image" content="https://millionneighborhoods.org/extra/images/hi-res.png">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://millionneighborhoods.org">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Global Map Helps Identify Urban Slums">
+  <meta property="og:description" content="Urban researchers harness algorithms to map slums — and improve access to much-needed public services." />
+  <meta property="og:image" content="https://millionneighborhoods.org/extra/images/hi-res.png" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@miurbanchicago">
+  <meta name="twitter:creator" content="@miurbanchicago">
+  <meta name="twitter:title" content="Global Map Helps Identify Urban Slums" />
+  <meta name="twitter:description" content="Urban researchers harness algorithms to map slums — and improve access to much-needed public services." />
+  <meta name="twitter:url" content="https://millionneighborhoods.org" />
+  <meta name="twitter:image" content="https://millionneighborhoods.org/extra/images/hi-res.png">
+
+  <!-- CSS / JS libraries -->
   <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet'/>
   <!--<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.css' rel='stylesheet' />-->
   <link rel="canonical" href="https://mansueto-institute.github.io/" >
@@ -122,6 +148,7 @@ p { color:#222B30;}
 </head>
 <body>
 <div id="sidebar" class="pin-topleft z1">
+    <!-- Sidebar -->
     <div class="sidebar flex-scroll scroll-styled pad2">
       <h2 class="hide-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million Neighborhoods</h2>
       <h2 class="show-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million<br />Neighborhoods</h2>
@@ -203,40 +230,58 @@ p { color:#222B30;}
         </div>
         <br />
       </div>
-
-      <div class ='pin-bottomleft' style="margin-left:20px;margin-bottom:3px;">
-
-      <a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https%3A%2F%2Fmillionneighborhoods.org'>
-      <div style='display:inline-block;vertical-align:middle; padding:0px;'>
-        <img src="extra/images/twitter.svg" width="31px"/> 
-      </div>  
-      </a>
-
-      <a target='_blank' href='https://github.com/mansueto-institute/prclz'>
-      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding-bottom:2px;'>
-        <img src="extra/images/github.svg" width="29px"/> 
-      </div>  
-      </a>
-
-      <a target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>
-      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding:2px 2px;'>
-        <img src="extra/images/google-scholar.svg" width="30px"/> 
-      </div>  
-      </a>
-
-      <a target='_blank' href='https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf'>
-      <div class='hide-mobile' style='display:inline-block; vertical-align:middle;padding:0px;' >
-        <img src="extra/images/researchgate.svg" width="28px"/> 
-      </div>  
-      </a>
-
-      </div>
-
     </div>
   </div>
 
   <div id="map"></div>
 
+    <!--
+    https://cards-dev.twitter.com/validator
+    https://developers.facebook.com/docs/plugins/share-button/
+    https://www.linkedin.com/post-inspector/
+    https://www.heymeta.com/
+    -->
+
+      <!-- Social media shares -->
+      <a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https://millionneighborhoods.org'>
+      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:20px; display:inline-block; vertical-align:middle; padding:0px 2px 2px 0px;'>
+        <img src="extra/images/twitter.svg" width="31px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href="https://facebook.com/sharer.php?u=https://millionneighborhoods.org">
+      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:55px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
+        <img src="extra/images/facebook.svg" width="31px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://github.com/mansueto-institute/prclz'>
+      <div class='pin-bottomleft hide-mobile z2' style='margin-bottom:7px; margin-left:93px; display:inline-block; vertical-align:middle;padding:0px 2px 2px 0px;'>
+        <img src="extra/images/github.svg" width="31px"/> 
+      </div>  
+      </a>
+
+<!--
+      <a target='_blank' href='https://www.linkedin.com/shareArticle?mini=true&url=https://millionneighborhoods.org&source=LinkedIn'>
+      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:95px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
+        <img src="extra/images/linkedin.svg" width="28px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>
+      <div class='pin-bottomleft z2 hide-mobile' style='margin-bottom:5px; margin-left:166px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
+        <img src="extra/images/google-scholar.svg" width="31px"/> 
+      </div>  
+      </a>
+
+      <a target='_blank' href='https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf'>
+      <div class='pin-bottomleft z2 hide-mobile' style='margin-bottom:7px; margin-left:203px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
+        <img src="extra/images/researchgate.svg" width="28px"/> 
+      </div>  
+      </a>
+-->
+
+        <!-- Logos -->
   <a target='_blank' href='https://urban.uchicago.edu'>
   <div class ='pin-bottomright hide-mobile' >
     <img style="margin-top:11px; margin-bottom:7px; margin-right:375px;" src="extra/images/uchicago.svg" width="180px" />

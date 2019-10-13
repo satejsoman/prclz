@@ -1,4 +1,3 @@
-
 // Mobile default width
 var mobile = document.documentElement.clientWidth <= 700;
                        
@@ -194,8 +193,8 @@ var locations = [
     center: [36.82287, -1.28937],
     zoom: 12.61,
     pitch: 50,
-    speed:.6,
-    curve: 1.8
+    speed:.5,
+    curve: 1
   }
 }, {
   "id": 4,
@@ -236,12 +235,12 @@ var locations = [
   "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center and a collaboration between Luís Bettencourt, Anni Beukes, Satej Soman, Cooper Nederhood, and Nicholas Marchio with technical contributions from Christa Brelsford, Taylor Martin, Joe Hand, Annie Yang, and Parmanand Sinha. Special thanks to Grace Cheung, Anne Dodge, Heidi Lee, Diana Petty for their generous support.",
   "buttontext":"Continue explainer (8/8)",
   "camera": {
-    center: [-11.182, 7.278],
-    bearing: 0,
-    pitch:25,
-    zoom: 7,
-    curve: 1.7,
-    speed: .6
+    center: [17.988, 0.658],
+    bearing: 60,
+    pitch:50,
+    zoom: 4,
+    curve: 1.2,
+    speed: .3
   } 
 }, {
   "id": 8,
@@ -253,7 +252,7 @@ var locations = [
     bearing: 0,
     pitch:0,
     zoom: 2,
-    speed: .5
+    speed: .3
   }
 }];
 
@@ -291,4 +290,3 @@ buttontext.textContent = locations[locations.length - 1].buttontext;
 
 
 playback('play-interactive',0)
-
