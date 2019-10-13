@@ -3,7 +3,7 @@ MAPBOX_API_TOKEN=(::MAPBOX_API_TOKEN::)
 MAPBOX_USERNAME=(nmarchi0)
 TILESET_NAME=(global_file_$(date '+%Y%m%d'))
 COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson.ld)
-JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
+JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/api/zoom_all_recipe.json)
 
 # FILL IN JSON RECIPE TEMPLATE
 JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_recipe.json)
