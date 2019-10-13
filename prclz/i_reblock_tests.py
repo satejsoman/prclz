@@ -88,6 +88,21 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     else:
         return steiner_lines, terminal_points
 
+def check_consistent(lines: MultiLineString, block: Polygon):
+
+    line_coord_set = set()
+    for l in lines:
+        for coord in l.coords:
+            line_coord_set.add(coord)
+    # Now check
+    total = 0
+    within = 0
+    for coord in block.exterior.coords:
+        b = 1 if coord in line_coord_set else 0
+        total += 1
+        within += b 
+    print("{}/{} block coords are in the linestring coords".format(within, total))
+
 def debug(region, gadm_code, gadm):
     
     # (1) Just load our data for one GADM
@@ -102,7 +117,7 @@ def debug(region, gadm_code, gadm):
     print("Begin calculating of parcel graphs--{}-{}".format(region, gadm))
     graph_parcels = i_topology_utils.prepare_parcels(bldgs, blocks, parcels)    
 
-    return bldgs, blocks, parcels, graph_parcels
+    return bldgs, blocks, parcels, graph_parcels, lines 
 
 def reblock_gadm(region, gadm_code, gadm):
     '''
@@ -141,13 +156,22 @@ def reblock_gadm(region, gadm_code, gadm):
         example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
         example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
+        example_lines = lines[lines['block_id']==block]
 
         print("Block = {} | buildings len = {}".format(block, len(example_buildings)))
         if len(example_buildings) <= 1:
             continue
 
-        # Update edge types and do reblocking
-        missing, total_block_coords = i_topology_utils.update_edge_types(example_graph, example_block, check=True) 
+        # Update edge types -- first check if the linestrings have natural/waterway or if they're all highways
+        # This is WIP
+        #if np.all(example_lines['highway']!=""):
+        if 1:
+            missing, total_block_coords = i_topology_utils.update_edge_types(example_graph, example_block, check=True)
+        else:
+            lines_pgraph = i_topology_utils.create_lines_graph(example_lines)
+            missing, total_block_coords = i_topology_utils.update_edge_types(example_graph, example_block, check=True, lines_pgraph=lines_pgraph)
+
+        # Do reblocking 
         steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
         
         # Collect and store the summary info from reblocking
@@ -204,8 +228,14 @@ if __name__ == "__main__":
     # gadm_code = 'KEN'
     # gadm = 'KEN.30.10.1_1'
 
-    # bldgs, blocks, parcels, graph_parcels = debug(region, gadm_code, gadm)
+    # bldgs, blocks, parcels, graph_parcels, lines = debug(region, gadm_code, gadm)
     # g = graph_parcels['planar_graph'].iloc[0]
+    # block = blocks['block_geom'].iloc[0]
+
+    # lines_pgraph = i_topology_utils.create_lines_graph(lines)
+    # missing, total = i_topology_utils.update_edge_types(g, block, True, lines_pgraph)
+        
+    # plot_post = plot_edge_type(g, 'post_update_edge.png')
     # g_lines = g.get_linestrings()  
     # parcel = gpd.GeoSeries(graph_parcels['parcel_geometry'].iloc[0])   
     # g_lines_geo = gpd.GeoSeries(g_lines)

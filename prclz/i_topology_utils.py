@@ -26,14 +26,17 @@ BLDGS_PATH = os.path.join(DATA_PATH, "buildings")
 PARCELS_PATH = os.path.join(DATA_PATH, "parcels")
 LINES_PATH = os.path.join(DATA_PATH, "lines")
 
+WATERWAY_WEIGHT = 1e5 
+NATURAL_WEIGHT = 1e5
+
 # some test params
 # region = "Africa"
 # gadm_code = "SLE"
 # gadm = "SLE.2.2.5_1"
-region = "Africa"
-gadm_code = "DJI"
-gadm = "DJI.3.1_1"
-example_block = 'DJI.3.1_1_26'
+# region = "Africa"
+# gadm_code = "DJI"
+# gadm = "DJI.3.1_1"
+# example_block = 'DJI.3.1_1_26'
 
 def point_to_node(point: Point):
     '''
@@ -165,12 +168,14 @@ def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
         assert block_coord in parcel_coords
 
 
-def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False):
+def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False, lines_pgraph=None):
 
-    coords_list = list(block_polygon.exterior.coords)
-    coords = set(coords_list)
+    block_coords_list = list(block_polygon.exterior.coords)
+    coords = set(block_coords_list)
 
     rv = (None, None)
+    missing = None
+    total = None
     # Option to verify that each point in the block is in fact in the parcel
     if check:
         parcel_coords = set(v['name'] for v in parcel_graph.vs)
@@ -179,32 +184,85 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
         for coord in coords:
             is_in = is_in+1 if coord in parcel_coords else is_in 
             total += 1
-        print("{} of {} block coords are NOT in the parcel coords".format(total-is_in, total)) 
-        rv = (total-is_in, total)
+        missing = total-is_in
+        print("{} of {} block coords are NOT in the parcel coords".format(missing, total)) 
 
     # Get list of coord_tuples from the polygon
-    assert coords_list[0] == coords_list[-1], "Not a complete linear ring for polygon"
-    for i, n0 in enumerate(coords_list):
+    assert block_coords_list[0] == block_coords_list[-1], "Not a complete linear ring for polygon"
+
+    # Loop over the block coords (as define an edge) and update the corresponding edge type in the graph accordingly
+    for i, n0 in enumerate(block_coords_list):
         if i==0:
             continue
         else:
-            n1 = coords_list[i-1]
+            n1 = block_coords_list[i-1]
             u_list = parcel_graph.vs.select(name_eq=n0)
             v_list = parcel_graph.vs.select(name_eq=n1)
             if len(u_list) > 0 and len(v_list) > 0:
                 u = u_list[0]
                 v = v_list[0]
                 path_idxs = parcel_graph.get_shortest_paths(u, v, weights='weight', output='epath')[0]
-                #if len(path_idxs) > 1:
-                    #print("Length of shortest path = {} edges".format(len(path_idxs)))
-                parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
-    parcel_graph.es.select(edge_type_eq='from_block')['weight'] = 0
 
+                # the coords u and v from the block are
+                if lines_pgraph is None:
+                    parcel_graph.es[path_idxs]['edge_type'] = 'highway'
+                else:
+                    ft_type = get_feature_type_from_lines(lines_pgraph, u['name'], v['name'] )
+                    parcel_graph.es[path_idxs]['edge_type'] = ft_type
+
+    parcel_graph.es.select(edge_type_eq='highway')['weight'] = 0
+    parcel_graph.es.select(edge_type_eq='waterway')['weight'] = WATERWAY_WEIGHT
+    parcel_graph.es.select(edge_type_eq='natural')['weight'] = NATURAL_WEIGHT
+
+    rv = (missing, total)
     return rv 
 
+###########################################################################################
+###########################################################################################
+# NOTE: this section is all code used to recover the feature type (i.e. waterway, road, natural)
+#       contained within OSM but not contained within the block files
 
 
+def create_lines_graph(lines_df: gpd.GeoDataFrame) -> PlanarGraph:
+    '''
+    Create a PlanarGraph based on a lines GeoDataFrame. The graph will
+    have a feature_type attribute for the edges
+    '''
+    lines_df['feature_type'] = None 
+    lines_df.loc[lines_df['waterway']!="",'feature_type']='waterway' 
+    lines_df.loc[lines_df['highway']!="",'feature_type']='highway' 
+    lines_df.loc[lines_df['natural']!="",'feature_type']='natural' 
+    assert np.all(lines_df['feature_type'].notna())
 
+    pgraph = PlanarGraph()
+    for index, row in lines_df[['feature_type','geometry']].iterrows():
+        ft = row['feature_type']
+        coords_list = list(row['geometry'].coords)
+        for i, coords in enumerate(coords_list):
+            if i == 0:
+                continue 
+            else:
+                pgraph.add_edge(coords, coords_list[i-1], feature_type=ft)
+    return pgraph 
+
+def get_feature_type_from_lines(lines_pgraph: PlanarGraph, coords0, coords1 ) -> str:
+
+    edge0_ft = lines_pgraph.add_node_to_closest_edge(coords0, get_edge=True)['feature_type']
+    edge1_ft = lines_pgraph.add_node_to_closest_edge(coords1, get_edge=True)['feature_type']
+
+    if edge0_ft != edge1_ft:
+        print("block coords are different types --> coord0 = {} | coord1 = {}".format(edge0_ft, edge1_ft))
+
+        if 'highway' in (edge0_ft, edge1_ft):
+            return 'highway'
+        else:
+            return 'natural'
+    else:
+        return edge0_ft
+
+
+###########################################################################################
+###########################################################################################
 
 if __name__ == "__main__":
 

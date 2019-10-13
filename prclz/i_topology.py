@@ -372,7 +372,7 @@ class PlanarGraph(igraph.Graph):
         #print("Found {}/{} possible edges thru {} tries".format(len(edges), len(self.es), i))
         return edges 
 
-    def add_node_to_closest_edge(self, coords, terminal=False, fast=True):
+    def add_node_to_closest_edge(self, coords, terminal=False, fast=True, get_edge=False):
         '''
         Given the input node, this finds the closest point on each edge to that input node.
         It then adds that closest node to the graph. It splits the argmin edge into two
@@ -404,6 +404,8 @@ class PlanarGraph(igraph.Graph):
         argmin = np.argmin(closest_edge_distances)
         closest_node = closest_edge_nodes[argmin]
         closest_edge = self.edge_to_coords(cand_edges[argmin])
+        if get_edge:
+            return cand_edges[argmin] 
 
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
@@ -471,7 +473,20 @@ def convert_to_lines(planar_graph) -> MultiLineString:
     multi_line = unary_union(lines)
     return multi_line 
 
+def plot_edge_type(g, output_file):
 
+    edge_color_map = {None: 'red', 'waterway': 'blue', 
+                      'highway': 'black', 'natural': 'green'}
+    visual_style = {}       
+    SMALL = 0       
+    visual_style['vertex_size'] = [SMALL for _ in g.vs]
+
+    if 'edge_type' not in g.es.attributes():
+        g.es['edge_type'] = None 
+    visual_style['edge_color'] = [edge_color_map[t] for t in g.es['edge_type'] ]
+    visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
+
+    return igraph.plot(g, output_file, **visual_style)
 
 def plot_reblock(g, output_file):
     vtx_color_map = {True: 'red', False: 'blue'}
