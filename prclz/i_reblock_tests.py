@@ -176,7 +176,12 @@ def reblock_gadm(region, gadm_code, gadm):
             missing, total_block_coords = i_topology_utils.update_edge_types(example_graph, example_block, check=True, lines_pgraph=lines_pgraph)
 
         # Do reblocking 
-        steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
+        try:
+            steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
+        except:
+            steiner_lines = None 
+            terminal_points = None 
+            summary = [None, None, None]
         
         # Collect and store the summary info from reblocking
         summary = summary + [len(example_buildings), total_block_coords, missing, block]
