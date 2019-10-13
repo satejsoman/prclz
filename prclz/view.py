@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     region = 'Africa'
 
-    viewer = ReblockPlotter(gadm_list, region)
+    viewer = ReblockPlotter(gadm_list, region, add_parcels=True)
 
     # This will allow you to view the optimal paths
     # viewer.view_all()
@@ -159,5 +159,5 @@ if __name__ == "__main__":
     # Now we export to files, assuming we've sanity checked the output and it looks good
     viewer.export_parcels(os.path.join(DATA, 'KEN_parcels.geojson'))
     viewer.export_steiner(os.path.join(DATA, 'KEN_opt_path.geojson'))
-    
+
 
