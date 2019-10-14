@@ -8,7 +8,7 @@ window.map = new mapboxgl.Map({
   style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc", 
   center: [17.54, 8.84], // starting position  -5.96, 16.89
   zoom: 2,
-  maxZoom: 16.5,
+  maxZoom: 18.5,
   minZoom: 1,
   hash: true
 });
