@@ -4,7 +4,7 @@ module load udunits/2.2
 module load gdal/2.4.1 
 
 cd /project2/bettencourt/mnp/prclz/data/tilesets
-rm reblock_file.geojson.ld
+rm /project2/bettencourt/mnp/prclz/data/tilesets/reblock_file.geojson.ld
 ogr2ogr -f "GeoJSONSeq" reblock_file.geojson.ld /project2/bettencourt/mnp/prclz/data/KEN_opt_path.geojson 
 
 
