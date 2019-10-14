@@ -226,7 +226,7 @@ var locations = [
   "camera": {
     center: [36.794268, -1.316134],
     bearing: 25.3,
-    zoom: 16.5,
+    zoom: 18,
     speed: .05
   }
 }, {
