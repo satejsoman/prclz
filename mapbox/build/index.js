@@ -8,7 +8,7 @@ window.map = new mapboxgl.Map({
   style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc", 
   center: [17.54, 8.84], // starting position  -5.96, 16.89
   zoom: 2,
-  maxZoom: 18.5,
+  maxZoom: 17.5,
   minZoom: 1,
   hash: true
 });
@@ -224,9 +224,10 @@ var locations = [
   "description": "The process of growing new street networks, known as reblocking, is often difficult and time consuming, requiring a lengthy drafting process involving the community and local administrators. Using this data and network algorithms, it is possible to generate a minimally disruptive street network that grants universal access to existing buildings, offering a precise GIS map that communities can improve upon.",
   "buttontext":"Continue explainer (7/8)",
   "camera": {
-    center: [36.794268, -1.316134],
-    bearing: 25.3,
-    zoom: 18,
+    center: [36.794332, -1.316403],
+    bearing: 26.1,
+    pitch: 60,
+    zoom: 17.3,
     speed: .05
   }
 }, {
