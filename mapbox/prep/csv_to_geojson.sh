@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Concatenate CSVs
 head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv
