@@ -18,11 +18,24 @@ cd /project2/bettencourt/mnp/prclz/data/tilesets
 
 # Concatenate CSVs
 head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv
-find /project2/bettencourt/mnp/prclz/data/complexity/*/*/ -name "*.csv" | while read file
+find /project2/bettencourt/mnp/prclz/data/complexity/ -name "Africa/*/*.csv" | while read file
 do 
-    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv 
+    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/africa_file.csv 
     echo "$file"
 done
+
+find /project2/bettencourt/mnp/prclz/data/complexity/ -type f \(-name "Asia/*/*.csv" -or -name "Australia-Oceania/*/*.csv") | while read file
+do 
+    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/asiaoceania_file.csv 
+    echo "$file"
+done
+
+find /project2/bettencourt/mnp/prclz/data/complexity/*/*/ -name "*.csv" | while read file
+do 
+    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/latameur_file.csv 
+    echo "$file"
+done
+
 
 # Convert CSV to GeoJSON
 module load udunits/2.2
