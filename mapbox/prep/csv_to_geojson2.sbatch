@@ -16,26 +16,29 @@ module load gdal/2.4.1
 
 cd /project2/bettencourt/mnp/prclz/data/tilesets
 
-# Concatenate CSVs
-head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/global_file.csv
+# Africa
+head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/africa_file.csv 
 find /project2/bettencourt/mnp/prclz/data/complexity/ -name "Africa/*/*.csv" | while read file
 do 
     tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/africa_file.csv 
     echo "$file"
 done
 
-find /project2/bettencourt/mnp/prclz/data/complexity/ -type f \(-name "Asia/*/*.csv" -or -name "Australia-Oceania/*/*.csv") | while read file
+# Asia, Europe, Oceania
+head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/asia_eur_oceania_file.csv 
+find /project2/bettencourt/mnp/prclz/data/complexity/ \( -type f -and -path '*/Asia/*' -or -path '*/Australia-Oceania/*' -or -path '*/Europe/*' \) -name "*.csv" | while read file
 do 
-    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/asiaoceania_file.csv 
+    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/asia_eur_oceania_file.csv 
     echo "$file"
 done
 
-find /project2/bettencourt/mnp/prclz/data/complexity/*/*/ -name "*.csv" | while read file
+# Latin America
+head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/latam_file.csv 
+find /project2/bettencourt/mnp/prclz/data/complexity/ \( -type f -and -path '*/North-America/*' -or -path '*/Central-America/*' -or -path '*/South-America/*' \) -name "*.csv" | while read file
 do 
-    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/latameur_file.csv 
+    tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/latam_file.csv 
     echo "$file"
 done
-
 
 # Convert CSV to GeoJSON
 module load udunits/2.2
@@ -43,6 +46,12 @@ module load gdal/2.4.1
 
 cd /project2/bettencourt/mnp/prclz/data/tilesets
 
+rm africa_file.geojson.ld
+rm asiaeuraus_file.geojson.ld
+rm latam_file.geojson.ld
+
 # Convert CSV to GeoJSON-line delimited
-ogr2ogr -f "GeoJSONSeq" global_file.geojson.ld -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
+ogr2ogr -f "GeoJSONSeq" africa_file.geojson.ld -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM africa_file" africa_file.csv -a_srs "WGS84"
+ogr2ogr -f "GeoJSONSeq" asia_eur_oceania_file.geojson.ld -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM asia_eur_oceania_file" asia_eur_oceania_file.csv -a_srs "WGS84"
+ogr2ogr -f "GeoJSONSeq" latam_file.geojson.ld -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM latam_file" latam_file.csv -a_srs "WGS84"
 
