@@ -14,3 +14,11 @@
 module load udunits/2.2
 module load gdal/2.4.1 
 
+cd /project2/bettencourt/mnp/prclz/data/tilesets
+
+rm global_file_2.geojson
+rm global_file_2.geojson.ld
+
+ogr2ogr -f "GeoJSON" global_file_2.geojson -dialect sqlite -sql "SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM global_file" global_file.csv -a_srs "WGS84"
+
+ogr2ogr -f "GeoJSONSeq" global_file_2.geojson.ld global_file.geojson
