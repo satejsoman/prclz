@@ -11,4 +11,7 @@
 #SBATCH --time=5:00:00
 #SBATCH --account=rcc-staff
 
+module load udunits/2.2
+module load gdal/2.4.1 
+
 bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh
