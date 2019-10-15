@@ -18,7 +18,7 @@ cd /project2/bettencourt/mnp/prclz/data/tilesets
 
 # Africa
 head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/tilesets/africa_file.csv 
-find /project2/bettencourt/mnp/prclz/data/complexity/ -name "Africa/*/*.csv" | while read file
+find /project2/bettencourt/mnp/prclz/data/complexity/Africa/*/ -name "*.csv" | while read file
 do 
     tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/tilesets/africa_file.csv 
     echo "$file"
