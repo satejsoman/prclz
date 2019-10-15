@@ -8,15 +8,13 @@ do
     echo "$file"
 done
 
-# Convert CSV to GeoJSON using R
-# module load R/3.6.1
+# Convert CSV to GeoJSON
 module load udunits/2.2
 module load gdal/2.4.1 
-# Rscript /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.R 
 
 cd /project2/bettencourt/mnp/prclz/data/tilesets
 
-rm  global_file.geojson
+rm global_file.geojson
 rm global_file.geojson.ld
 
 # Convert CSV to GeoJSON
