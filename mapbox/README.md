@@ -7,8 +7,8 @@
   cd /project2/bettencourt/mnp/prclz
   git pull
   
-  # Concatenate CSVs and convert to GeoJSON and GeoJSON.ld using ogr2ogr
-  bash /project2/bettencourt/mnp/prclz/mapbox/api/csv_to_geojson.sh
+  # Concatenate CSVs and convert to GeoJSON.ld using ogr2ogr for Africa, Latin America, Oceania, Europe
+  bash /project2/bettencourt/mnp/prclz/mapbox/prep/global_csv_to_geojson.sbatch
   ``` 
 * *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
