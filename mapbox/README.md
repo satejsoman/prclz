@@ -11,7 +11,7 @@
   sbatch /project2/bettencourt/mnp/prclz/mapbox/prep/global_csv_to_geojson.sbatch
   ``` 
 
-### Mapbox API Upload ###
+### Mapbox API Upload (up to 25 GB geojson.ld) ###
 
  #### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ####
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
