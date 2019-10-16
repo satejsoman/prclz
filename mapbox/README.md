@@ -64,6 +64,12 @@
   * Go to "Style" > "Style across data range" > "Choose numeric data field" > *Complexity # Numeric*
   * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity > 2 is red gradient)
   * Click "Share..." copy the "Your style URL" and the "Your access token" -- these go into your index.html file
+  ```
+    complexity: 0 #0571b0
+    complexity: 2 #f7f7f7
+    complexity: 5 #f4a582
+    complexity: 11 #cc0022
+  ```
   
   #### Basics of Mapbox GL JS ####
   * Here is the link to the [404.html, index.html, and index.js](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) that flow into the Mapbox visualization
