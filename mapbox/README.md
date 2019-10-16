@@ -18,7 +18,7 @@
     ```
     MAPBOX_API_TOKEN=(<INSERT TOKEN HERE>)
     ```
- * Check parameter defaults in [tileset_api.sh](https://github.com/mansueto-institute/prclz/blob/master/mapbox/api/tileset_api.sh) and change as needed.
+ * Check parameter defaults in [kblock_tileset_api_upload.sh](https://github.com/mansueto-institute/prclz/blob/master/mapbox/api/kblock_tileset_api_upload.sh) and change as needed.
     ```
     sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/api/kblock_tileset_api_upload.sh > /project2/bettencourt/mnp/prclz/mapbox/api/tileset_api_filled.sh
     ```
