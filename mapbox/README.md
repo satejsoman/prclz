@@ -23,7 +23,10 @@
     ```
     sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/api/kblock_tileset_api_upload.sh > /project2/bettencourt/mnp/prclz/mapbox/api/tileset_api_filled.sh
     ```
- * Then run the API calls `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON.ld to Mapbox 
+ * Then run the API calls to upload GEOJSON.ld to Mapbox 
+    ```
+    bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh
+    ```
  * A [Tileset CLI](https://github.com/mapbox/tilesets-cli/) is also available which is a wrapper for the Tileset API 
  
  #### Method 2: tippecanoe (local mbtile processing) ####
