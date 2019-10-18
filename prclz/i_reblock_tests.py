@@ -196,8 +196,8 @@ def reblock_gadm(region, gadm_code, gadm):
         summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps'] + ['bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
 
         summary_dict[block] = summary 
-        steiner_lines_dict[block] = [new_steiner, block, 'new_steiner'] 
-        steiner_lines_dict[block] = [existing_steiner, block, 'existing_steiner'] 
+        steiner_lines_dict[block+'new_steiner'] = [new_steiner, block, 'new_steiner'] 
+        steiner_lines_dict[block+'existing_steiner'] = [existing_steiner, block, 'existing_steiner'] 
         terminal_points_dict[block] = [terminal_points, block]
 
         example_graph.save_planar(os.path.join(graph_path, block+".igraph"))
