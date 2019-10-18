@@ -3,7 +3,7 @@
 <head>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <meta charset=utf-8 />
-  
+
   <!-- SEO Meta Tags -->
   <title>Million Neighborhoods Initiative</title>
   <meta name="description" content="Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
@@ -40,17 +40,17 @@ body { margin:0; padding:0; }
 #map { position:absolute; top:0; bottom:0; width:100%; }
 @font-face {
   font-family: 'GothamLight';
-  src: url('extra/gotham/GothamLight.otf') format('opentype'); 
+  src: url('extra/gotham/GothamLight.otf') format('opentype');
        font-weight: 300;
 }
 @font-face {
   font-family: 'GothamMedium';
-  src: url('extra/gotham/GothamMedium.otf') format('opentype'); 
+  src: url('extra/gotham/GothamMedium.otf') format('opentype');
        font-weight: 400;
 }
 @font-face {
   font-family: 'GothamBold';
-  src: url('extra/gotham/GothamBold.otf') format('opentype'); 
+  src: url('extra/gotham/GothamBold.otf') format('opentype');
        font-weight: 700;
 }
 h2 { color:#222B30;}
@@ -120,7 +120,7 @@ p { color:#222B30;}
   vertical-align: middle;
   line-height:15px;
   margin:2px;
-  padding: 3px 6px 3px 6px; 
+  padding: 3px 6px 3px 6px;
   cursor: pointer;
   text-align: center;
   display: inline-block;
@@ -131,7 +131,7 @@ p { color:#222B30;}
 }
 .sidebar {
   width: 100%;
-  background-color:transparent;       
+  background-color:transparent;
 }
 .icon-uofc {
   background-image: url('extra/images/uchicago.svg');
@@ -162,7 +162,7 @@ p { color:#222B30;}
         </a>
       </div>
 
-      <div class='text-overlay hide-mobile'> 
+      <div class='text-overlay hide-mobile'>
         <p id='location-title' style="font-family:GothamBold; font-size:18px; margin-top:5px; margin-bottom:5px;"></p>
         <p id='location-description' style="font-family:GothamMedium;line-height:15px;font-size:12px;"></p>
       </div>
@@ -171,37 +171,53 @@ p { color:#222B30;}
       <div class="hide-mobile space-bottom0" style="padding-top:215px;"></div>
       <div class="projects">
         <h3 class="space-bottom0" style="padding-top:0px;margin-bottom:0px;margin:3px;font-family:GothamBold;">Explore a city</h3>
-        <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Freetown, Sierra Leone</span>
-        </div>
-          <br />
-        <div id="liberia" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Monrovia, Liberia</span>
+            <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Freetown, Sierra Leone</span>
+            </div>
+              <br />
+            <div id="liberia" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Monrovia, Liberia</span>
+            </div>
+              <br />
+            <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Nairobi, Kenya</span>
+            </div>
+              <br />
+            <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Dar-es-Salaam, Tanzania</span>
+            </div>
+              <br />
+            <div id="mozambique" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Beira, Mozambique</span>
+            </div>
+              <br />
+            <div id="cameroon" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Douala, Cameroon</span>
+            </div>
+              <br />
+            <div id="dr-congo" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Kinshasa, DR Congo</span>
+            </div>
+              <br />
+            <div id="ivory-coast" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Bouaké, Ivory Coast</span>
+            </div>
+              <br />
+            <div id="malawi" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Blantyre, Malawi</span>
+            </div>
+              <br />
+            <div id="haiti" class="button fill-navy-dark dark" style="margin-top:2px;">
+              <span> Port-au-Prince, Haiti</span>
+            </div>
+              <br />
+        <!--
+        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
+          <span> Cape Town, South Africa</span>
         </div>
           <br />
         <div id="nigeria" class="button fill-navy-dark dark" style="margin-top:2px;">
           <span> Lagos, Nigeria</span>
-        </div>
-          <br />
-        <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Nairobi, Kenya</span>
-        </div>
-          <br />
-        <div id="ghana" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Accra, Ghana</span>
-        </div>
-          <br />
-        <div id="haiti" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Port-au-Prince, Haiti</span>
-        </div>
-          <br />
-          <!--
-        <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Dar-es-Salaam, Tanzania</span>
-        </div>
-          <br />
-        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Cape Town, South Africa</span>
         </div>
           <br />
         <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
@@ -245,54 +261,42 @@ p { color:#222B30;}
       <!-- Social media shares -->
       <a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https://millionneighborhoods.org'>
       <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:20px; display:inline-block; vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/twitter.svg" width="31px"/> 
-      </div>  
+        <img src="extra/images/twitter.svg" width="31px"/>
+      </div>
       </a>
 
       <a target='_blank' href="https://facebook.com/sharer.php?u=https://millionneighborhoods.org">
       <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:55px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/facebook.svg" width="31px"/> 
-      </div>  
+        <img src="extra/images/facebook.svg" width="31px"/>
+      </div>
       </a>
 
       <a target='_blank' href='https://github.com/mansueto-institute/prclz'>
       <div class='pin-bottomleft hide-mobile z2' style='margin-bottom:7px; margin-left:93px; display:inline-block; vertical-align:middle;padding:0px 2px 2px 0px;'>
-        <img src="extra/images/github.svg" width="31px"/> 
-      </div>  
+        <img src="extra/images/github.svg" width="31px"/>
+      </div>
       </a>
 
-<!--
-      <a target='_blank' href='https://www.linkedin.com/shareArticle?mini=true&url=https://millionneighborhoods.org&source=LinkedIn'>
-      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:95px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/linkedin.svg" width="28px"/> 
-      </div>  
-      </a>
+      <div class='pin-bottomleft hide-mobile z2' style='margin-bottom:8px; margin-left:130px; padding:0px; line-height:0px;'>
+       <p style="margin:0px; font-size:12px; font-family:GothamBold;padding:0px; line-height: 15px;">Methods:</p>
+       <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px; line-height: 10px;" target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>Brelsford, Martin, Hand, and Bettencourt (2018)</a>
+          <br style="content: " ";display: block; padding:0px;margin:0px;line-height: 0px;"/>
+       <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px;line-height: 10px;" target='_blank' href= "https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf">Brelsford, Martin, and Bettencourt (2017)</a>
+      </div>
 
-      <a target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>
-      <div class='pin-bottomleft z2 hide-mobile' style='margin-bottom:5px; margin-left:166px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/google-scholar.svg" width="31px"/> 
-      </div>  
-      </a>
-
-      <a target='_blank' href='https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf'>
-      <div class='pin-bottomleft z2 hide-mobile' style='margin-bottom:7px; margin-left:203px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/researchgate.svg" width="28px"/> 
-      </div>  
-      </a>
--->
 
         <!-- Logos -->
   <a target='_blank' href='https://urban.uchicago.edu'>
   <div class ='pin-bottomright hide-mobile' >
     <img style="margin-top:11px; margin-bottom:7px; margin-right:375px;" src="extra/images/uchicago.svg" width="180px" />
-  </div>  
+  </div>
   </a>
   <div class ='pin-bottomright hide-mobile' >
     <a target='_blank' href='https://miurban.uchicago.edu'>
     <h3  style="margin-bottom:10px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Mansueto Institute for Urban Innovation</h3>  </a>
     <a target='_blank' href='https://rcc.uchicago.edu'>
     <h3  style="margin-bottom:9px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3> </a>
-  </div> 
+  </div>
   <div class="mapbox-attribution-container hide-mobile">
    <a target='_blank' href="https://www.uchicago.edu/">© The University of Chicago | </a>
    <a target='_blank' href="https://www.mapbox.com/about/maps/">© Mapbox | </a>

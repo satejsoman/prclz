@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Set destination directory
 cd /project2/bettencourt/mnp/prclz/data/tilesets

@@ -8,7 +8,10 @@
 #SBATCH --error=logs/csv_to_geojson.err
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nmarchio@uchicago.edu
-#SBATCH --time=1:00:00
+#SBATCH --time=5:00:00
 #SBATCH --account=rcc-staff
+
+module load udunits/2.2
+module load gdal/2.4.1 
 
 bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh

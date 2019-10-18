@@ -1,12 +1,22 @@
+
+# CONVERT TO GEOJSON LINE DELIMITED
+module load udunits/2.2
+module load gdal/2.4.1 
+
+cd /project2/bettencourt/mnp/prclz/data/tilesets
+rm /project2/bettencourt/mnp/prclz/data/tilesets/reblock_file.geojson.ld
+ogr2ogr -f "GeoJSONSeq" reblock_file.geojson.ld /project2/bettencourt/mnp/prclz/data/KEN_opt_path.geojson 
+
+
 # SET PARAMETERS
 MAPBOX_API_TOKEN=(::MAPBOX_API_TOKEN::)
 MAPBOX_USERNAME=(nmarchi0)
-TILESET_NAME=(global_file_$(date '+%Y%m%d'))
-COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/global_file.geojson.ld)
-JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/zoom_all_recipe.json)
+TILESET_NAME=(reblock_file_$(date '+%Y%m%d'))
+COMPLEXITY_GEOJSON_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/reblock_file.geojson.ld)
+JSON_RECIPE_TEMPLATE=(/project2/bettencourt/mnp/prclz/mapbox/api/zoom_reblock_recipe.json)
 
 # FILL IN JSON RECIPE TEMPLATE
-JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_recipe.json)
+JSON_RECIPE_FILEPATH=(/project2/bettencourt/mnp/prclz/data/tilesets/mapbox_reblock_recipe.json)
 sed -e "s/::MAPBOX_USERNAME::/${MAPBOX_USERNAME}/g" -e "s/::TILESET_NAME::/${TILESET_NAME}/g" < ${JSON_RECIPE_TEMPLATE} > ${JSON_RECIPE_FILEPATH}
 
 # DELETE TILESET SOURCE ID (TO OVERWRITE EXISTING TILESET)

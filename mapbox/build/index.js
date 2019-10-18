@@ -1,14 +1,14 @@
 // Mobile default width
 var mobile = document.documentElement.clientWidth <= 700;
-                       
-// Link to Mapbox                                                                          
+
+// Link to Mapbox
 mapboxgl.accessToken = 'pk.eyJ1Ijoibm1hcmNoaTAiLCJhIjoiY2p6dTljeDhiMGRwcjNubnl2aXI0OThhYyJ9.4FdGkBJlOXMPRugyqiXrjg';
 window.map = new mapboxgl.Map({
   container: "map", // container id
-  style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc", 
+  style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc",
   center: [17.54, 8.84], // starting position  -5.96, 16.89
   zoom: 2,
-  maxZoom: 16.5,
+  maxZoom: 17.5,
   minZoom: 1,
   hash: true
 });
@@ -40,7 +40,7 @@ function flyHandler(id, options) {
 }
 
 flyHandler('sierra-leone', {
-  center: [-13.250978, 8.480201],
+  center: [-13.25182, 8.44913],
   zoom: 12,
   bearing: 0,
   pitch: 0,
@@ -68,7 +68,7 @@ flyHandler('south-africa', {
   speed: .2
 });
 flyHandler('kenya', {
-  center: [36.7700362138,-1.318913533],
+  center: [36.7915,-1.2834],
   zoom: 12,
   bearing: 0,
   pitch: 0,
@@ -137,6 +137,41 @@ flyHandler('pakistan', {
   pitch: 0,
   speed: .2
 });
+flyHandler('mozambique', {
+  center: [34.86226,-19.82814],
+  zoom: 13,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
+flyHandler('cameroon', {
+  center: [9.71976,4.03108],
+  zoom: 12,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
+flyHandler('dr-congo', {
+  center: [15.36234,-4.42298],
+  zoom: 12.36,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
+flyHandler('ivory-coast', {
+  center: [-5.04508,7.68848],
+  zoom: 12.4,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
+flyHandler('malawi', {
+  center: [34.99562,-15.81003],
+  zoom: 12.3,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
 
 // Legend
 var layers = ['High access', 'Moderate access', 'Low access', 'Limited access', 'Very limited access'];
@@ -165,7 +200,7 @@ var buttontext = document.getElementById('location-button');
 var locations = [
 {"id": 1,
   "title": "Why street access",
-  "description": "Streets mediate most basic capabilities and basic services in each home or place of work. Without street access there is no sanitation or electricity. There are also no addresses or routes for emergency responders, trash collectors, and buses. Around the world, over a million neighborhoods lack adequate access. We are mapping them here, block by block.",
+  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses. Around the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block.",
   "buttontext":"Continue explainer (2/8)",
   "camera": {
     center: [-72.34257, 18.52656],
@@ -175,11 +210,11 @@ var locations = [
     speed: .6
   }
 },{"id": 2,
-  "title": "How the map can help",
-  "description": "Starting with crowdsourced maps, expressing each neighborhood in detail, it is now possible to create new models of urban planning that are people-centric, built from local knowledge and enhanced with technology. People-centered approaches that also embrace data and technology, like the Million Neighborhoods approach, can help create solutions in millions of neighborhoods, worldwide.",
+  "title": "How this map can help",
+  "description": "Maps crowdsourced from OpenStreetMap make it possible to create new models of urban planning that are people-centric, built from local knowledge and enhanced with technology. In the hands of communities and local governments this can become a powerful resource to support decision-making and action.",
   "buttontext":"Continue explainer (3/8)",
   "camera": {
-    center: [-72.343405, 18.524463], 
+    center: [-72.343405, 18.524463],
     bearing: 0,
     pitch:60,
     zoom: 16.2,
@@ -187,19 +222,19 @@ var locations = [
   }
 },{"id": 3,
   "title": "Exploring Nairobi",
-  "description": "Let’s take a look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced.  These differences are apparent by comparing street access in each place.",
+  "description": "Look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced. These differences are apparent by comparing street access in each place.",
   "buttontext":"Continue explainer (4/8)",
   "camera": {
     center: [36.82287, -1.28937],
     zoom: 12.61,
     pitch: 50,
-    speed:.5,
-    curve: 1
+    speed:.65,
+    curve: 1.7
   }
 }, {
   "id": 4,
   "title": "Nairobi Central",
-  "description": "Here is a typical street grid in downtown Nairobi. Notice how every building is adjacent to a street and can easily access it? This pattern is typical in developed urban areas, with full  access to opportunities and services.",
+  "description": "Here is a typical street grid in downtown Nairobi. Notice how every building is adjacent to a street and can easily access it? This pattern is typical of developed urban areas, with full access to opportunities and services.",
   "buttontext":"Continue explainer (5/8)",
   "camera": {
     center: [36.825969, -1.284919],
@@ -210,42 +245,43 @@ var locations = [
 }, {
   "id": 5,
   "title": "Kibera",
-  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets. A street network that expands public access to services and places of work to more Kibera residents, will greatly improve their well-being and access to socioeconomic opportunities...",
+  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets. A street network that expands public access can facilitate service delivery and create an open-ended process of neighborhood development.",
   "buttontext":"Continue explainer (6/8)",
   "camera": {
     center: [36.794268, -1.316134],
     bearing: 25.3,
-    zoom: 16,
+    zoom: 16.5,
     speed: .4
   }
 }, {
   "id": 6,
-  "title": "Reblocking Kibera",
-  "description": "The process of growing new street networks, known as reblocking, is often difficult and time consuming, requiring a lengthy drafting process involving the community and local administrators. Using this data and network algorithms, it is possible to generate a minimally disruptive street network that grants universal access to existing buildings, offering a precise GIS map that communities can improve upon.",
+  "title": "Upgrading Kibera",
+  "description": "Combining local knowledge, increasingly available mapping data, and network algorithms, it is possible to generate a GIS map that proposes a minimally disruptive street network that grants universal access to existing buildings. The resulting street plan can then be improved upon in conversations between communities and local administrators.",
   "buttontext":"Continue explainer (7/8)",
   "camera": {
-    center: [36.794268, -1.316134],
-    bearing: 25.3,
-    zoom: 16.5,
+    center: [36.794332, -1.316403],
+    bearing: 26.1,
+    pitch: 60,
+    zoom: 17.3,
     speed: .05
   }
 }, {
   "id": 7,
   "title": "About the project",
-  "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center and a collaboration between Luís Bettencourt, Anni Beukes, Satej Soman, Cooper Nederhood, and Nicholas Marchio with technical contributions from Christa Brelsford, Taylor Martin, Joe Hand, Annie Yang, and Parmanand Sinha. Special thanks to Grace Cheung, Anne Dodge, Heidi Lee, Diana Petty for their generous support.",
+  "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center at the University of Chicago, in collaboration with neighborhood organizations around the world. A special thanks to the global community of volunteers who make OpenStreetMap possible. For more information about the project, visit miurban.uchicago.edu.",
   "buttontext":"Continue explainer (8/8)",
   "camera": {
     center: [17.988, 0.658],
     bearing: 60,
     pitch:50,
     zoom: 4,
-    curve: 1.2,
+    curve: 1.6,
     speed: .3
-  } 
+  }
 }, {
   "id": 8,
   "title": "What the map shows",
-  "description": "How much access do buildings have to streets? This turns out to be a measure of infrastructure and basic service access in every neighborhood on Earth. Red areas contain buildings with more limited street access. Blue areas buildings with higher access.",
+  "description": "In fast-growing cities, some neighborhoods become so densely packed with buildings that it can hinder the movement of people and obstruct construction of vital infrastructure like streets, water pipes, and sewage lines. This map highlights neighborhoods with limited access to streets. Red areas show buildings that are very hard to access directly from the street, while blue areas display buildings with better street access.",
   "buttontext":"Interactive explainer",
   "camera": {
     center: [17.54, 8.84],
@@ -260,7 +296,7 @@ function debounce(func, wait, immediate) {
   var timeout;
   return function executedFunction() {
     var context = this;
-    var args = arguments; 
+    var args = arguments;
     var later = function() {
       timeout = null;
       if (!immediate) func.apply(context, args);
