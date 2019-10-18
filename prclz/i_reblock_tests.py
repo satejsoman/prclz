@@ -80,13 +80,19 @@ def do_reblock(graph: PlanarGraph, buildings, verbose=False):
     stiener_time = time.time() - start 
 
     # Step 4: convert the stiener edges and terminal nodes to linestrings and points, respecitvely
-    steiner_lines = graph.get_steiner_linestrings()
+    #steiner_lines = graph.get_steiner_linestrings()
+    new_steiner, existing_steiner = graph.get_steiner_linestrings()
     terminal_points = graph.get_terminal_points()
 
     if verbose:
-        return steiner_lines, terminal_points, [bldg_time, stiener_time, num_components]
+        return new_steiner, existing_steiner, terminal_points, [bldg_time, stiener_time, num_components]
     else:
-        return steiner_lines, terminal_points
+        return new_steiner, existing_steiner, terminal_points
+
+    # if verbose:
+    #     return steiner_lines, terminal_points, [bldg_time, stiener_time, num_components]
+    # else:
+    #     return steiner_lines, terminal_points
 
 def check_consistent(lines: MultiLineString, block: Polygon):
 
@@ -177,9 +183,11 @@ def reblock_gadm(region, gadm_code, gadm):
 
         # Do reblocking 
         try:
-            steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
+            #steiner_lines, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
+            new_steiner, existing_steiner, terminal_points, summary = do_reblock(example_graph, example_buildings, verbose=True)
         except:
-            steiner_lines = None 
+            new_steiner = None 
+            existing_steiner = None 
             terminal_points = None 
             summary = [None, None, None]
         
@@ -188,13 +196,14 @@ def reblock_gadm(region, gadm_code, gadm):
         summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps'] + ['bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
 
         summary_dict[block] = summary 
-        steiner_lines_dict[block] = [steiner_lines, block] 
+        steiner_lines_dict[block] = [new_steiner, block, 'new_steiner'] 
+        steiner_lines_dict[block] = [existing_steiner, block, 'existing_steiner'] 
         terminal_points_dict[block] = [terminal_points, block]
 
         example_graph.save_planar(os.path.join(graph_path, block+".igraph"))
 
     # Now save out everything
-    steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id'])
+    steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id', 'steiner_type'])
     terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry', 'block_id'])
     summary_df = pd.DataFrame.from_dict(summary_dict, orient='index', columns=summary_columns)
 

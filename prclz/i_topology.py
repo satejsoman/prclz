@@ -447,9 +447,19 @@ class PlanarGraph(igraph.Graph):
         '''
         Takes the Steiner optimal edges from g and converts them
         '''
-        lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
-        multi_line = unary_union(lines)
-        return multi_line 
+        existing_lines = []
+        new_lines = []
+        for e in self.es:
+            if e['steiner']:
+                if e['edge_type'] == 'highway':
+                    existing_lines.append(LineString(self.edge_to_coords(e)))
+                else:
+                    new_lines.append(LineString(self.edge_to_coords(e)))
+
+        #lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
+        new_multi_line = unary_union(new_lines)
+        existing_multi_line = unary_union(existing_lines)
+        return new_multi_line, existing_multi_line
 
     def get_terminal_points(self) -> MultiPoint:
         '''
