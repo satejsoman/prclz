@@ -7,7 +7,7 @@
   <!-- SEO Meta Tags -->
   <title>Million Neighborhoods Initiative</title>
   <meta name="description" content="Million Neighborhoods is an initiative of the Mansueto Institute for Urban Innovation at the University of Chicago to provide frameworks, tools, and data for mapping, planning, and coordinating solutions towards fulfilling the UN’s Agenda 2030 for Global Sustainable Development.">
-  <meta name="keywords" content="slum,informal settlement,map,million,neighborhoods,reblock,global,world,earth,africa,university,chicago,mansueto,data,urban,science,algorithms,bettencourt,marchio,soman,nederhood,sdg,sustainable,poverty,development">
+  <meta name="keywords" content="slum,informal settlement,map,million neighborhoods,reblock,global,world,earth,africa,university of chicago,uchicago,mansueto,miurban,data,street,road,access,infrastructure,urban,science,algorithms,bettencourt,marchio,soman,nederhood,sdg,sustainable,poverty,development">
 
   <!-- Google / Search Engine Tags -->
   <meta itemprop="name" content="Global Map Helps Identify Urban Slums">
@@ -36,278 +36,284 @@
   <link rel="canonical" href="https://mansueto-institute.github.io/" >
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.0/mapbox-gl.js'></script>
   <style>
-body { margin:0; padding:0; }
-#map { position:absolute; top:0; bottom:0; width:100%; }
-@font-face {
-  font-family: 'GothamLight';
-  src: url('extra/gotham/GothamLight.otf') format('opentype');
-       font-weight: 300;
-}
-@font-face {
-  font-family: 'GothamMedium';
-  src: url('extra/gotham/GothamMedium.otf') format('opentype');
-       font-weight: 400;
-}
-@font-face {
-  font-family: 'GothamBold';
-  src: url('extra/gotham/GothamBold.otf') format('opentype');
-       font-weight: 700;
-}
-h2 { color:#222B30;}
-h3 { color:#222B30;}
-p { color:#222B30;}
-.mapbox-attribution-container {
-  top: 0;
-  right: 0;
-  font-size:10px;
-  position: absolute;
-  display: block;
-  margin: 0 10 5;
-}
-.text-overlay {
-  position: absolute;
-  top: 2;
-  width: 254px;
-  height: 220px;
-  padding: 5px;
-  font-family: GothamMedium;
-  font-size: 13px;
-  line-height: 13px;
-  margin-top: 10px;
-  margin-left: 0px;
-  font-weight:normal;
-  overflow: auto;
-  border-radius: 3px;
-  background-color: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-.legend-overlay {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.8);
-  margin-right: 20px;
-  font-family: GothamMedium;
-  font-weight:normal;
-  font-size:11px;
-  overflow: auto;
-  border-radius: 3px;
-}
-#location-button, #video-button
-{
-  display:inline;
-}
-.location-button.is-visible {
-  display: block;
-  position: absolute;
-  padding: 5px;
-}
-#legend {
-  padding: 6px 9px 6px 9px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  line-height: 13px;
-  margin-bottom: 50px;
-}
-.legend-key {
-  display: inline-block;
-  border-radius: 20%;
-  width: 10px;
-  height: 10px;
-  margin-right: 5px;
-}
-.button {
-  font-family: GothamBold;
-  vertical-align: middle;
-  line-height:15px;
-  margin:2px;
-  padding: 3px 6px 3px 6px;
-  cursor: pointer;
-  text-align: center;
-  display: inline-block;
-}
-.button.active,
-.button:hover {
-  background-color:#0571b0;
-}
-.sidebar {
-  width: 100%;
-  background-color:transparent;
-}
-.icon-uofc {
-  background-image: url('extra/images/uchicago.svg');
-}
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+  @font-face {
+    font-family: 'GothamLight';
+    src: url('extra/gotham/GothamLight.otf') format('opentype');
+    font-weight: 300;
+  }
+  @font-face {
+    font-family: 'GothamMedium';
+    src: url('extra/gotham/GothamMedium.otf') format('opentype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'GothamBold';
+    src: url('extra/gotham/GothamBold.otf') format('opentype');
+    font-weight: 700;
+  }
+  h2 { color:#222B30;}
+  h3 { color:#222B30;}
+  p { color:#222B30;}
+  @media only screen and (max-height: 650px) {
+    .hide-vert{ display:none!important;}
+  }
+  @media only screen and (max-width: 850px) {
+    .hide-horiz{ display:none!important;}
+  }
+  .mapbox-attribution-container {
+    top: 0;
+    right: 0;
+    font-size:10px;
+    position: absolute;
+    display: block;
+    margin: 0 10 5;
+  }
+  .text-overlay {
+    position: absolute;
+    top: 2;
+    width: 254px;
+    height: 220px;
+    padding: 5px;
+    font-family: GothamMedium;
+    font-size: 13px;
+    line-height: 13px;
+    margin-top: 10px;
+    margin-left: 0px;
+    font-weight:normal;
+    overflow: auto;
+    border-radius: 3px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  .legend-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.8);
+    margin-right: 20px;
+    font-family: GothamMedium;
+    font-weight:normal;
+    font-size:11px;
+    overflow: auto;
+    border-radius: 3px;
+  }
+  #location-button, #video-button
+  {
+    display:inline;
+  }
+  .location-button.is-visible {
+    display: block;
+    position: absolute;
+    padding: 5px;
+  }
+  #legend {
+    padding: 6px 9px 6px 9px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 13px;
+    margin-bottom: 50px;
+  }
+  .legend-key {
+    display: inline-block;
+    border-radius: 20%;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+  }
+  .button {
+    font-family: GothamBold;
+    vertical-align: middle;
+    line-height:15px;
+    margin:2px;
+    padding: 3px 6px 3px 6px;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+  }
+  .button.active,
+  .button:hover {
+    background-color:#0571b0;
+  }
+  .sidebar {
+    width: 100%;
+    background-color:transparent;
+  }
 </style>
-<!-- Global site tag (gtag.js) - Google Analytics -->
+<!-- Google Analytics tag -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5XWDNG9JPD"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-5XWDNG9JPD');
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-5XWDNG9JPD');
 </script>
 </head>
+
 <body>
-<div id="sidebar" class="pin-topleft z1">
-    <!-- Sidebar -->
+  <div id="sidebar" class="pin-topleft z1">
+    <!-- Sidebar title-->
     <div class="sidebar flex-scroll scroll-styled pad2">
       <h2 class="hide-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million Neighborhoods</h2>
       <h2 class="show-mobile" style="padding-bottom:0px;margin-bottom:0px;font-family:GothamBold;">Million<br />Neighborhoods</h2>
-
+      <!-- Explainer / video buttons-->
       <div id="play-interactive" class="button fill-red dark hide-mobile" style="margin-top:0px;">
         <span id='location-button'> </span>
       </div>
       <div class="button fill-red dark hide-mobile" style="margin-top:0px;">
         <a style='color:#fff;' target='_blank' href='https://www.youtube.com/watch?v=lw-6-PrzMVk'>
-        <span id='video-button'>Play video</span>
+          <span id='video-button'>Play video</span>
         </a>
       </div>
-
+      <!-- Text popups-->
       <div class='text-overlay hide-mobile'>
-        <p id='location-title' style="font-family:GothamBold; font-size:18px; margin-top:5px; margin-bottom:5px;"></p>
-        <p id='location-description' style="font-family:GothamMedium;line-height:15px;font-size:12px;"></p>
+        <p id='location-title' style="font-family:GothamBold; font-size:18px; margin-top:5px; margin-bottom:8px;"></p>
+        <p id='location-description' style="white-space: break-spaces; font-family:GothamMedium;line-height:15px;font-size:12px;"></p>
       </div>
-
-      </p>
-      <div class="hide-mobile space-bottom0" style="padding-top:215px;"></div>
-      <div class="projects">
-        <h3 class="space-bottom0" style="padding-top:0px;margin-bottom:0px;margin:3px;font-family:GothamBold;">Explore a city</h3>
-            <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Freetown, Sierra Leone</span>
-            </div>
-              <br />
-            <div id="liberia" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Monrovia, Liberia</span>
-            </div>
-              <br />
-            <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Nairobi, Kenya</span>
-            </div>
-              <br />
-            <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Dar-es-Salaam, Tanzania</span>
-            </div>
-              <br />
-            <div id="mozambique" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Beira, Mozambique</span>
-            </div>
-              <br />
-            <div id="cameroon" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Douala, Cameroon</span>
-            </div>
-              <br />
-            <div id="dr-congo" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Kinshasa, DR Congo</span>
-            </div>
-              <br />
-            <div id="ivory-coast" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Bouaké, Ivory Coast</span>
-            </div>
-              <br />
-            <div id="malawi" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Blantyre, Malawi</span>
-            </div>
-              <br />
-            <div id="haiti" class="button fill-navy-dark dark" style="margin-top:2px;">
-              <span> Port-au-Prince, Haiti</span>
-            </div>
-              <br />
-        <!--
-        <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Cape Town, South Africa</span>
-        </div>
-          <br />
-        <div id="nigeria" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Lagos, Nigeria</span>
-        </div>
-          <br />
-        <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Harare, Zimbabwe</span>
-        </div>
-          <br />
-        <div id="brasil" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Rio de Janeiro, Brasil</span>
-        </div>
-          <br />
-        <div id="philippines" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Manila, Philippines</span>
-        </div>
-          <br />
-        <div id="india" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Mumbai, India</span>
-        </div>
-          <br />
-        <div id="pakistan" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Karachi, Pakistan</span>
-        </div>
-          <br />
-          -->
-        <div id="nepal" class="button fill-navy-dark dark" style="margin-top:2px;">
-          <span> Kathmandu, Nepal</span>
-        </div>
-        <br />
+    </p>
+    <div class="hide-mobile space-bottom0" style="padding-top:215px;"></div>
+    <!-- Flyover buttons-->
+    <div class="projects hide-vert">
+      <h3 class="space-bottom0" style="padding-top:0px;margin-bottom:0px;margin:3px;font-family:GothamBold;">Explore a city</h3>
+      <div id="sierra-leone" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Freetown, Sierra Leone</span>
       </div>
+      <br />
+      <div id="liberia" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Monrovia, Liberia</span>
+      </div>
+      <br />
+      <div id="kenya" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Nairobi, Kenya</span>
+      </div>
+      <br />
+      <div id="tanzania" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Dar-es-Salaam, Tanzania</span>
+      </div>
+      <br />
+      <div id="mozambique" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Beira, Mozambique</span>
+      </div>
+      <br />
+      <div id="cameroon" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Douala, Cameroon</span>
+      </div>
+      <br />
+      <div id="dr-congo" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Kinshasa, DR Congo</span>
+      </div>
+      <br />
+      <div id="malawi" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Blantyre, Malawi</span>
+      </div>
+      <br />
+      <div id="haiti" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Port-au-Prince, Haiti</span>
+      </div>
+      <br />
+      <div id='venezuela' class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Petare, Venezuela</span>
+      </div>
+      <br />
+      <!--
+      <div id="ivory-coast" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Bouaké, Ivory Coast</span>
+      </div>
+      <br />
+      <div id="south-africa" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Cape Town, South Africa</span>
+      </div>
+      <br />
+      <div id="nigeria" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Lagos, Nigeria</span>
+      </div>
+      <br />
+      <div id="zimbabwe" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Harare, Zimbabwe</span>
+      </div>
+      <br />
+      <div id="brasil" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Rio de Janeiro, Brasil</span>
+      </div>
+      <br />
+      <div id="philippines" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Manila, Philippines</span>
+      </div>
+      <br />
+      <div id="india" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Mumbai, India</span>
+      </div>
+      <br />
+      <div id="pakistan" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Karachi, Pakistan</span>
+      </div>
+      <br /> -->
+      <div id="nepal" class="button fill-navy-dark dark" style="margin-top:2px;">
+        <span> Kathmandu, Nepal</span>
+      </div>
+      <br />
     </div>
   </div>
+</div>
 
-  <div id="map"></div>
+<div id="map"></div>
 
-    <!--
-    https://cards-dev.twitter.com/validator
-    https://developers.facebook.com/docs/plugins/share-button/
-    https://www.linkedin.com/post-inspector/
-    https://www.heymeta.com/
-    -->
+<!-- Social media shares -->
+<a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https://millionneighborhoods.org'>
+  <div class ='pin-bottomleft z2 hide-vert' style='margin-bottom:7px; margin-left:20px; display:inline-block; vertical-align:middle; padding:0px 2px 2px 0px;'>
+    <img src="extra/images/twitter.svg" width="31px"/>
+  </div>
+</a>
 
-      <!-- Social media shares -->
-      <a target='_blank' href='https://twitter.com/intent/tweet?text=Urban%20scientists%20at%20UChicago%20release%20global%20map%20of%20slums&url=https://millionneighborhoods.org'>
-      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:20px; display:inline-block; vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/twitter.svg" width="31px"/>
-      </div>
-      </a>
+<a target='_blank' href="https://facebook.com/sharer.php?u=https://millionneighborhoods.org">
+  <div class ='pin-bottomleft z2 hide-vert' style='margin-bottom:7px; margin-left:55px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
+    <img src="extra/images/facebook.svg" width="31px"/>
+  </div>
+</a>
 
-      <a target='_blank' href="https://facebook.com/sharer.php?u=https://millionneighborhoods.org">
-      <div class ='pin-bottomleft z2' style='margin-bottom:7px; margin-left:55px; display:inline-block;vertical-align:middle; padding:0px 2px 2px 0px;'>
-        <img src="extra/images/facebook.svg" width="31px"/>
-      </div>
-      </a>
+<!-- Code / methods links -->
+<a target='_blank' href='https://github.com/mansueto-institute/prclz'>
+  <div class='pin-bottomleft hide-mobile z2 hide-vert hide-horiz' style='margin-bottom:7px; margin-left:93px; display:inline-block; vertical-align:middle;padding:0px 2px 2px 0px;'>
+    <img src="extra/images/github.svg" width="31px"/>
+  </div>
+</a>
 
-      <a target='_blank' href='https://github.com/mansueto-institute/prclz'>
-      <div class='pin-bottomleft hide-mobile z2' style='margin-bottom:7px; margin-left:93px; display:inline-block; vertical-align:middle;padding:0px 2px 2px 0px;'>
-        <img src="extra/images/github.svg" width="31px"/>
-      </div>
-      </a>
+<div class='pin-bottomleft hide-mobile z2 hide-vert hide-horiz' style='margin-bottom:8px; margin-left:130px; padding:0px; line-height:0px;'>
+  <p style="margin:0px; font-size:12px; font-family:GothamBold;padding:0px; line-height: 15px;">Methods:</p>
+  <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px; line-height: 10px;" target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>Brelsford, Martin, Hand, and Bettencourt (2018)</a>
+  <br style="content: " ";display: block; padding:0px;margin:0px;line-height: 0px;"/>
+  <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px;line-height: 10px;" target='_blank' href= "https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf">Brelsford, Martin, and Bettencourt (2017)</a>
+</div>
 
-      <div class='pin-bottomleft hide-mobile z2' style='margin-bottom:8px; margin-left:130px; padding:0px; line-height:0px;'>
-       <p style="margin:0px; font-size:12px; font-family:GothamBold;padding:0px; line-height: 15px;">Methods:</p>
-       <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px; line-height: 10px;" target='_blank' href='https://advances.sciencemag.org/content/4/8/eaar4644'>Brelsford, Martin, Hand, and Bettencourt (2018)</a>
-          <br style="content: " ";display: block; padding:0px;margin:0px;line-height: 0px;"/>
-       <a style="margin:0px; font-size:9px; font-family:GothamLight;padding:0px;line-height: 10px;" target='_blank' href= "https://www.researchgate.net/profile/Christa_Brelsford/publication/317550737_Optimal_reblocking_as_a_practical_tool_for_neighborhood_development/links/5c3565a1458515a4c717826f/Optimal-reblocking-as-a-practical-tool-for-neighborhood-development.pdf">Brelsford, Martin, and Bettencourt (2017)</a>
-      </div>
-
-
-        <!-- Logos -->
-  <a target='_blank' href='https://urban.uchicago.edu'>
+<!-- Branding / logos -->
+<a target='_blank' href='https://urban.uchicago.edu'>
   <div class ='pin-bottomright hide-mobile' >
     <img style="margin-top:11px; margin-bottom:7px; margin-right:375px;" src="extra/images/uchicago.svg" width="180px" />
   </div>
-  </a>
-  <div class ='pin-bottomright hide-mobile' >
-    <a target='_blank' href='https://miurban.uchicago.edu'>
+</a>
+<div class ='pin-bottomright hide-mobile' >
+  <a target='_blank' href='https://miurban.uchicago.edu'>
     <h3  style="margin-bottom:10px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Mansueto Institute for Urban Innovation</h3>  </a>
     <a target='_blank' href='https://rcc.uchicago.edu'>
-    <h3  style="margin-bottom:9px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3> </a>
-  </div>
-  <div class="mapbox-attribution-container hide-mobile">
-   <a target='_blank' href="https://www.uchicago.edu/">© The University of Chicago | </a>
-   <a target='_blank' href="https://www.mapbox.com/about/maps/">© Mapbox | </a>
-   <a target='_blank' href="http://www.openstreetmap.org/copyright">© OpenStreetMap | </a>
-   <a target='_blank' href="https://www.hotosm.org"><strong>Improve this map</strong></a>
-  </div>
-  <div class='legend-overlay' id='legend'><p style="line-height:13px;margin-top:0px;margin-bottom:4px;font-family:GothamMedium;">Level of access<br />to street networks</p></div>
-  <script src='index.js'></script>
-<!-- The core Firebase JS SDK is always required and must be listed first -->
-<script src="/__/firebase/6.6.2/firebase-app.js"></script>
-<!-- Add SDKs for Firebase products that you want to use https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="/__/firebase/init.js"></script>
-</body>
-</html>
+      <h3  style="margin-bottom:9px; margin-right:20px; font-size:17px; font-family:GothamBold; line-height:13px;color:#800000;">Research Computing Center</h3> </a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="mapbox-attribution-container hide-mobile">
+      <a target='_blank' href="https://www.uchicago.edu/">© The University of Chicago | </a>
+      <a target='_blank' href="https://www.mapbox.com/about/maps/">© Mapbox | </a>
+      <a target='_blank' href="http://www.openstreetmap.org/copyright">© OpenStreetMap | </a>
+      <a target='_blank' href="https://www.hotosm.org"><strong>Improve this map</strong></a>
+    </div>
+
+    <!-- Legend -->
+    <div class='legend-overlay' id='legend'><p style="line-height:13px;margin-top:0px;margin-bottom:4px;font-family:GothamMedium;">Level of access<br />to street networks</p></div>
+
+    <!-- Javascript -->
+    <script src='index.js'></script>
+    <!-- Core Firebase JS SDK (must be listed first) -->
+    <script src="/__/firebase/6.6.2/firebase-app.js"></script>
+    <!-- SDKs for Firebase products -->
+    <script src="/__/firebase/init.js"></script>
+  </body>
+  </html>
