@@ -4,7 +4,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoibm1hcmNoaTAiLCJhIjoiY2p6dTljeDhiMGRwcjNubnl2a
 window.map = new mapboxgl.Map({
   container: "map", // container id
   style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc",
-  center: [17.54, 8.84], // starting position  -5.96, 16.89
+  center: [17.54, 8.84], 
   zoom: 2,
   maxZoom: 17.5,
   minZoom: 1,
