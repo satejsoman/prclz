@@ -1,5 +1,3 @@
-// Mobile default width
-var mobile = document.documentElement.clientWidth <= 700;
 
 // Link to Mapbox
 mapboxgl.accessToken = 'pk.eyJ1Ijoibm1hcmNoaTAiLCJhIjoiY2p6dTljeDhiMGRwcjNubnl2aXI0OThhYyJ9.4FdGkBJlOXMPRugyqiXrjg';
@@ -12,15 +10,6 @@ window.map = new mapboxgl.Map({
   minZoom: 1,
   hash: true
 });
-
-// Sidebase mobile adjustment
-var sidebar = document.getElementById('sidebar');
-if (!mobile) {
-  window.map.addControl(new mapboxgl.NavigationControl());
-  sidebar.className += " pin-bottomleft";
-} else {
-  window.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
-}
 
 // Fly to location buttons
 function flyHandler(id, options) {
@@ -91,6 +80,14 @@ flyHandler('tanzania', {
 flyHandler('ghana', {
   center: [-0.2295671004,5.5419797951],
   zoom: 12,
+  bearing: 0,
+  pitch: 0,
+  speed: .2
+});
+
+flyHandler('venezuela', {
+  center: [-66.81817, 10.47917],
+  zoom: 13.35,
   bearing: 0,
   pitch: 0,
   speed: .2
@@ -198,9 +195,9 @@ var description = document.getElementById('location-description');
 var buttontext = document.getElementById('location-button');
 
 var locations = [
-{"id": 1,
+  {"id": 1,
   "title": "Why street access",
-  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses. Around the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block.",
+  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses.\n\nAround the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block.",
   "buttontext":"Continue explainer (2/8)",
   "camera": {
     center: [-72.34257, 18.52656],
@@ -210,31 +207,31 @@ var locations = [
     speed: .6
   }
 },{"id": 2,
-  "title": "How this map can help",
-  "description": "Maps crowdsourced from OpenStreetMap make it possible to create new models of urban planning that are people-centric, built from local knowledge and enhanced with technology. In the hands of communities and local governments this can become a powerful resource to support decision-making and action.",
-  "buttontext":"Continue explainer (3/8)",
-  "camera": {
-    center: [-72.343405, 18.524463],
-    bearing: 0,
-    pitch:60,
-    zoom: 16.2,
-    speed:.3
-  }
+"title": "How this map can help",
+"description": "Maps crowdsourced from OpenStreetMap make it possible to create new models of urban planning that are people-centric, built from local knowledge and enhanced with technology.\n\nIn the hands of communities and local governments this can become a powerful resource to support decision-making and action.",
+"buttontext":"Continue explainer (3/8)",
+"camera": {
+  center: [-72.343405, 18.524463],
+  bearing: 0,
+  pitch:60,
+  zoom: 16.2,
+  speed:.3
+}
 },{"id": 3,
-  "title": "Exploring Nairobi",
-  "description": "Look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced. These differences are apparent by comparing street access in each place.",
-  "buttontext":"Continue explainer (4/8)",
-  "camera": {
-    center: [36.82287, -1.28937],
-    zoom: 12.61,
-    pitch: 50,
-    speed:.65,
-    curve: 1.7
-  }
+"title": "Exploring Nairobi",
+"description": "Look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced.\n\nThese differences are apparent by comparing street access in each place.",
+"buttontext":"Continue explainer (4/8)",
+"camera": {
+  center: [36.82287, -1.28937],
+  zoom: 12.61,
+  pitch: 50,
+  speed:.65,
+  curve: 1.7
+}
 }, {
   "id": 4,
   "title": "Nairobi Central",
-  "description": "Here is a typical street grid in downtown Nairobi. Notice how every building is adjacent to a street and can easily access it? This pattern is typical of developed urban areas, with full access to opportunities and services.",
+  "description": "Here is a typical street grid in downtown Nairobi. Notice how every building is adjacent to a street and can easily access it?\n\nThis pattern is typical of developed urban areas, with full access to opportunities and services.",
   "buttontext":"Continue explainer (5/8)",
   "camera": {
     center: [36.825969, -1.284919],
@@ -245,7 +242,7 @@ var locations = [
 }, {
   "id": 5,
   "title": "Kibera",
-  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets. A street network that expands public access can facilitate service delivery and create an open-ended process of neighborhood development.",
+  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets.\n\nA street network that expands public access can facilitate service delivery and create an open-ended process of neighborhood development.",
   "buttontext":"Continue explainer (6/8)",
   "camera": {
     center: [36.794268, -1.316134],
@@ -256,7 +253,7 @@ var locations = [
 }, {
   "id": 6,
   "title": "Upgrading Kibera",
-  "description": "Combining local knowledge, increasingly available mapping data, and network algorithms, it is possible to generate a GIS map that proposes a minimally disruptive street network that grants universal access to existing buildings. The resulting street plan can then be improved upon in conversations between communities and local administrators.",
+  "description": "Combining local knowledge, increasingly available mapping data, and network algorithms, it is possible to generate a GIS map that proposes a minimally disruptive street network that grants universal access to existing buildings.\n\nThe resulting street plan can then be improved upon in conversations between communities and local administrators.",
   "buttontext":"Continue explainer (7/8)",
   "camera": {
     center: [36.794332, -1.316403],
@@ -268,7 +265,7 @@ var locations = [
 }, {
   "id": 7,
   "title": "About the project",
-  "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center at the University of Chicago, in collaboration with neighborhood organizations around the world. A special thanks to the global community of volunteers who make OpenStreetMap possible. For more information about the project, visit miurban.uchicago.edu.",
+  "description": "The Million Neighborhoods initiative is a project of the Mansueto Institute for Urban Innovation and Research Computing Center at the University of Chicago, in collaboration with neighborhood organizations around the world. A special thanks to the global community of volunteers who make OpenStreetMap possible.\n\nFor more information about the project, visit miurban.uchicago.edu.",
   "buttontext":"Continue explainer (8/8)",
   "camera": {
     center: [17.988, 0.658],
@@ -281,7 +278,7 @@ var locations = [
 }, {
   "id": 8,
   "title": "What the map shows",
-  "description": "In fast-growing cities, some neighborhoods become so densely packed with buildings that it can hinder the movement of people and obstruct construction of vital infrastructure like streets, water pipes, and sewage lines. This map highlights neighborhoods with limited access to streets. Red areas show buildings that are very hard to access directly from the street, while blue areas display buildings with better street access.",
+  "description": "In fast-growing cities, some neighborhoods become so densely packed with buildings that it can hinder the movement of people and obstruct construction of vital infrastructure.\n\nThis map highlights neighborhoods with limited access to streets. Red areas show buildings that are very hard to access directly from the street, while blue areas display buildings with better street access.",
   "buttontext":"Interactive explainer",
   "camera": {
     center: [17.54, 8.84],
@@ -323,6 +320,5 @@ function playback(id, index) {
 title.textContent = locations[locations.length -1].title;
 description.textContent = locations[locations.length - 1].description;
 buttontext.textContent = locations[locations.length - 1].buttontext;
-
 
 playback('play-interactive',0)
