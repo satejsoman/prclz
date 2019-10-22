@@ -197,7 +197,7 @@ var buttontext = document.getElementById('location-button');
 var locations = [
   {"id": 1,
   "title": "Why street access",
-  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses.\n\nAround the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block. Here is an example of Port-au-Prince, Haiti.",
+  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses.\n\nAround the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block. Here is an example in Port-au-Prince, Haiti.",
   "buttontext":"Continue explainer (2/8)",
   "camera": {
     center: [-72.34257, 18.52656],
