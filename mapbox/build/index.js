@@ -4,7 +4,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoibm1hcmNoaTAiLCJhIjoiY2p6dTljeDhiMGRwcjNubnl2a
 window.map = new mapboxgl.Map({
   container: "map", // container id
   style: "mapbox://styles/nmarchi0/ck0yada9s02hp1cqhizxmwmlc",
-  center: [17.54, 8.84], 
+  center: [17.54, 8.84],
   zoom: 2,
   maxZoom: 17.5,
   minZoom: 1,
@@ -197,7 +197,7 @@ var buttontext = document.getElementById('location-button');
 var locations = [
   {"id": 1,
   "title": "Why street access",
-  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses.\n\nAround the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block.",
+  "description": "Streets connect each home or place of work to basic services. Without street access there is often no sanitation or clean water. There are also no addresses or routes for emergency responders, trash collectors, and buses.\n\nAround the world, over a million neighborhoods lack adequate access to such services. We are mapping them here, block by block. Here is an example of Port-au-Prince, Haiti.",
   "buttontext":"Continue explainer (2/8)",
   "camera": {
     center: [-72.34257, 18.52656],
@@ -219,7 +219,7 @@ var locations = [
 }
 },{"id": 3,
 "title": "Exploring Nairobi",
-"description": "Look at Nairobi, Kenya, as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced.\n\nThese differences are apparent by comparing street access in each place.",
+"description": "Look at Nairobi, Kenya as an example. Like many cities, Nairobi has both already well-connected neighborhoods, and others that are critically underserviced.\n\nThese differences are apparent by comparing street access in each city block.",
 "buttontext":"Continue explainer (4/8)",
 "camera": {
   center: [36.82287, -1.28937],
@@ -242,7 +242,7 @@ var locations = [
 }, {
   "id": 5,
   "title": "Kibera",
-  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being Africa’s largest urban slum. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets.\n\nA street network that expands public access can facilitate service delivery and create an open-ended process of neighborhood development.",
+  "description": "Kibera is a large informal settlement near the city center, it has long held the reputation of being one of Africa’s largest urban slums. The neighborhood is very dense; most services are only available to people in buildings along the few existing streets.\n\nA street network that expands public access can facilitate service delivery and create an open-ended process of neighborhood development.",
   "buttontext":"Continue explainer (6/8)",
   "camera": {
     center: [36.794268, -1.316134],
@@ -253,7 +253,7 @@ var locations = [
 }, {
   "id": 6,
   "title": "Upgrading Kibera",
-  "description": "Combining local knowledge, increasingly available mapping data, and network algorithms, it is possible to generate a GIS map that proposes a minimally disruptive street network that grants universal access to existing buildings.\n\nThe resulting street plan can then be improved upon in conversations between communities and local administrators.",
+  "description": "Combining local knowledge, increasingly available mapping data, and network algorithms, it is possible to generate a GIS map that proposes a minimally disruptive street network, which grants universal access to all existing buildings.\n\nThe resulting street plan can then be improved through a process of community and local government engagement.",
   "buttontext":"Continue explainer (7/8)",
   "camera": {
     center: [36.794332, -1.316403],
@@ -278,7 +278,7 @@ var locations = [
 }, {
   "id": 8,
   "title": "What the map shows",
-  "description": "In fast-growing cities, some neighborhoods become so densely packed with buildings that it can hinder the movement of people and obstruct construction of vital infrastructure.\n\nThis map highlights neighborhoods with limited access to streets. Red areas show buildings that are very hard to access directly from the street, while blue areas display buildings with better street access.",
+  "description": "In fast-growing cities, some neighborhoods can become so densely packed that the movement of people and the construction of vital infrastructure becomes very difficult.\n\nThis map highlights neighborhoods with limited access to streets. Red areas show buildings that are very hard to access directly from the street, while blue areas display buildings with better street access.",
   "buttontext":"Interactive explainer",
   "camera": {
     center: [17.54, 8.84],
