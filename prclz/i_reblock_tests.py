@@ -168,13 +168,16 @@ def reblock_gadm(region, gadm_code, gadm, chunk, total_chunks):
     graph_parcels = i_topology_utils.prepare_parcels(bldgs, blocks, parcels)    
 
     # (3) Just set up some paths
-    reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
+    if chunk is not None:
+        reblock_path = os.path.join(DATA, "reblock", region, gadm_code+"-{}".format(chunk))
+    else:
+        reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
     if not os.path.isdir(reblock_path):
         os.makedirs(reblock_path)
     graph_path = os.path.join(DATA, "graphs", region, gadm_code)
     if not os.path.isdir(graph_path):
         os.makedirs(graph_path)
-
+    print(reblock_path)
 
     # (4) Do the reblocking, by block in the GADM, collecting the optimal paths
     steiner_lines_dict = {}
