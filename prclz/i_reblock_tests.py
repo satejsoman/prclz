@@ -125,14 +125,37 @@ def debug(region, gadm_code, gadm):
 
     return bldgs, blocks, parcels, graph_parcels, lines 
 
-def reblock_gadm(region, gadm_code, gadm):
+def reblock_gadm(region, gadm_code, gadm, chunk, total_chunks):
     '''
     Does reblocking for an entire GADM boundary
     '''
 
     # (1) Just load our data for one GADM
     print("Begin loading of data--{}-{}".format(region, gadm))
-    bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
+    #bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
+    bldgs, blocks, parcels, _ = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
+
+    # (1-a) 
+    if chunk is not None:
+        print("\n\nBegin chunking...")
+        print("PRE: Block count = {} | Parcel count = {}".format(blocks.shape[0], parcels.shape[0]))
+        # Sort blocks
+        blocks.sort_values('block_id', ascending=False, inplace=True)
+        cur_blocks = []
+        for i, block_id in enumerate(blocks['block_id']):
+            assignment = i % total_chunks
+            if assignment == chunk:
+                cur_blocks.append(block_id)
+        #print("Processing {} of {} total blocks".format(len(cur_blocks), blocks['block_id']))
+
+        fn = lambda x: x in cur_blocks
+        block_keep = blocks['block_id'].apply(fn)    
+        parcels_keep = parcels['block_id'].apply(fn) 
+
+        blocks = blocks[block_keep]
+        parcels = parcels[parcels_keep]   
+
+        print("POST: Block count = {} | Parcel count = {}".format(blocks.shape[0], parcels.shape[0]))
 
     #### REMOVE THIS -- just for testing
     # bl = "SLE.4.2.1_1_1241"
@@ -162,7 +185,7 @@ def reblock_gadm(region, gadm_code, gadm):
         example_graph = graph_parcels[graph_parcels['block_id']==block]['planar_graph'].item()
         example_buildings = graph_parcels[graph_parcels['block_id']==block]['buildings'].item()
         example_block = blocks[blocks['block_id']==block]['block_geom'].item()
-        example_lines = lines[lines['block_id']==block]
+        #example_lines = lines[lines['block_id']==block]
 
         print("Block = {} | buildings len = {}".format(block, len(example_buildings)))
         if len(example_buildings) <= 1:
@@ -200,10 +223,33 @@ def reblock_gadm(region, gadm_code, gadm):
         steiner_lines_dict[block+'existing_steiner'] = [existing_steiner, block, 'existing_steiner'] 
         terminal_points_dict[block] = [terminal_points, block]
 
+        if chunk is not None:
+            dict_block = {}
+            if len(existing_steiner) != 0:
+                dict_block[block+'existing_steiner'] = [existing_steiner, block, 'existing_steiner']
+            if len(new_steiner) != 0:
+                dict_block[block+'new_steiner'] = [new_steiner, block, 'new_steiner'] 
+            #dict_block[block+'new_steiner'] = [new_steiner, block, 'new_steiner'] 
+            #dict_block[block+'existing_steiner'] = [existing_steiner, block, 'existing_steiner'] 
+            block_df = gpd.GeoDataFrame.from_dict(dict_block, orient='index', columns=['geometry', 'block_id', 'steiner_type'])
+            # print("\n\nHERE")
+            # print(block_df.columns)
+            # print(block_df.geometry)
+            # print("\nPrinting types")
+            # for g in block_df.geometry:
+            #     print(type(g))
+            block_df.to_file(os.path.join(reblock_path, "{}_steiner_lines_{}.geojson".format(block_id, gadm)), driver='GeoJSON')
+
+
         example_graph.save_planar(os.path.join(graph_path, block+".igraph"))
 
     # Now save out everything
     steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id', 'steiner_type'])
+    # print("\n\nHERE")
+    # print(steiner_df.columns)
+    # for g in steiner_df.geometry:
+    #     print(type(g))
+
     terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry', 'block_id'])
     summary_df = pd.DataFrame.from_dict(summary_dict, orient='index', columns=summary_columns)
 
@@ -211,7 +257,7 @@ def reblock_gadm(region, gadm_code, gadm):
     terminal_df.to_file(os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm)), driver='GeoJSON')
     summary_df.to_csv(os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm)))
 
-def main(file_path:str, replace):
+def main(file_path:str, replace, chunk=None, total_chunks=None ):
     
     # (1) Get the GADM code
     f = file_path.split("/")[-1]
@@ -230,7 +276,7 @@ def main(file_path:str, replace):
     print("gadm_code = {}".format(gadm_code))
     print("gadm = {}".format(gadm))
    
-    reblock_gadm(region, gadm_code, gadm )
+    reblock_gadm(region, gadm_code, gadm, chunk, total_chunks )
 
 def convert_to_gpd(g):
 
@@ -261,9 +307,18 @@ if __name__ == "__main__":
     parser.add_argument("file_path", help="path to a GADM-specific parcels or blocks file", type=str)
     parser.add_argument("--replace", help="default behavior is to skip if the GADM has been processed. Adding this option replaces the files",
                          action="store_true")
+    parser.add_argument("--total_chunks", help="break into this many sub-pieces", type=int, default=None)
+    parser.add_argument("--chunk_num", help="chunk id", type=int, default=None)
     
     args = parser.parse_args()
-    main(file_path = args.file_path, replace=args.replace)
+
+    if args.total_chunks is not None and args.chunk_num is None:
+        for cur_chunk in range(args.total_chunks):
+            main(file_path = args.file_path, replace=args.replace, chunk=cur_chunk, total_chunks=args.total_chunks)
+    elif args.total_chunks is not None and args.chunk_num is not None:
+        main(file_path = args.file_path, replace=args.replace, chunk=args.chunk_num, total_chunks=args.total_chunks)
+    else:
+        main(file_path = args.file_path, replace=args.replace)
 
     # region = 'Africa'
     # gadm_code = 'KEN'

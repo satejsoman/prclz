@@ -75,9 +75,10 @@ def load_geopandas_files(region: str, gadm_code: str,
     bldgs = gpd.read_file(bldgs_path)
     blocks = csv_to_geo(blocks_path)
     parcels = gpd.read_file(parcels_path)
-    lines = gpd.read_file(lines_path)
+    #lines = gpd.read_file(lines_path)
 
-    return bldgs, blocks, parcels, lines
+    #return bldgs, blocks, parcels, lines
+    return bldgs, blocks, parcels, None
 
 def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame, 
                                                parcels: gpd.GeoDataFrame) -> pd.DataFrame:
