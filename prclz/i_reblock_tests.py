@@ -232,6 +232,29 @@ def main(file_path:str, replace):
    
     reblock_gadm(region, gadm_code, gadm )
 
+def convert_to_gpd(g):
+
+    if 'edge_type' not in g.es.attributes():
+        g.es['edge_type'] = None 
+
+    edge_geom = [LineString(g.edge_to_coords(e)) for e in g.es]
+    edge_types = g.es['edge_type']
+
+    df = pd.DataFrame(data={'geometry':edge_geom, 'edge_type': edge_types})
+    return gpd.GeoDataFrame(df)
+
+def plot_types(g):
+
+    edge_color_map = {None: 'red', 'waterway': 'blue', 
+                      'highway': 'black', 'natural': 'green', 'gadm_boundary': 'orange'}
+    ax = g[g['edge_type'].isna()].plot(color='red')
+
+    for t in g.edge_type.unique():
+        d = g[g['edge_type'] == t]
+        if d.shape[0] > 0:
+            d.plot(ax=ax, color=edge_color_map[t])
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -250,10 +273,12 @@ if __name__ == "__main__":
     # g = graph_parcels['planar_graph'].iloc[0]
     # block = blocks['block_geom'].iloc[0]
 
+    # #g_pre = convert_to_gpd(g)
+
     # lines_pgraph = i_topology_utils.create_lines_graph(lines)
     # missing, total = i_topology_utils.update_edge_types(g, block, True, lines_pgraph)
         
-    # plot_post = plot_edge_type(g, 'post_update_edge.png')
+    #plot_post = plot_edge_type(g, 'post_update_edge.png')
     # g_lines = g.get_linestrings()  
     # parcel = gpd.GeoSeries(graph_parcels['parcel_geometry'].iloc[0])   
     # g_lines_geo = gpd.GeoSeries(g_lines)

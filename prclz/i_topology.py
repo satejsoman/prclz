@@ -13,6 +13,9 @@ import time
 import matplotlib.pyplot as plt 
 import sys 
 import argparse
+import geopy.distance as gpy 
+import pandas as pd 
+import geopandas as gpd
 
 # These two globals control the growth of the buffer when we search for intersecting
 #     lines when we add a node to the closest edge. They may be suboptimal
@@ -40,6 +43,13 @@ def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
     steiner_edge_idxs = list(chain.from_iterable(H.es[i]['path'] for i in mst_edge_idxs))
 
     return steiner_edge_idxs
+
+def distance_meters(a0, a1):
+
+    lonlat_a0 = gpy.lonlat(*a0)
+    lonlat_a1 = gpy.lonlat(*a1)
+
+    return gpy.distance(lonlat_a0, lonlat_a1).meters
 
 def distance(a0, a1):
 
@@ -402,10 +412,12 @@ class PlanarGraph(igraph.Graph):
             closest_edge_distances.append(closest_distance)
 
         argmin = np.argmin(closest_edge_distances)
+
         closest_node = closest_edge_nodes[argmin]
         closest_edge = self.edge_to_coords(cand_edges[argmin])
         if get_edge:
-            return cand_edges[argmin] 
+            dist_meters = distance_meters(coords, closest_node)
+            return cand_edges[argmin], dist_meters
 
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
@@ -486,7 +498,7 @@ def convert_to_lines(planar_graph) -> MultiLineString:
 def plot_edge_type(g, output_file):
 
     edge_color_map = {None: 'red', 'waterway': 'blue', 
-                      'highway': 'black', 'natural': 'green'}
+                      'highway': 'black', 'natural': 'green', 'gadm_boundary': 'orange'}
     visual_style = {}       
     SMALL = 0       
     visual_style['vertex_size'] = [SMALL for _ in g.vs]
@@ -497,6 +509,7 @@ def plot_edge_type(g, output_file):
     visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
 
     return igraph.plot(g, output_file, **visual_style)
+
 
 def plot_reblock(g, output_file):
     vtx_color_map = {True: 'red', False: 'blue'}
