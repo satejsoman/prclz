@@ -224,7 +224,7 @@ def main(file_path:str, replace):
         print("Check input!")
 
     gadm_code = gadm[0:3]
-    region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['region'].iloc[0]
+    region = TRANS_TABLE[TRANS_TABLE['gadm_name']==gadm_code]['geofabrik_region'].iloc[0].title()
 
     print("region = {}".format(region))
     print("gadm_code = {}".format(gadm_code))
