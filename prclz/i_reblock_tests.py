@@ -23,6 +23,9 @@ ROOT = "../"
 DATA = os.path.join(ROOT, "data")
 TRANS_TABLE = pd.read_csv(os.path.join(ROOT, "data_processing", 'country_codes.csv'))
 
+BLOCKS_TO_DO = gpd.read_file(os.path.join(ROOT, "reblock_sle_lbr_hti.geojson"))
+
+
 def add_buildings_slow(graph, buildings):
 
     total_blgds = len(buildings)
@@ -134,6 +137,19 @@ def reblock_gadm(region, gadm_code, gadm, chunk, total_chunks):
     print("Begin loading of data--{}-{}".format(region, gadm))
     #bldgs, blocks, parcels, lines = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
     bldgs, blocks, parcels, _ = i_topology_utils.load_geopandas_files(region, gadm_code, gadm) 
+
+    LIMIT = True
+    if LIMIT:
+        print("\n\nLimit blocks to specified...")
+        print("PRE-LIMIT: Block count = {} | Parcel count = {}".format(blocks.shape[0], parcels.shape[0]))
+        blocks_to_do = set(b for b in BLOCKS_TO_DO['block_id'] if gadm_code in b)
+        fn = lambda x: x in blocks_to_do
+        block_keep = blocks['block_id'].apply(fn)    
+        parcels_keep = parcels['block_id'].apply(fn) 
+
+        blocks = blocks[block_keep]
+        parcels = parcels[parcels_keep]   
+
 
     # (1-a) 
     if chunk is not None:
