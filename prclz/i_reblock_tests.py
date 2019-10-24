@@ -257,7 +257,7 @@ def reblock_gadm(region, gadm_code, gadm, chunk, total_chunks):
             # print("\nPrinting types")
             # for g in block_df.geometry:
             #     print(type(g))
-            block_df.to_file(os.path.join(reblock_path, "{}_steiner_lines_{}.geojson".format(block_id, gadm)), driver='GeoJSON')
+            block_df.to_file(os.path.join(reblock_path, "{}_steiner_lines_{}.geojson".format(block, gadm)), driver='GeoJSON')
 
 
         example_graph.save_planar(os.path.join(graph_path, block+".igraph"))
