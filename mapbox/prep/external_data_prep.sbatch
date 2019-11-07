@@ -20,19 +20,20 @@ continent_list=(Africa  Asia  Australia-Oceania  Central-America  Europe  North-
 printf '%s\n' "${continent_list[@]}"
 
 for i in "${continent_list[@]}"; do
-    echo "$i"
-    mkdir -p /project2/bettencourt/mnp/prclz/data/data_release/"$i"
-    country_list=($(ls /project2/bettencourt/mnp/prclz/data/complexity/"$i"/*))
-    for j in "${country_list[@]}"; do
-      echo "$j"
-      head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv
-      find /project2/bettencourt/mnp/prclz/data/complexity/"$i"/"$j"/ -name "*.csv" | while read file
-      do
-        tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv
-        echo "$file"
+  echo "$i"
+  mkdir -p /project2/bettencourt/mnp/prclz/data/data_release/"$i"
+  country_list=($(ls /project2/bettencourt/mnp/prclz/data/complexity/"$i"))
+  for j in "${country_list[@]}"; do
+    echo "$j"
+    head -1 /project2/bettencourt/mnp/prclz/mapbox/api/header.csv > /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv
+    find /project2/bettencourt/mnp/prclz/data/complexity/"$i"/"$j" -name "*.csv" | while read file
+    do
+      tail -n +2 -q $file >> /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv
+      echo "$file"
     done
     sql_string="SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM "
     sql_string+="$j"
     echo "$sql_string"
     ogr2ogr -f "GeoJSON" /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".geojson -dialect sqlite -sql "$sql_string" /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv -a_srs "WGS84"
+  done
 done
