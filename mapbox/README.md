@@ -119,3 +119,7 @@
     ```
    * Make sure to add the [Firebase JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L143) to the end of the HTML body and the [Google Analytics JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L56) to the HTML head.
     
+### Data Sharing ###
+  #### How to contruct country level shapefiles ####
+  * Run `external_data_prep.sbatch` which will iterate through all complexity files and combine them into country level .geojson and .csv files.
+  
