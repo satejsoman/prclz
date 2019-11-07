@@ -16,6 +16,8 @@ set -e
 module load udunits/2.2
 module load gdal/2.4.1
 
+mkdir -p /project2/bettencourt/mnp/prclz/data/data_release
+
 continent_list=(Africa  Asia  Australia-Oceania  Central-America  Europe  North-America  South-America)
 printf '%s\n' "${continent_list[@]}"
 
