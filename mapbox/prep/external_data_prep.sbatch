@@ -33,5 +33,6 @@ for i in "${continent_list[@]}"; do
     done
     sql_string="SELECT block_id, cast(complexity as integer) as complexity, GeomFromText(geometry) FROM "
     sql_string+="$j"
+    echo "$sql_string"
     ogr2ogr -f "GeoJSON" /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".geojson -dialect sqlite -sql "$sql_string" /project2/bettencourt/mnp/prclz/data/data_release/"$i"/"$j".csv -a_srs "WGS84"
 done
