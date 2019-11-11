@@ -122,4 +122,5 @@
 ### Data Sharing ###
   #### How to contruct country level shapefiles ####
   * Run `external_data_prep.sbatch` which will iterate through all complexity files and combine them into country level .geojson and .csv files.
+  * Run `find /project2/bettencourt/mnp/prclz/data/data_release/Africa -name "*.csv" -type f -delete` to delete CSVs only.
   
