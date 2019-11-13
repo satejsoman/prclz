@@ -42,8 +42,13 @@ def load_complexity_files(region: str, gadm: str) -> gpd.GeoDataFrame:
 
 def make_building_summaries(region: str, gadm: str):
 
+    print("--Loading data for {}-{}".format(region, gadm))
     gdf = load_complexity_files(region, gadm)
+    print("......complete!\n")
+
+    print("--Begin summarize analysis")
     summary = summarize_bldg_counts(gdf)
+    print("......complete!\n")
     summary.reset_index(inplace=True)
 
     save_to = ANALYSIS_PATH / region / gadm 
