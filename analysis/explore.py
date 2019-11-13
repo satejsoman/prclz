@@ -4,6 +4,7 @@ from shapely.geometry import MultiPolygon, Polygon, MultiLineString
 from shapely.ops import cascaded_union
 from shapely.wkt import loads 
 from pathlib import Path 
+import argparse
 
 BLOCK_PATH = Path("../data/blocks")
 GEOJSON_PATH = Path("../data/geojson")
@@ -52,18 +53,13 @@ def make_building_summaries(region: str, gadm: str):
 
 
 
-dji_complexity_files = list(COMPLEXITY_PATH.rglob("*complexity*.csv"))
-dji_buildings = list(BUILDING_PATH.rglob("*buildings_DJI*.geojson"))
-df = pd.concat([pd.read_csv(f) for f in dji_complexity_files])
-buildings = pd.concat(gpd.read_file(f) for f in dji_buildings)
+if __name__ == "__main__":
 
-gdf = gpd.GeoDataFrame(df)
-gdf['geometry'] = gdf['geometry'].apply(loads)
-gdf.set_geometry('geometry', inplace=True)
-gdf['centroids_multipoint'] = gdf['centroids_multipoint'].apply(loads)
-gdf['gadm'] = gdf['block_id'].apply(get_gadm_from_block)
-gdf['block_count'] = 1
-gdf['bldg_count'] = gdf['centroids_multipoint'].apply(lambda x: len(x))
+    parser = argparse.ArgumentParser(description='Get summary stats on distribution of buildings over blocks/gadms')
+    parser.add_argument('--gadm', type=str, required=True, help="country gadm code to process")
+    parser.add_argument('--region', type=str, required=True, help="region to process")
 
-ax = gdf.plot(column='complexity')
-buildings.plot(ax=ax, color='black')
+    args = parser.parse_args()
+
+    make_building_summaries(**vars(args))
+
