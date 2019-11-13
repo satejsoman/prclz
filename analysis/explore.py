@@ -5,6 +5,8 @@ from shapely.ops import cascaded_union
 from shapely.wkt import loads 
 from pathlib import Path 
 import argparse
+from typing import List 
+
 
 BLOCK_PATH = Path("../data/blocks")
 GEOJSON_PATH = Path("../data/geojson")
@@ -26,10 +28,20 @@ def summarize_bldg_counts(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
     return summary 
 
-def load_complexity_files(region: str, gadm: str) -> gpd.GeoDataFrame:
+def load_complexity_files(region: str, gadm: str, gadm_list: List[str] = None) -> gpd.GeoDataFrame:
     
+    def check(file_path, gadm_list):
+        file_path = str(file_path)
+        for gadm in gadm_list:
+            if gadm in file_path:
+                return True
+        return False
+
     complexity_files = (COMPLEXITY_PATH / region / gadm).iterdir()
-    df = pd.concat([pd.read_csv(f) for f in complexity_files])
+    if gadm_list is not None:
+        df = pd.concat([pd.read_csv(f) for f in complexity_files if check(f,gadm_list)])
+    else:
+        df = pd.concat([pd.read_csv(f) for f in complexity_files])
 
     gdf = gpd.GeoDataFrame(df)
     gdf['geometry'] = gdf['geometry'].apply(loads)
@@ -40,10 +52,12 @@ def load_complexity_files(region: str, gadm: str) -> gpd.GeoDataFrame:
 
     return gdf 
 
-def make_building_summaries(region: str, gadm: str):
+# ['bldg_count', 'gadm', 'block_id']
 
-    print("--Loading data for {}-{}".format(region, gadm))
-    gdf = load_complexity_files(region, gadm)
+def make_building_summaries_by_gadm(region: str, country_gadm: str):
+
+    print("--Loading data for {}-{}".format(region, country_gadm))
+    gdf = load_complexity_files(region, country_gadm)
     print("......complete!\n")
 
     print("--Begin summarize analysis")
@@ -51,20 +65,34 @@ def make_building_summaries(region: str, gadm: str):
     print("......complete!\n")
     summary.reset_index(inplace=True)
 
-    save_to = ANALYSIS_PATH / region / gadm 
+    save_to = ANALYSIS_PATH / (str(region)+"by_gadm") 
     if not save_to.exists():
         save_to.mkdir(parents=True)
-    summary.to_csv(save_to / "{}_bldgs_per_gadm_summary.csv".format(gadm))
+    summary.to_csv(save_to / "{}_bldgs_per_gadm_summary.csv".format(country_gadm))
+
+def make_building_summaries_by_block(region: str, country_gadm:str, gadm_list:List[str]):
+
+    print("--Loading data for {}-{}".format(region, country_gadm))
+    gdf = load_complexity_files(region, country_gadm, gadm_list)[['gadm', 'block_id', 'bldg_count']]
+    print("......complete!\n")
+    save_to = ANALYSIS_PATH / (str(region)+"by_block")
+    if not save_to.exists():
+        save_to.mkdir(parents=True)
+    gdf.to_csv(save_to / "{}_bldgs_per_block_summary.csv".format(country_gadm))
 
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Get summary stats on distribution of buildings over blocks/gadms')
-    parser.add_argument('--gadm', type=str, required=True, help="country gadm code to process")
+    parser.add_argument('--country', type=str, dest='country_gadm', required=True, help="country gadm code to process")
     parser.add_argument('--region', type=str, required=True, help="region to process")
+    parser.add_argument('--gadm', action='append', dest='gadm_list', help='process these gadm at the block level instead')
 
     args = parser.parse_args()
 
-    make_building_summaries(**vars(args))
+    if hasattr(args, 'gadm_list'):
+        make_building_summaries_by_block(**vars(args))
+    else:
+        make_building_summaries_by_gadm(**vars(args))
 
