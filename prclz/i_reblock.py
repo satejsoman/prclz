@@ -107,7 +107,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
     if os.path.exists(summary_path) and drop_already_completed:
         # Drop those we've already done
         pre_shape = buildings.shape[0]
-        already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}, inplace=True) 
+        already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}) 
         already_done = already_done[['block_id']]
         buildings = buildings.merge(right=already_done, how='inner', on='block_id')
         new_shape = buildings.shape[0]
