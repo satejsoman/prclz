@@ -25,19 +25,12 @@ BLOCK_PATH = os.path.join(DATA_PATH, "blocks")
 BLDGS_PATH = os.path.join(DATA_PATH, "buildings")
 PARCELS_PATH = os.path.join(DATA_PATH, "parcels")
 LINES_PATH = os.path.join(DATA_PATH, "lines")
+COMPLEXITY_PATH = os.path.join(DATA_PATH, "complexity")
 
 THRESHOLD_METERS = 1
 WATERWAY_WEIGHT = 1e5 
 NATURAL_WEIGHT = 1e5
 
-# some test params
-# region = "Africa"
-# gadm_code = "SLE"
-# gadm = "SLE.2.2.5_1"
-# region = "Africa"
-# gadm_code = "DJI"
-# gadm = "DJI.3.1_1"
-# example_block = 'DJI.3.1_1_26'
 
 def point_to_node(point: Point):
     '''
@@ -75,10 +68,32 @@ def load_geopandas_files(region: str, gadm_code: str,
     bldgs = gpd.read_file(bldgs_path)
     blocks = csv_to_geo(blocks_path)
     parcels = gpd.read_file(parcels_path)
-    #lines = gpd.read_file(lines_path)
 
-    #return bldgs, blocks, parcels, lines
     return bldgs, blocks, parcels, None
+
+def load_reblock_inputs(region: str, gadm_code: str, gadm: str):
+
+    complexity_path = os.path.join(COMPLEXITY_PATH, region, gadm_code, "complexity_{}.csv".format(gadm))
+    parcels_path = os.path.join(PARCELS_PATH, region, gadm_code, "parcels_{}.geojson".format(gadm))
+
+    # Load the complexity file
+    complexity = pd.read_csv(complexity_path)    
+    complexity = gpd.GeoDataFrame(complexity)
+    complexity['geometry'] = complexity['geometry'].apply(loads)
+    complexity.rename(columns={'centroids_multipoint': 'buildings'}, inplace=True)
+    complexity.set_geometry('geometry', inplace=True)
+    load_fn = lambda x: [point_to_node(p) for p in loads(x)]
+    complexity['buildings'] = complexity['buildings'].apply(load_fn)
+    complexity['building_count'] = complexity['buildings'].apply(lambda x: len(x))
+
+    # Split it into two dataframes
+    buildings_df = complexity[['block_id', 'buildings', 'building_count']]
+    blocks_df = complexity[['block_id', 'geometry']]
+
+    # Now load the parcels
+    parcels_df = gpd.read_file(parcels_path)
+    return parcels_df, buildings_df, blocks_df 
+
 
 def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame, 
                                                parcels: gpd.GeoDataFrame) -> pd.DataFrame:
