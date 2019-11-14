@@ -106,13 +106,19 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
     summary_path = os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm))
     if os.path.exists(summary_path) and drop_already_completed:
         # Drop those we've already done
+        prior_work_exists = True
         pre_shape = buildings.shape[0]
         already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}) 
         already_done = already_done[['block_id']]
-        buildings = buildings.merge(right=already_done, how='inner', on='block_id')
+        buildings = buildings.merge(right=already_done, how='left', on='block_id', indicator='str')
+        keep = buildings['_merge'] == 'left_only'
+        buildings = buildings.iloc[keep]
         new_shape = buildings.shape[0]
         print("Shape {}->{} [lost {} blocks".format(pre_shape, new_shape, pre_shape-new_shape))
         all_blocks = buildings['block_id']
+        BOOM 
+    else:
+        prior_work_exists = False
 
     print("\nBegin looping")
     for i, block_id in tqdm.tqdm(enumerate(all_blocks), total=len(all_blocks)):
