@@ -19,6 +19,7 @@ import igraph
 import i_topology_utils
 from i_topology import *
 import time 
+import tqdm 
 
 ROOT = "../"
 DATA = os.path.join(ROOT, "data")
@@ -28,7 +29,7 @@ TRANS_TABLE = pd.read_csv(os.path.join(ROOT, "data_processing", 'country_codes.c
 def add_buildings(graph: PlanarGraph, buildings: List[Tuple]):
 
     total_blgds = len(buildings)
-    print("\t\tbuildings....")
+    #print("\t\tbuildings....")
     for i, bldg_node in enumerate(buildings):
         graph.add_node_to_closest_edge(bldg_node, terminal=True)
 
@@ -39,12 +40,12 @@ def add_buildings(graph: PlanarGraph, buildings: List[Tuple]):
 def clean_graph(graph):
     is_conn = graph.is_connected()
     if is_conn:
-        print("Graph is connected")
+        #print("Graph is connected")
         return graph, 1
     else:
         components = graph.components(mode=igraph.WEAK)
         num_components = len(components)
-        print("--DISCONNECTED: has {} components".format(num_components))
+        #print("--DISCONNECTED: has {} components".format(num_components))
         comp_sizes = [len(idxs) for idxs in components]
         arg_max = np.argmax(comp_sizes)
         comp_indices = components[arg_max]
@@ -103,7 +104,7 @@ def reblock_gadm(region, gadm_code, gadm):
         os.makedirs(reblock_path)
 
     print("\nBegin looping")
-    for i, block_id in enumerate(all_blocks):
+    for i, block_id in tqdm.tqdm(enumerate(all_blocks), total=len(all_blocks)):
 
         parcel_geom = parcels[parcels['block_id']==block_id]['geometry'].iloc[0]
         building_list = buildings[buildings['block_id']==block_id]['buildings'].iloc[0]

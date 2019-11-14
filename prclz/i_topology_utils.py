@@ -176,7 +176,7 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
             is_in = is_in+1 if coord in parcel_coords else is_in 
             total += 1
         missing = total-is_in
-        print("{} of {} block coords are NOT in the parcel coords".format(missing, total)) 
+        #print("{} of {} block coords are NOT in the parcel coords".format(missing, total)) 
 
     # Get list of coord_tuples from the polygon
     assert block_coords_list[0] == block_coords_list[-1], "Not a complete linear ring for polygon"
