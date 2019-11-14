@@ -110,7 +110,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         pre_shape = buildings.shape[0]
         already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}) 
         already_done = already_done[['block_id']]
-        buildings = buildings.merge(right=already_done, how='left', on='block_id', indicator='str')
+        buildings = buildings.merge(right=already_done, how='left', on='block_id', indicator=True)
         keep = buildings['_merge'] == 'left_only'
         buildings = buildings.iloc[keep]
         new_shape = buildings.shape[0]
