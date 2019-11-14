@@ -104,6 +104,8 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         os.makedirs(reblock_path)
 
     summary_path = os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm))
+    steiner_path = os.path.join(reblock_path, "steiner_lines_{}.geojson".format(gadm))
+    terminal_path = os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm))
     if os.path.exists(summary_path) and drop_already_completed:
         # Drop those we've already done
         prior_work_exists = True
@@ -112,7 +114,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         already_done = already_done[['block_id']]
         buildings = buildings.merge(right=already_done, how='left', on='block_id', indicator=True)
         keep = buildings['_merge'] == 'left_only'
-        buildings = buildings.iloc[keep]
+        buildings = buildings[keep]
         new_shape = buildings.shape[0]
         print("Shape {}->{} [lost {} blocks".format(pre_shape, new_shape, pre_shape-new_shape))
         all_blocks = buildings['block_id']
@@ -154,15 +156,26 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         steiner_lines_dict[block_id+'existing_steiner'] = [existing_steiner, block_id, 'existing_steiner'] 
         terminal_points_dict[block_id] = [terminal_points, block_id]
 
-        # Save out on first iteration
+        # Save out on first iteration and on checkpoint iterations
         if (i == 0) or (i % checkpoint_every == 0):
             steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id', 'steiner_type'])
             terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry', 'block_id'])
             summary_df = pd.DataFrame.from_dict(summary_dict, orient='index', columns=summary_columns)
 
-            steiner_df.to_file(os.path.join(reblock_path, "steiner_lines_{}.geojson".format(gadm)), driver='GeoJSON')
-            terminal_df.to_file(os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm)), driver='GeoJSON')
-            summary_df.to_csv(os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm)))
+            if i == 0 and prior_work_exists:
+                print("ALERT -- loading earlier work and appending new work to this before resaving")
+                # Load and append to earlier work
+                prior_steiner_df = gpd.read_file(steiner_path)
+                prior_terminal_df = gpd.read_file(terminal_path)
+                summary_df = pd.read_csv(summary_path)
+
+                steiner_df = pd.concat([prior_steiner_df, steiner_df])
+                terminal_df = pd.concat([prior_terminal_df, steiner_df])
+                summary_df = pd.concat([prior_summary_df, steiner_df])
+
+            steiner_df.to_file(steiner_path, driver='GeoJSON')
+            terminal_df.to_file(terminal_path, driver='GeoJSON')
+            summary_df.to_csv(summary_path)
 
 
 if __name__ == "__main__":
