@@ -118,7 +118,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         new_shape = buildings.shape[0]
         print("Shape {}->{} [lost {} blocks".format(pre_shape, new_shape, pre_shape-new_shape))
         all_blocks = buildings['block_id']
-        BOOM 
+         
     else:
         prior_work_exists = False
 
