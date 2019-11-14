@@ -123,7 +123,8 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         prior_work_exists = False
 
     print("\nBegin looping")
-    for i, block_id in tqdm.tqdm(enumerate(all_blocks), total=len(all_blocks)):
+    i = 0
+    for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
 
         parcel_geom = parcels[parcels['block_id']==block_id]['geometry'].iloc[0]
         building_list = buildings[buildings['block_id']==block_id]['buildings'].iloc[0]
@@ -176,6 +177,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
             steiner_df.to_file(steiner_path, driver='GeoJSON')
             terminal_df.to_file(terminal_path, driver='GeoJSON')
             summary_df.to_csv(summary_path)
+        i += 1
 
 
 if __name__ == "__main__":
