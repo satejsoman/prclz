@@ -168,7 +168,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
                 # Load and append to earlier work
                 prior_steiner_df = gpd.read_file(steiner_path)
                 prior_terminal_df = gpd.read_file(terminal_path)
-                summary_df = pd.read_csv(summary_path)
+                prior_summary_df = pd.read_csv(summary_path)
 
                 steiner_df = pd.concat([prior_steiner_df, steiner_df])
                 terminal_df = pd.concat([prior_terminal_df, steiner_df])
