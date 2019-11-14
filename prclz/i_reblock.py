@@ -81,7 +81,7 @@ def do_reblock(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=False):
     else:
         return new_steiner, existing_steiner, terminal_points
 
-def reblock_gadm(region, gadm_code, gadm):
+def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
     '''
     Does reblocking for an entire GADM boundary
     '''
@@ -102,6 +102,17 @@ def reblock_gadm(region, gadm_code, gadm):
     reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
     if not os.path.isdir(reblock_path):
         os.makedirs(reblock_path)
+
+    summary_path = os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm))
+    if os.path.exists(summary_path) and drop_already_completed:
+        # Drop those we've already done
+        pre_shape = buildings.shape[0]
+        already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}, inplace=True) 
+        already_done = already_done[['block_id']]
+        buildings = buildings.merge(right=already_done, how='inner', on='block_id')
+        new_shape = buildings.shape[0]
+        print("Shape {}->{} [lost {} blocks".format(pre_shape, new_shape, pre_shape-new_shape))
+        all_blocks = buildings['block_id']
 
     print("\nBegin looping")
     for i, block_id in tqdm.tqdm(enumerate(all_blocks), total=len(all_blocks)):
