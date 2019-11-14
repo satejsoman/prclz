@@ -177,6 +177,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
             steiner_df.to_file(steiner_path, driver='GeoJSON')
             terminal_df.to_file(terminal_path, driver='GeoJSON')
             summary_df.to_csv(summary_path)
+            BOOM 
         i += 1
 
 
