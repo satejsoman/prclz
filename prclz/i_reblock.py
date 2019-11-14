@@ -171,8 +171,8 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
                 prior_summary_df = pd.read_csv(summary_path)
 
                 steiner_df = pd.concat([prior_steiner_df, steiner_df])
-                terminal_df = pd.concat([prior_terminal_df, steiner_df])
-                summary_df = pd.concat([prior_summary_df, steiner_df])
+                terminal_df = pd.concat([prior_terminal_df, terminal_df])
+                summary_df = pd.concat([prior_summary_df, summary_df])
 
             steiner_df.to_file(steiner_path, driver='GeoJSON')
             terminal_df.to_file(terminal_path, driver='GeoJSON')
