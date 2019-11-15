@@ -4,7 +4,7 @@ from typing import List, Tuple
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, LineString
 from shapely.ops import cascaded_union
-from shapely.wkt import loads
+from shapely.wkt import loads, dumps
 import pandas as pd
 import numpy as np 
 import time 
@@ -104,9 +104,9 @@ class CheckPointer:
             print("--Loading {} previously computed results".format(len(self.completed)))
 
     def update(self, block_id, new_steiner, existing_steiner, terminal_points, summary):
-        new_steiner = new_steiner if new_steiner is None else new_steiner.wkt
-        existing_steiner = existing_steiner if existing_steiner is None else existing_steiner.wkt
-        terminal_points = terminal_points if terminal_points is None else terminal_points.wkt    
+        new_steiner = new_steiner if new_steiner is None else dumps(new_steiner)
+        existing_steiner = existing_steiner if existing_steiner is None else dumps(existing_steiner)
+        terminal_points = terminal_points if terminal_points is None else dumps(terminal_points)    
         
         self.summary_dict[block_id] = summary 
         self.terminal_points_dict[block_id] = [terminal_points, block_id]
