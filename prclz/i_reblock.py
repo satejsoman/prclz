@@ -81,6 +81,66 @@ def do_reblock(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=False):
     else:
         return new_steiner, existing_steiner, terminal_points
 
+class CheckPointer:
+    '''
+    Small container class which handles saving of work, checking if
+    prior work exists, etc
+    '''
+
+    def __init__(self, region: str, gadm: str, gadm_code: str, drop_already_completed: bool):
+
+        self.reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
+        if not os.path.exists(self.reblock_path):
+            os.makedirs(self.reblock_path)
+        self.summary_path = os.path.join(self.reblock_path, "reblock_summary_{}.csv".format(gadm))
+        self.steiner_path = os.path.join(self.reblock_path, "steiner_lines_{}.csv".format(gadm))
+        self.terminal_path = os.path.join(self.reblock_path, "terminal_points_{}.csv".format(gadm))
+
+        self.prior_work_exists = (os.path.exists(self.summary_path)) and drop_already_completed
+
+        self.summary_dict, self.steiner_lines_dict, self.terminal_points_dict = self.load_dicts()
+        self.completed = set(self.summary_dict.keys())
+        if self.prior_work_exists:
+            print("--Loading {} previously computed results".format(len(self.completed)))
+
+    def update(self, block_id, new_steiner, existing_steiner, terminal_points, summary):
+        new_steiner = new_steiner if new_steiner is None else new_steiner.wkt
+        existing_steiner = existing_steiner if existing_steiner is None else existing_steiner.wkt
+        terminal_points = terminal_points if terminal_points is None else terminal_points.wkt    
+        
+        self.summary_dict[block_id] = summary 
+        self.terminal_points_dict[block_id] = [terminal_points, block_id]
+        self.steiner_lines_dict[block_id+'new_steiner'] = [new_steiner, block_id, 'new_steiner', block_id+'new_steiner'] 
+        self.steiner_lines_dict[block_id+'existing_steiner'] = [existing_steiner, block_id, 'existing_steiner', block_id+'existing_steiner'] 
+
+    def load_dicts(self):
+        if self.prior_work_exists:
+            summary_records = pd.read_csv(self.summary_path).drop(['Unnamed: 0'], axis=1).to_dict('records')
+            summary_dict = {d['block']:list(d.values()) for d in summary_records}
+
+            steiner_records = pd.read_csv(self.steiner_path).drop(['Unnamed: 0'], axis=1).to_dict('records')
+            steiner_dict = {d['block_w_type']:list(d.values()) for d in steiner_records}
+
+            terminal_points_records = pd.read_csv(self.terminal_path).drop(['Unnamed: 0'], axis=1).to_dict('records')
+            terminal_points_dict = {d['block']:list(d.values()) for d in terminal_points_records}
+            return summary_dict, steiner_dict, terminal_points_dict
+        else:
+            return {}, {}, {}
+
+    def save(self):
+        summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps', 'bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
+        steiner_columns = ['geometry', 'block', 'line_type', 'block_w_type']
+        terminal_columns = ['geometry', 'block']
+
+        summary_df = pd.DataFrame.from_dict(self.summary_dict, orient='index', columns=summary_columns)
+        steiner_df = pd.DataFrame.from_dict(self.steiner_lines_dict, orient='index', columns=steiner_columns)
+        terminal_df = pd.DataFrame.from_dict(self.terminal_points_dict, orient='index', columns=terminal_columns)
+
+        summary_df.to_csv(self.summary_path)
+        steiner_df.to_csv(self.steiner_path)
+        terminal_df.to_csv(self.terminal_path)
+
+
 def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
     '''
     Does reblocking for an entire GADM boundary
@@ -91,39 +151,17 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
     parcels, buildings, blocks = i_topology_utils.load_reblock_inputs(region, gadm_code, gadm) 
 
     buildings.sort_values(by=['building_count'], inplace=True)
-    all_blocks = buildings['block_id']
 
     checkpoint_every = 1
-    summary_dict = {}
-    steiner_lines_dict = {}
-    terminal_points_dict = {}
 
-    # Paths
-    reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
-    if not os.path.isdir(reblock_path):
-        os.makedirs(reblock_path)
-
-    summary_path = os.path.join(reblock_path, "reblock_summary_{}.csv".format(gadm))
-    steiner_path = os.path.join(reblock_path, "steiner_lines_{}.geojson".format(gadm))
-    terminal_path = os.path.join(reblock_path, "terminal_points_{}.geojson".format(gadm))
-    if os.path.exists(summary_path) and drop_already_completed:
-        # Drop those we've already done
-        prior_work_exists = True
-        pre_shape = buildings.shape[0]
-        already_done = pd.read_csv(summary_path).rename(columns={'Unnamed: 0':'block_id'}) 
-        already_done = already_done[['block_id']]
-        buildings = buildings.merge(right=already_done, how='left', on='block_id', indicator=True)
-        keep = buildings['_merge'] == 'left_only'
-        buildings = buildings[keep]
-        new_shape = buildings.shape[0]
-        print("Shape {}->{} [lost {} blocks".format(pre_shape, new_shape, pre_shape-new_shape))
-        all_blocks = buildings['block_id']
-         
-    else:
-        prior_work_exists = False
+    # (2) Create a checkpointer which will handle saving and restoring of past work
+    checkpointer = CheckPointer(region, gadm, gadm_code, drop_already_completed)
+    all_blocks = [b for b in buildings['block_id'] if b not in checkpointer.completed]
 
     print("\nBegin looping")
     i = 0
+
+    # (4) Loop and process one block at-a-time
     for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
 
         parcel_geom = parcels[parcels['block_id']==block_id]['geometry'].iloc[0]
@@ -150,33 +188,12 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
 
         # Collect and store the summary info from reblocking
         summary = summary + [len(building_list), total_block_coords, missing, block_id]
-        summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps'] + ['bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
-
-        summary_dict[block_id] = summary 
-        steiner_lines_dict[block_id+'new_steiner'] = [new_steiner, block_id, 'new_steiner'] 
-        steiner_lines_dict[block_id+'existing_steiner'] = [existing_steiner, block_id, 'existing_steiner'] 
-        terminal_points_dict[block_id] = [terminal_points, block_id]
+        checkpointer.update(block_id, new_steiner, existing_steiner, terminal_points, summary)
 
         # Save out on first iteration and on checkpoint iterations
         if (i == 0) or (i % checkpoint_every == 0):
-            steiner_df = gpd.GeoDataFrame.from_dict(steiner_lines_dict, orient='index', columns=['geometry', 'block_id', 'steiner_type'])
-            terminal_df = gpd.GeoDataFrame.from_dict(terminal_points_dict, orient='index', columns=['geometry', 'block_id'])
-            summary_df = pd.DataFrame.from_dict(summary_dict, orient='index', columns=summary_columns)
+            checkpointer.save()
 
-            if i == 0 and prior_work_exists:
-                print("ALERT -- loading earlier work and appending new work to this before resaving")
-                # Load and append to earlier work
-                prior_steiner_df = gpd.read_file(steiner_path)
-                prior_terminal_df = gpd.read_file(terminal_path)
-                prior_summary_df = pd.read_csv(summary_path)
-
-                steiner_df = pd.concat([prior_steiner_df, steiner_df])
-                terminal_df = pd.concat([prior_terminal_df, terminal_df])
-                summary_df = pd.concat([prior_summary_df, summary_df])
-
-            steiner_df.to_file(steiner_path, driver='GeoJSON')
-            terminal_df.to_file(terminal_path, driver='GeoJSON')
-            summary_df.to_csv(summary_path)
              
         i += 1
 
