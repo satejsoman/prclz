@@ -135,7 +135,7 @@ class CheckPointer:
             for i, q in enumerate(self.process_queues):
                 if not q.empty():
                     output = q.get()                    
-                    print("Getting output from process {}:\n{}".format(i, output))
+                    #print("Getting output from process {}:\n{}".format(i, output))
                     self.update(*output)
             active = self._get_active_process_count()
 
