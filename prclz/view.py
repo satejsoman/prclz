@@ -20,8 +20,12 @@ import i_topology_utils
 from i_topology import *
 import time 
 
-DATA = "../data"
-REBLOCK = os.path.join(DATA, "reblock")
+from pathlib import Path  
+from shapely.wkt import loads 
+
+DATA = Path("../data")
+REBLOCK = DATA / "reblock"
+REBLOCK_VIEWIING = DATA / 'reblock_viewing'
 
 # region = "Africa"
 # gadm_code = "SLE"
@@ -41,6 +45,22 @@ REBLOCK = os.path.join(DATA, "reblock")
 # steiner = gpd.read_file("test_SLE_igraph/steiner_lines.geojson")
 # terminal = gpd.read_file("test_SLE_igraph/terminal_points.geojson")
 
+plt.scatter(count, s_time_mins, color='red', alpha=0.3)
+plt.title("Steiner optimal path time per block (mins)")
+plt.xlabel("Buildings in block")
+plt.ylabel("Compute time (mins)")
+plt.savefig("complexity_time.png")
+
+wkt_to_geom = lambda x: loads(x) if isinstance(x, str) else None 
+
+def read_steiner(path):
+    d = pd.read_csv(path).drop(columns=['Unnamed: 0'])
+    d['geometry'] = d['geometry'].apply(wkt_to_geom)
+    geo_d = gpd.GeoDataFrame(d)
+
+    return geo_d 
+
+    
 class ReblockPlotter:
 
     def __init__(self, gadm_list, region, add_buildings=False, add_parcels=False):
@@ -51,23 +71,23 @@ class ReblockPlotter:
         self.gadm_count = len(gadm_list)
         self.add_buildings = add_buildings
         self.add_parcels = add_parcels
-        
-        for i, gadm in enumerate(self.gadm_list):
-            steiner_lines_path = os.path.join(REBLOCK, region, self.gadm_code, "steiner_lines_{}.geojson".format(gadm))
-            terminal_points_path = os.path.join(REBLOCK, region, self.gadm_code, "terminal_points_{}.geojson".format(gadm))
-            blocks_path = os.path.join(DATA, "blocks", region, self.gadm_code, "blocks_{}.csv".format(gadm))
-            buildings_path = os.path.join(DATA, "buildings", region, self.gadm_code, "buildings_{}.geojson".format(gadm))
-            parcels_path = os.path.join(DATA, "parcels", region, self.gadm_code, "parcels_{}.geojson".format(gadm))
 
-            if i == 0:
-                self.steiner = gpd.read_file(steiner_lines_path)
-                self.terminal = gpd.read_file(terminal_points_path)
+        reblock_path = REBLOCK / self.region
+        
+        for j, gadm in enumerate(self.gadm_list):
+
+            blocks_path = DATA / "blocks" / region / self.gadm_code / "blocks_{}.csv".format(gadm)
+            buildings_path = DATA / "buildings" / region / self.gadm_code / "buildings_{}.geojson".format(gadm)
+            parcels_path = DATA / "parcels" / region / self.gadm_code / "parcels_{}.geojson".format(gadm)
+            steiner_path = DATA / "reblock" / region / self.gadm_code / "steiner_lines_{}.csv".format(gadm)
+            terminal_path = DATA / "reblock" / region / self.gadm_code / "terminal_points_{}.csv".format(gadm)
+
+            if j == 0:
                 self.blocks = i_topology_utils.csv_to_geo(blocks_path)
                 self.buildings = gpd.read_file(buildings_path) if self.add_buildings else None 
                 self.parcels = gpd.read_file(parcels_path) if self.add_parcels else None 
+                self.steiner = read_steiner(steiner_path)
             else:
-                self.steiner = pd.concat([gpd.read_file(steiner_lines_path), self.steiner], axis=0)
-                self.terminal = pd.concat([gpd.read_file(terminal_points_path), self.terminal], axis=0)
                 self.blocks = pd.concat([i_topology_utils.csv_to_geo(blocks_path), self.blocks], axis=0)
                 self.buildings = pd.concat([gpd.read_file(buildings_path), self.buildings], axis=0) if self.add_buildings else None 
                 self.parcels = pd.concat([gpd.read_file(parcels_path), self.parcels], axis=0) if self.add_parcels else None 
@@ -125,7 +145,7 @@ class ReblockPlotter:
 
         ax = self.blocks.plot(color='black', alpha=0.2)
         self.steiner.plot(color='red', ax=ax)
-        self.terminal.plot(color='red', ax=ax)
+        #self.terminal.plot(color='red', ax=ax)
         if add_buildings:
             self.buildings.plot(color='blue', alpha=0.4, ax=ax)
 
@@ -141,23 +161,29 @@ class ReblockPlotter:
 
 
 if __name__ == "__main__":
-    gadm_list = ['KEN.30.10.1_1',
-     'KEN.30.10.2_1',
-     'KEN.30.10.3_1',
-     'KEN.30.10.4_1',
-     'KEN.30.10.5_1',
-     'KEN.30.11.2_1']
+    # gadm_list = ['KEN.30.10.1_1',
+    #  'KEN.30.10.2_1',
+    #  'KEN.30.10.3_1',
+    #  'KEN.30.10.4_1',
+    #  'KEN.30.10.5_1',
+    #  'KEN.30.11.2_1']
 
+    gadm_list = ['LBR.11.2.1_1']
     region = 'Africa'
+    viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
+    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
 
-    viewer = ReblockPlotter(gadm_list, region, add_parcels=True)
+    gadm_list = ['SLE.4.2.1_1']
+    region = 'Africa'
+    viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
+    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
 
-    # This will allow you to view the optimal paths
-    # viewer.view_all()
-    # plt.show()
+    # # This will allow you to view the optimal paths
+    # # viewer.view_all()
+    # # plt.show()
 
-    # Now we export to files, assuming we've sanity checked the output and it looks good
-    viewer.export_parcels(os.path.join(DATA, 'KEN_parcels.geojson'))
-    viewer.export_steiner(os.path.join(DATA, 'KEN_opt_path.geojson'))
+    # # Now we export to files, assuming we've sanity checked the output and it looks good
+    # viewer.export_parcels(os.path.join(DATA, 'KEN_parcels.geojson'))
+    # viewer.export_steiner(os.path.join(DATA, 'KEN_opt_path.geojson'))
 
 
