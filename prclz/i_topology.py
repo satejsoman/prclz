@@ -341,15 +341,23 @@ class PlanarGraph(igraph.Graph):
             else:
                 return edge_tuple[1]
 
-    def edge_to_coords(self, edge):
+    def edge_to_coords(self, edge, expand=False):
         '''
         Given an edge, returns the edge_tuple of
         the corresponding coordinates
+
+        NOTE: if we have simplified the graph then we need
+              to unpack the nodes which are saved within
+              the 'path' attribute 
         '''
+
         v0_idx, v1_idx = edge.tuple 
         v0_coords = self.vs[v0_idx]['name']
         v1_coords = self.vs[v1_idx]['name']
-        edge_tuple = (v0_coords, v1_coords)
+        if expand:
+            edge_tuple = [v0_coords] + edge['path'] + [v1_coords]
+        else:
+            edge_tuple = (v0_coords, v1_coords)
 
         return edge_tuple 
 
@@ -463,10 +471,11 @@ class PlanarGraph(igraph.Graph):
         new_lines = []
         for e in self.es:
             if e['steiner']:
-                if e['edge_type'] == 'highway':
-                    existing_lines.append(LineString(self.edge_to_coords(e)))
+                #if e['edge_type'] == 'highway':
+                if e['weight'] == 0:
+                    existing_lines.append(LineString(self.edge_to_coords(e, True)))
                 else:
-                    new_lines.append(LineString(self.edge_to_coords(e)))
+                    new_lines.append(LineString(self.edge_to_coords(e, True)))
 
         #lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
         new_multi_line = unary_union(new_lines)
@@ -489,6 +498,60 @@ class PlanarGraph(igraph.Graph):
         lines = [LineString(self.edge_to_coords(e)) for e in self.es]
         multi_line = unary_union(lines)
         return multi_line 
+
+    # These methods are for simplifying the graph
+    def simplify_node(self, vertex):
+        '''
+        If we simplify node B with connections A -- B -- C
+        then we end up with (AB) -- C where the weight 
+        of the edge between (AB) and C equals the sum of the
+        weights between A-B and B-C
+
+        NOTE: this allows the graph to simplify long strings of nodes
+        '''
+
+        # Store the 2 neighbors of the node we are simplifying
+        n0_vtx, n1_vtx = vertex.neighbors()
+        n0_name = n0_vtx['name']
+        n1_name = n1_vtx['name']
+        n0_seq = self.vs.select(name=n0_vtx['name'])
+        n1_seq = self.vs.select(name=n1_vtx['name'])
+        v = self.vs.select(name=vertex['name'])
+
+        # Grab each neighbor edge weight
+        edge_n0 = self.es.select(_between=(n0_seq, v))
+        edge_n1 = self.es.select(_between=(n1_seq, v))
+        total_weight = edge_n0[0]['weight'] + edge_n1[0]['weight']
+
+        # Form a new edge between the two neighbors
+        # The new_path must reflect the node that will be removed and the
+        #    2 edges that will be removed
+        new_path = edge_n0[0]['path'] + [vertex['name']] + edge_n1[0]['path']
+        super().add_edge(n0_seq[0], n1_seq[0], weight=total_weight, path=new_path)
+
+        # Now we can delete the vertex and its 2 edges
+        edge_n0 = self.es.select(_between=(n0_seq, v))
+        super().delete_edges(edge_n0)
+
+        edge_n1 = self.es.select(_between=(n1_seq, v))
+        super().delete_edges(edge_n1)
+        super().delete_vertices(v)
+
+    def simplify(self):
+        '''
+        Many nodes exist to approximate curves in physical space. Calling this
+        collapses those nodes to allow for faster downstream computation
+        '''
+        if 'path' not in self.vs.attributes():
+            self.es['path'] = [ [] for v in self.vs]
+
+        for v in self.vs:
+            num_neighbors = len(v.neighbors())
+            if num_neighbors == 2 and not v['terminal']:
+                #print("simplifying node {}".format(v['name']))
+                self.simplify_node(v)
+        
+
 
 def convert_to_lines(planar_graph) -> MultiLineString:
     lines = [LineString(planar_graph.edge_to_coords(e)) for e in planar_graph.es]

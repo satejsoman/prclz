@@ -52,7 +52,7 @@ def clean_graph(graph):
 
         return graph.subgraph(comp_indices), num_components
 
-def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=False):
+def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=False, verbose: bool=False):
     '''
     Given a graph of the Parcel and the corresponding list of buildings (expressed as a list of tuple pairs),
     does the reblocking
@@ -67,6 +67,8 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=F
     graph, num_components = clean_graph(graph)
 
     # Step 3: do the Steiner Tree approx
+    if simplify:
+        graph.simplify()
     start = time.time()
     graph.steiner_tree_approx()
     stiener_time = time.time() - start 
@@ -141,7 +143,7 @@ class CheckPointer:
         terminal_df.to_csv(self.terminal_path)
 
 
-def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
+def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True):
     '''
     Does reblocking for an entire GADM boundary
     '''
@@ -178,9 +180,11 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
         missing, total_block_coords = i_topology_utils.update_edge_types(planar_graph, block_geom, check=True)
 
         # (3) Do reblocking 
-        try:
-            new_steiner, existing_steiner, terminal_points, summary = get_optimal_path(planar_graph, building_list, verbose=True)
-        except:
+        #try:
+        if 1:
+            new_steiner, existing_steiner, terminal_points, summary = get_optimal_path(planar_graph, building_list, simplify=simplify, verbose=True)
+        else:
+        #except:
             new_steiner = None 
             existing_steiner = None 
             terminal_points = None 
@@ -204,6 +208,7 @@ if __name__ == "__main__":
     parser.add_argument('--region', type=str, required=True, help="region to process")
     parser.add_argument('--gadm_code', type=str, required=True, help="3-digit country gadm code to process")
     parser.add_argument('--gadm', help='process this gadm')
+    parser.add_argument('--simplify', help='boolean to simplify the graph or not', action='store_true')
 
     args = parser.parse_args()
    
