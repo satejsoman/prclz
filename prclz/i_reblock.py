@@ -52,7 +52,7 @@ def clean_graph(graph):
 
         return graph.subgraph(comp_indices), num_components
 
-def do_reblock(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=False):
+def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], verbose: bool=False):
     '''
     Given a graph of the Parcel and the corresponding list of buildings (expressed as a list of tuple pairs),
     does the reblocking
@@ -179,7 +179,7 @@ def reblock_gadm(region, gadm_code, gadm, drop_already_completed=True):
 
         # (3) Do reblocking 
         try:
-            new_steiner, existing_steiner, terminal_points, summary = do_reblock(planar_graph, building_list, verbose=True)
+            new_steiner, existing_steiner, terminal_points, summary = get_optimal_path(planar_graph, building_list, verbose=True)
         except:
             new_steiner = None 
             existing_steiner = None 
