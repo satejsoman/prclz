@@ -67,8 +67,13 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
     graph, num_components = clean_graph(graph)
 
     # Step 3: do the Steiner Tree approx
-    if simplify:
+    if simplify and len(buildings > 40):
+        print("\nGraph pre-simplify:")
+        igraph.summary(graph)
         graph.simplify()
+        print("\nGraph post-simplify:")
+        igraph.summary(graph)
+        
     start = time.time()
     graph.steiner_tree_approx()
     stiener_time = time.time() - start 
