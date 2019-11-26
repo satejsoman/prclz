@@ -70,7 +70,7 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
     edge_count_pre = len(graph.es)
 
     # Step 3: do the Steiner Tree approx
-    if simplify and len(buildings > 40):
+    if simplify and len(buildings) > 40:
         start = time.time()
         graph.simplify()
         simplify_time = time.time() - start 
