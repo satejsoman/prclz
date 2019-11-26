@@ -79,7 +79,7 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
     else:
         simplify_time = 0
         node_count_post = node_count_pre 
-        edge_count_post = edge_count_post
+        edge_count_post = edge_count_pre
         
     start = time.time()
     graph.steiner_tree_approx()
