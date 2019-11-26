@@ -195,11 +195,9 @@ def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True)
         missing, total_block_coords = i_topology_utils.update_edge_types(planar_graph, block_geom, check=True)
 
         # (3) Do reblocking 
-        #try:
-        if 1:
+        try:
             new_steiner, existing_steiner, terminal_points, summary = get_optimal_path(planar_graph, building_list, simplify=simplify, verbose=True)
-        else:
-        #except:
+        except:
             new_steiner = None 
             existing_steiner = None 
             terminal_points = None 
