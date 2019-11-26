@@ -37,6 +37,9 @@ def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
         H.add_edge(u['name'], v['name'], **kwargs)
 
     # Now get the MST of that complete graph of only terminal_vertices
+    if "weight" not in H.es.attributes():
+        print("----H graph does not have weight, ERROR")
+        print("\t\t there are {}".format(len(terminal_vertices)))
     mst_edge_idxs = H.spanning_tree(weights='weight', return_tree=False)
 
     # Now, we join the paths for all the mst_edge_idxs

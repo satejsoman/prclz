@@ -45,11 +45,11 @@ REBLOCK_VIEWIING = DATA / 'reblock_viewing'
 # steiner = gpd.read_file("test_SLE_igraph/steiner_lines.geojson")
 # terminal = gpd.read_file("test_SLE_igraph/terminal_points.geojson")
 
-plt.scatter(count, s_time_mins, color='red', alpha=0.3)
-plt.title("Steiner optimal path time per block (mins)")
-plt.xlabel("Buildings in block")
-plt.ylabel("Compute time (mins)")
-plt.savefig("complexity_time.png")
+# plt.scatter(count, s_time_mins, color='red', alpha=0.3)
+# plt.title("Steiner optimal path time per block (mins)")
+# plt.xlabel("Buildings in block")
+# plt.ylabel("Compute time (mins)")
+# plt.savefig("complexity_time.png")
 
 wkt_to_geom = lambda x: loads(x) if isinstance(x, str) else None 
 
@@ -167,16 +167,18 @@ if __name__ == "__main__":
     #  'KEN.30.10.4_1',
     #  'KEN.30.10.5_1',
     #  'KEN.30.11.2_1']
-
     gadm_list = ['LBR.11.2.1_1']
+    #gadm_list = ['DJI.2.1_1']
     region = 'Africa'
-    viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
-    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
+    #viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=True)
 
-    gadm_list = ['SLE.4.2.1_1']
-    region = 'Africa'
     viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
-    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
+    # viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
+
+    # gadm_list = ['SLE.4.2.1_1']
+    # region = 'Africa'
+    # viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
+    # viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
 
     # # This will allow you to view the optimal paths
     # # viewer.view_all()

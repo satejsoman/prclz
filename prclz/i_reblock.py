@@ -66,13 +66,20 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
     # Step 2: clean the graph if it's disconnected
     graph, num_components = clean_graph(graph)
 
+    node_count_pre = len(graph.vs)
+    edge_count_pre = len(graph.es)
+
     # Step 3: do the Steiner Tree approx
     if simplify and len(buildings > 40):
-        print("\nGraph pre-simplify:")
-        igraph.summary(graph)
+        start = time.time()
         graph.simplify()
-        print("\nGraph post-simplify:")
-        igraph.summary(graph)
+        simplify_time = time.time() - start 
+        node_count_post = len(graph.vs)
+        edge_count_post = len(graph.es)
+    else:
+        simplify_time = 0
+        node_count_post = node_count_pre 
+        edge_count_post = edge_count_post
         
     start = time.time()
     graph.steiner_tree_approx()
@@ -84,7 +91,8 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
     terminal_points = graph.get_terminal_points()
 
     if verbose:
-        return new_steiner, existing_steiner, terminal_points, [bldg_time, stiener_time, num_components]
+        summary = [bldg_time, simplify_time, stiener_time, num_components, node_count_pre, node_count_post, edge_count_pre, edge_count_post]
+        return new_steiner, existing_steiner, terminal_points, summary 
     else:
         return new_steiner, existing_steiner, terminal_points
 
@@ -135,7 +143,9 @@ class CheckPointer:
             return {}, {}, {}
 
     def save(self):
-        summary_columns = ['bldg_time', 'steiner_time', 'num_graph_comps', 'bldg_count', 'num_block_coords', 'num_block_coords_unmatched', 'block']
+        summary_columns = ['bldg_time', 'simplify_time', 'steiner_time', 'num_graph_comps', 'bldg_count', 
+                           'node_count_pre', 'node_count_post', 'edge_count_pre', 'edge_count_post',
+                           'num_block_coords', 'num_block_coords_unmatched', 'block']
         steiner_columns = ['geometry', 'block', 'line_type', 'block_w_type']
         terminal_columns = ['geometry', 'block']
 
@@ -193,7 +203,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True)
             new_steiner = None 
             existing_steiner = None 
             terminal_points = None 
-            summary = [None, None, None]
+            summary = [None, None, None, None, None, None, None, None]
 
         # Collect and store the summary info from reblocking
         summary = summary + [len(building_list), total_block_coords, missing, block_id]
