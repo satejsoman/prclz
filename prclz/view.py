@@ -221,7 +221,7 @@ if __name__ == "__main__":
     gadm_list = ['SLE.4.2.1_1']
     region = 'Africa'
     viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
-    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
+    viewer.export_steiner(REBLOCK_VIEWIING / "{}_opt_path.geojson".format(gadm_list[0]))
 
     # # This will allow you to view the optimal paths
     # # viewer.view_all()
