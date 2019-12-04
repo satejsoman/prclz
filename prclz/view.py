@@ -199,7 +199,7 @@ class ReblockPlotter:
         fail_bool = self.steiner['geometry'].isna()
         steiner_fails = self.steiner[fail_bool]
         steiner_success = self.steiner[~fail_bool]
-        self.steiner.to_file(output_filename, driver='GeoJSON')
+        self.steiner_success.to_file(output_filename, driver='GeoJSON')
 
 
 
