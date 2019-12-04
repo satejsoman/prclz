@@ -45,15 +45,54 @@ REBLOCK_VIEWIING = DATA / 'reblock_viewing'
 # steiner = gpd.read_file("test_SLE_igraph/steiner_lines.geojson")
 # terminal = gpd.read_file("test_SLE_igraph/terminal_points.geojson")
 
+def make_scatter_plot(df_path, count_var='bldg_count'):
+    df = pd.read_csv(df_path)
+    s_time_mins = df['steiner_time'].values / 60
+    #count = df['bldg_count'].values
+    #count = df['edge_count_post'].values
+    df['bldg_count'] = df[count_var]
+    count = df[count_var].values
+
+    plt.scatter(count, s_time_mins, color='red', alpha=0.3)
+    plt.title("Steiner optimal path time per block (mins)")
+    plt.xlabel("Buildings in block")
+    plt.ylabel("Compute time (mins)")
+
+    return df 
+
+def line_graph_xy(df_path, count_var='bldg_count'):
+    df = pd.read_csv(df_path)
+    df['bldg_count'] = df[count_var]
+    #count = df['bldg_count'].values
+    #count = df['edge_count_post'].values
+    g_df = df[['steiner_time', 'bldg_count']].groupby('bldg_count').mean()
+    g_df.sort_index(inplace=True)
+    g_df['steiner_time'] = g_df['steiner_time'] / 60
+    x = g_df.index.values
+    y = g_df['steiner_time'].values
+    return g_df, x, y 
+
+
+# DATA = Path("../data")
+# REBLOCK = DATA / "reblock"
+# REBLOCK_VIEWIING = DATA / 'reblock_viewing'
+# path = REBLOCK / 'Africa' / 'SLE' / 'reblock_summary_SLE.4.2.1_1.csv'
+# old_path = REBLOCK / 'Africa' / 'SLE' / 'preserve_nosimplify' / 'reblock_summary_SLE.4.2.1_1.csv'
+# df = pd.read_csv(files[1])
+# s_time_mins = df['steiner_time'].values / 60
+# #count = df['bldg_count'].values
+# count = df['edge_count_post'].values
+
 # plt.scatter(count, s_time_mins, color='red', alpha=0.3)
 # plt.title("Steiner optimal path time per block (mins)")
 # plt.xlabel("Buildings in block")
 # plt.ylabel("Compute time (mins)")
 # plt.savefig("complexity_time.png")
 
-wkt_to_geom = lambda x: loads(x) if isinstance(x, str) else None 
 
 def read_steiner(path):
+    wkt_to_geom = lambda x: loads(x) if isinstance(x, str) else None 
+
     d = pd.read_csv(path).drop(columns=['Unnamed: 0'])
     d['geometry'] = d['geometry'].apply(wkt_to_geom)
     geo_d = gpd.GeoDataFrame(d)
@@ -156,6 +195,10 @@ class ReblockPlotter:
         self.parcels.to_file(output_filename, driver='GeoJSON')
 
     def export_steiner(self, output_filename):
+
+        fail_bool = self.steiner['geometry'].isna()
+        steiner_fails = self.steiner[fail_bool]
+        steiner_success = self.steiner[~fail_bool]
         self.steiner.to_file(output_filename, driver='GeoJSON')
 
 
@@ -167,18 +210,18 @@ if __name__ == "__main__":
     #  'KEN.30.10.4_1',
     #  'KEN.30.10.5_1',
     #  'KEN.30.11.2_1']
-    gadm_list = ['LBR.11.2.1_1']
-    #gadm_list = ['DJI.2.1_1']
-    region = 'Africa'
-    #viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=True)
-
-    viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
-    # viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
-
-    # gadm_list = ['SLE.4.2.1_1']
+    # gadm_list = ['LBR.11.2.1_1']
+    # #gadm_list = ['DJI.2.1_1']
     # region = 'Africa'
+    # #viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=True)
+
     # viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
     # viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
+
+    gadm_list = ['SLE.4.2.1_1']
+    region = 'Africa'
+    viewer = ReblockPlotter(gadm_list, region, add_parcels=False, add_buildings=False)
+    viewer.export_steiner(REBLOCK_VIEWIING / "{}_parcels.geojson".format(gadm_list[0]))
 
     # # This will allow you to view the optimal paths
     # # viewer.view_all()

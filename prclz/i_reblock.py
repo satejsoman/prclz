@@ -83,15 +83,18 @@ def get_optimal_path(graph: PlanarGraph, buildings: List[Tuple], simplify: bool=
         
     start = time.time()
     graph.steiner_tree_approx()
-    stiener_time = time.time() - start 
+    steiner_time = time.time() - start 
 
     # Step 4: convert the stiener edges and terminal nodes to linestrings and points, respecitvely
     #steiner_lines = graph.get_steiner_linestrings()
     new_steiner, existing_steiner = graph.get_steiner_linestrings()
     terminal_points = graph.get_terminal_points()
+        # summary_columns = [      'bldg_time',       'simplify_time',     'steiner_time', 'num_graph_comps',  
+        #                     'node_count_pre',     'node_count_post',   'edge_count_pre', 'edge_count_post',
+        #                         'bldg_count',    'num_block_coords', 'num_block_coords_unmatched',  'block']
 
     if verbose:
-        summary = [bldg_time, simplify_time, stiener_time, num_components, node_count_pre, node_count_post, edge_count_pre, edge_count_post]
+        summary = [bldg_time, simplify_time, steiner_time, num_components, node_count_pre, node_count_post, edge_count_pre, edge_count_post]
         return new_steiner, existing_steiner, terminal_points, summary 
     else:
         return new_steiner, existing_steiner, terminal_points
@@ -143,9 +146,10 @@ class CheckPointer:
             return {}, {}, {}
 
     def save(self):
-        summary_columns = ['bldg_time', 'simplify_time', 'steiner_time', 'num_graph_comps', 'bldg_count', 
-                           'node_count_pre', 'node_count_post', 'edge_count_pre', 'edge_count_post',
-                           'num_block_coords', 'num_block_coords_unmatched', 'block']
+        summary_columns = [      'bldg_time',       'simplify_time',     'steiner_time', 'num_graph_comps',  
+                            'node_count_pre',     'node_count_post',   'edge_count_pre', 'edge_count_post',
+                                'bldg_count',    'num_block_coords', 'num_block_coords_unmatched',  'block']
+
         steiner_columns = ['geometry', 'block', 'line_type', 'block_w_type']
         terminal_columns = ['geometry', 'block']
 
