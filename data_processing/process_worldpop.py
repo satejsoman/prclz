@@ -79,9 +79,9 @@ def sjoin_complexity_landscan(complexity_df, ls_df):
 
 
 
-gdf_complexity = load_complexity('Africa', 'DJI', 'complexity_DJI.1.1_1.csv')
-ls_path = DATA / 'LandScan_Global_2018' / 'ls_2018.tif'
-ls_df = gpd.read_file(ls_path)
+# gdf_complexity = load_complexity('Africa', 'DJI', 'complexity_DJI.1.1_1.csv')
+# ls_path = DATA / 'LandScan_Global_2018' / 'ls_2018.tif'
+# ls_df = gpd.read_file(ls_path)
 
 
 if __name__ == "__main__":
