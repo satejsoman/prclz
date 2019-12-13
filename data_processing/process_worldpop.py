@@ -2,6 +2,7 @@ import numpy as np
 import rasterio 
 from pathlib import Path 
 import geopandas as gpd 
+import pandas as pd 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString
 import argparse 
 
