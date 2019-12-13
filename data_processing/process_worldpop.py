@@ -29,12 +29,14 @@ def main_process_tif_to_geojson():
     dataset = rasterio.open(landscan_path)
     bounds = dataset.bounds 
     resolution = 30 / 3600 # resolution of dataset in degrees
+    delta = resolution
 
     top = bounds.top 
     bottom = bounds.bottom 
     left = bounds.left 
     right = bounds.right 
 
+    print("Reading tif file....")
     mat = dataset.read(1)
     df_dict = {}
     df_dict['geometry'] = []
