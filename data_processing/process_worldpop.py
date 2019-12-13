@@ -53,8 +53,10 @@ def main_process_tif_to_geojson():
             cur_right = left + delta * (j+1)
 
             # Make the polygon based on the top, left, bottom, right
-            poly = List([(cur_top, cur_left), (cur_top, cur_right),
-                            (cur_bottom, cur_right), (cur_bottom, cur_left)])
+            poly = [(cur_top, cur_left), (cur_top, cur_right),
+                            (cur_bottom, cur_right), (cur_bottom, cur_left)]
+            # poly = Polygon([(cur_top, cur_left), (cur_top, cur_right),
+            #                 (cur_bottom, cur_right), (cur_bottom, cur_left)])
             # Make the observation in the df_dict
             df_dict['geometry'].append(poly)
             df_dict['population'].append(val)
