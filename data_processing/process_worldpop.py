@@ -93,4 +93,4 @@ if __name__ == "__main__":
     parser_from_tif.set_defaults(func = main_process_tif_to_geojson)
 
     args = parser.parse_args()
-    args.func(args)
+    args.func()
