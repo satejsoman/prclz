@@ -5,6 +5,7 @@ import geopandas as gpd
 import pandas as pd 
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString
 import argparse 
+import tqdm
 
 root = Path('../')
 DATA = root / 'data' 
@@ -38,11 +39,13 @@ def main_process_tif_to_geojson():
 
     print("Reading tif file....")
     mat = dataset.read(1)
+    print("...complete!")
+
     df_dict = {}
     df_dict['geometry'] = []
     df_dict['population'] = []
     df_dict['grid_idx'] = []
-    for i, row in enumerate(mat):
+    for i, row in tqdm.tqdm(enumerate(mat), total=mat.shape[0]*mat.shape[1]):
         for j, val in enumerate(row):
             cur_top = top + delta * i 
             cur_left = left + delta * j
