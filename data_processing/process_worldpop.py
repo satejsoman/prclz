@@ -21,6 +21,9 @@ right = bounds.right
 
 mat = dataset.read(1)
 df_dict = {}
+df_dict['geometry'] = []
+df_dict['population'] = []
+df_dict['grid_idx'] = []
 for i, row in enumerate(mat):
     for j, val in enumerate(row):
         cur_top = top + delta * i 
@@ -34,6 +37,7 @@ for i, row in enumerate(mat):
         # Make the observation in the df_dict
         df_dict['geometry'].append(poly)
         df_dict['population'].append(val)
+        df_dict['grid_idx'].append((i,j))
 
         if (i,j) == (0,0):
             print("Begin at {}, {}".format(cur_top, cur_left))
