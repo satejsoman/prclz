@@ -1,5 +1,6 @@
 import numpy as np 
 import rasterio 
+import rasterio.features
 from pathlib import Path 
 import geopandas as gpd 
 import pandas as pd 
@@ -18,8 +19,11 @@ def load_complexity(region, country_code, f):
     df = pd.read_csv(p)
     gdf_complexity = gpd.GeoDataFrame(df[['block_id', 'geometry', 'complexity', 'centroids_multipoint']])
     gdf_complexity['geometry'] = gdf_complexity['geometry'].apply(loads)
+    gdf_complexity.geometry.crs = {'init': 'epsg:4326'}  
+    gdf_complexity.crs = {'init': 'epsg:4326'}  
     gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
-    gdf_complexity['block_area'] = gdf_complexity['geometry'].area 
+    #print(gdf_complexity.crs)
+    gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
 
     #gdf_bldgs = gpd.GeoDataFrame(df[['block_id', 'centroids_multipoint']])
     return gdf_complexity
@@ -31,71 +35,118 @@ def add_landscan_data(ls_dataset, gdf_complexity):
 
     return gdf_complexity 
 
-def calculate_population(geom, ls_dataset, window):
+def calculate_population_uniform_dist(geom, ls_dataset, window):
 
     data = ls_dataset.read(1, window=window)
+    trans = ls_dataset.window_transform(window)
 
+    geo_series = []
+    pop_series = []
+    for shape, pop in rasterio.features.shapes(data, transform=trans):
+        geo_series.append(Polygon(shape['coordinates'][0]))
+        assert shape['type'] == 'Polygon', "ERROR -- not Polygon"
+        pop_series.append(pop)
+    geo_series = gpd.GeoSeries(geo_series)
+    inter_pct = geo_series.intersection(geom).area / geo_series.area 
 
-region = 'Africa'
-country_code = 'SLE'
-gadm = 'SLE.4.2.1_1'
-landscan_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
+    avg_pop = (inter_pct.values * np.array(pop_series)).sum()
 
-ls_dataset = rasterio.open(landscan_path)
-f = "complexity_{}.csv".format(gadm)
-gdf_complexity = load_complexity(region, country_code, f)
-gdf_complexity = add_landscan_data(ls_dataset, gdf_complexity)
+    #return geo_series, pop_series 
+    return avg_pop
 
-def main_process_tif_to_geojson():
-    landscan_path = DATA / 'LandScan_Global_2018' / 'ls_2018.tif'
+def process_gadm_landscan(region, country_code, gadm):
 
-    dataset = rasterio.open(landscan_path)
-    bounds = dataset.bounds 
-    resolution = 30 / 3600 # resolution of dataset in degrees
-    delta = resolution
+    # region = 'Africa'
+    # country_code = 'DJI'
+    # # #country_code = 'SLE'
+    # # #gadm = 'SLE.4.2.1_1'
+    # gadm = 'DJI.1.1_1'
+    landscan_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
 
-    top = bounds.top 
-    bottom = bounds.bottom 
-    left = bounds.left 
-    right = bounds.right 
-
-    print("Reading tif file....")
-    mat = dataset.read(1)
-    print("...complete!")
-
-    x_coords = np.linspace(left, right, dataset.shape[0])
-    y_coords = np.linspace(top, bottom, dataset.shape[1])
-
-    df_dict = {}
-    df_dict['geometry'] = []
-    df_dict['population'] = []
-    df_dict['grid_idx'] = []
-
-
-
-def make_landscan_gadm_file(region, country_code, gadm, landscan_dataset=None):
-
-    # Get complexity file
+    ls_dataset = rasterio.open(landscan_path)
     f = "complexity_{}.csv".format(gadm)
-    complexity_gdf = load_complexity(region, country_code, f)
 
-    if landscan_dataset is None:
-        ls_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
-        landscan_dataset = rasterio.open(ls_path)
+    # Load the complexity file
+    gdf_complexity = load_complexity(region, country_code, f)
 
-    # Get the window in our LandScan dataset that contains the AoI
-    geom = complexity_gdf['geometry']
-    window = rasterio.features.geometry_window(landscan_dataset, geom)
+    # Add the landscan window for each block's geometry
+    gdf_complexity = add_landscan_data(ls_dataset, gdf_complexity)
+
+    # Now calculate the pop estimate for each block
+    pop_fn = lambda s: calculate_population_uniform_dist(s['geometry'], ls_dataset, s['windows'])
+    gdf_complexity['pop_est'] = gdf_complexity.apply(pop_fn, axis=1)
+    gdf_complexity['windows'] = gdf_complexity['windows'].map(lambda x: x.todict())
+    gdf_complexity['geometry'] = gdf_complexity['geometry'].map(lambda x: x.wkt)
+
+    f = "complexity_pop_{}.csv".format(gadm)
+    output_path = DATA / 'LandScan_Global_2018' / region / country_code
+    output_path.mkdir(parents=True, exist_ok=True)
+    #gdf_complexity.to_file(output_path / f, driver='GeoJSON')
+    gdf_complexity.to_csv(output_path / f)
+
+# obs0 = gdf_complexity.iloc[0]
+# window = obs0['windows']
+# geom = obs0['geometry']   
+
+# geo_series, pop_series = calculate_population(geom, ls_dataset, window)
+# df = gpd.GeoDataFrame({'geometry':geo_series, 'pop': pop_series}) 
+
+# ax = df.plot(column=df['pop'])
+# # We just need a function to distribute the data pro-rata 
+# # based on some intersection
+
+
+# def main_process_tif_to_geojson():
+#     landscan_path = DATA / 'LandScan_Global_2018' / 'ls_2018.tif'
+
+#     dataset = rasterio.open(landscan_path)
+#     bounds = dataset.bounds 
+#     resolution = 30 / 3600 # resolution of dataset in degrees
+#     delta = resolution
+
+#     top = bounds.top 
+#     bottom = bounds.bottom 
+#     left = bounds.left 
+#     right = bounds.right 
+
+#     print("Reading tif file....")
+#     mat = dataset.read(1)
+#     print("...complete!")
+
+#     x_coords = np.linspace(left, right, dataset.shape[0])
+#     y_coords = np.linspace(top, bottom, dataset.shape[1])
+
+#     df_dict = {}
+#     df_dict['geometry'] = []
+#     df_dict['population'] = []
+#     df_dict['grid_idx'] = []
 
 
 
-# if __name__ == "__main__":
+# def make_landscan_gadm_file(region, country_code, gadm, landscan_dataset=None):
 
-#     parser = argparse.ArgumentParser(description='utilities to process LandScan data')
-#     subparsers = parser.add_subparsers()
+#     # Get complexity file
+#     f = "complexity_{}.csv".format(gadm)
+#     complexity_gdf = load_complexity(region, country_code, f)
 
-#     parser_from_tif = subparsers.add_parser('from_tif', help='Convert the .tif to geojson')
-#     parser_from_tif.set_defaults(func = main_process_tif_to_geojson)
+#     if landscan_dataset is None:
+#         ls_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
+#         landscan_dataset = rasterio.open(ls_path)
 
-#     args = parser.parse_args()
-#     args.func()
+#     # Get the window in our LandScan dataset that contains the AoI
+#     geom = complexity_gdf['geometry']
+#     window = rasterio.features.geometry_window(landscan_dataset, geom)
+
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='utilities to process LandScan data')
+    parser.add_argument('region', type=str, help='Geographic region')
+    parser.add_argument('country_code', type=str, help='3-letter country code')
+    parser.add_argument('gadm', type=str, help='gadm code')
+    
+    args = parser.parse_args()
+
+    #process_gadm_landscan(region, country_code, gadm)
+    process_gadm_landscan(**vars(args))
