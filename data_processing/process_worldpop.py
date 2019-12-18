@@ -8,6 +8,7 @@ from shapely.geometry import MultiPolygon, Polygon, MultiLineString
 from shapely.wkt import loads
 import argparse 
 import tqdm
+import copy 
 
 root = Path('../')
 DATA = root / 'data' 
@@ -23,13 +24,10 @@ def load_complexity(region, country_code, f):
     gdf_complexity.crs = {'init': 'epsg:4326'}  
     gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
     #print(gdf_complexity.crs)
-    print("A1")
-    gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:3395'})
-    print("A2")
-    gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].area / (10**6)  
-    print("A3")
+    #gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:3395'})
+    gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
     #gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
-    gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:4326'})
+    #gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:4326'})
 
     #gdf_bldgs = gpd.GeoDataFrame(df[['block_id', 'centroids_multipoint']])
     return gdf_complexity
@@ -90,6 +88,16 @@ def process_gadm_landscan(region, country_code, gadm):
     #gdf_complexity.to_file(output_path / f, driver='GeoJSON')
     gdf_complexity.to_csv(output_path / f)
 
+def process_path_landscan(path_to_complexity_files):
+
+    p = Path(path_to_complexity_files)
+    country_code = p.stem 
+    region = p.parent.stem
+    all_files = list(p.iterdir())
+    for full_path in tqdm.tqdm(all_files, total=len(all_files)):
+        gadm = full_path.stem.replace('complexity_', '')
+        process_gadm_landscan(region, country_code, gadm)
+
 # obs0 = gdf_complexity.iloc[0]
 # window = obs0['windows']
 # geom = obs0['geometry']   
@@ -148,11 +156,21 @@ def process_gadm_landscan(region, country_code, gadm):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='utilities to process LandScan data')
-    parser.add_argument('region', type=str, help='Geographic region')
-    parser.add_argument('country_code', type=str, help='3-letter country code')
-    parser.add_argument('gadm', type=str, help='gadm code')
+    subparsers = parser.add_subparsers()
+
+    # Args for when you just want a single GADM
+    sub_parser_single = subparsers.add_parser('single')
+    sub_parser_single.add_argument('region', type=str, help='Geographic region')
+    sub_parser_single.add_argument('country_code', type=str, help='3-letter country code')
+    sub_parser_single.add_argument('gadm', type=str, help='gadm code')
+    sub_parser_single.set_defaults(func=process_gadm_landscan)
+    
+    # Args for doing a directory
+    sub_parser_path = subparsers.add_parser('path')
+    sub_parser_path.add_argument('path_to_complexity_files', type=str, help='path to a complexity folder of which to process')
+    sub_parser_path.set_defaults(func=process_path_landscan)
     
     args = parser.parse_args()
-
-    #process_gadm_landscan(region, country_code, gadm)
-    process_gadm_landscan(**vars(args))
+    d_args = copy.copy(vars(args))
+    del d_args['func']
+    args.func(**d_args)
