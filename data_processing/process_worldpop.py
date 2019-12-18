@@ -24,11 +24,12 @@ def load_complexity(region, country_code, f):
     gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
     #print(gdf_complexity.crs)
     print("A1")
-    geo_temp = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'})
+    gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:3395'})
     print("A2")
-    gdf_complexity['block_area_km2'] = geo_temp.area / (10**6)  
+    gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].area / (10**6)  
     print("A3")
     #gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
+    gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:4326'})
 
     #gdf_bldgs = gpd.GeoDataFrame(df[['block_id', 'centroids_multipoint']])
     return gdf_complexity
@@ -63,8 +64,8 @@ def process_gadm_landscan(region, country_code, gadm):
 
     # region = 'Africa'
     # country_code = 'DJI'
-    country_code = 'SLE'
-    gadm = 'SLE.4.2.1_1'
+    # country_code = 'SLE'
+    # gadm = 'SLE.4.2.1_1'
     # gadm = 'DJI.1.1_1'
     landscan_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
 
