@@ -25,15 +25,12 @@ BLOCK_PATH = os.path.join(DATA_PATH, "blocks")
 BLDGS_PATH = os.path.join(DATA_PATH, "buildings")
 PARCELS_PATH = os.path.join(DATA_PATH, "parcels")
 LINES_PATH = os.path.join(DATA_PATH, "lines")
+COMPLEXITY_PATH = os.path.join(DATA_PATH, "complexity")
 
-# some test params
-# region = "Africa"
-# gadm_code = "SLE"
-# gadm = "SLE.2.2.5_1"
-region = "Africa"
-gadm_code = "DJI"
-gadm = "DJI.3.1_1"
-example_block = 'DJI.3.1_1_26'
+THRESHOLD_METERS = 1
+WATERWAY_WEIGHT = 1e5 
+NATURAL_WEIGHT = 1e5
+
 
 def point_to_node(point: Point):
     '''
@@ -71,9 +68,32 @@ def load_geopandas_files(region: str, gadm_code: str,
     bldgs = gpd.read_file(bldgs_path)
     blocks = csv_to_geo(blocks_path)
     parcels = gpd.read_file(parcels_path)
-    lines = gpd.read_file(lines_path)
 
-    return bldgs, blocks, parcels, lines
+    return bldgs, blocks, parcels, None
+
+def load_reblock_inputs(region: str, gadm_code: str, gadm: str):
+
+    complexity_path = os.path.join(COMPLEXITY_PATH, region, gadm_code, "complexity_{}.csv".format(gadm))
+    parcels_path = os.path.join(PARCELS_PATH, region, gadm_code, "parcels_{}.geojson".format(gadm))
+
+    # Load the complexity file
+    complexity = pd.read_csv(complexity_path)    
+    complexity = gpd.GeoDataFrame(complexity)
+    complexity['geometry'] = complexity['geometry'].apply(loads)
+    complexity.rename(columns={'centroids_multipoint': 'buildings'}, inplace=True)
+    complexity.set_geometry('geometry', inplace=True)
+    load_fn = lambda x: [point_to_node(p) for p in loads(x)]
+    complexity['buildings'] = complexity['buildings'].apply(load_fn)
+    complexity['building_count'] = complexity['buildings'].apply(lambda x: len(x))
+
+    # Split it into two dataframes
+    buildings_df = complexity[['block_id', 'buildings', 'building_count']]
+    blocks_df = complexity[['block_id', 'geometry']]
+
+    # Now load the parcels
+    parcels_df = gpd.read_file(parcels_path)
+    return parcels_df, buildings_df, blocks_df 
+
 
 def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame, 
                                                parcels: gpd.GeoDataFrame) -> pd.DataFrame:
@@ -130,32 +150,6 @@ def edge_list_from_linestrings(lines_df):
     return all_edges
 
 
-# def update_graph_with_edge_type(graph, lines:gpd.GeoDataFrame):
-#     '''
-#     Split the lines DataFrame into lists of edges of type 'waterway', 'highway', 
-#     and 'natural'. Then loop over the graph's edges and update the weights 
-#     and the edge_type accordingly
-#     '''
-
-#     waterway_edges = edge_list_from_linestrings(lines[lines['waterway'].notna()])
-#     natural_edges = edge_list_from_linestrings(lines[lines['natural'].notna()])
-#     highway_edges = edge_list_from_linestrings(lines[lines['highway'].notna()])
-
-#     for u, v, edge_data in graph.es(data=True):
-#         edge_tuple = (u,v)
-#         if edge_tuple in waterway_edges:
-#             edge_data['weight'] = 999
-#             edge_data['edge_type'] = "waterway"     
-#         elif edge_tuple in natural_edges:
-#             edge_data['weight'] = 999
-#             edge_data['edge_type'] = "natural" 
-#         elif edge_tuple in highway_edges:
-#             edge_data['weight'] = 0
-#             edge_data['edge_type'] = "highway" 
-#         else:
-#             edge_data['edge_type'] = "parcel"
-
-
 def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
 
     block_coords = block.exterior.coords 
@@ -165,12 +159,14 @@ def check_block_parcel_consistent(block: MultiPolygon, parcel: MultiLineString):
         assert block_coord in parcel_coords
 
 
-def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False):
+def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=False, lines_pgraph=None):
 
-    coords_list = list(block_polygon.exterior.coords)
-    coords = set(coords_list)
+    block_coords_list = list(block_polygon.exterior.coords)
+    coords = set(block_coords_list)
 
     rv = (None, None)
+    missing = None
+    total = None
     # Option to verify that each point in the block is in fact in the parcel
     if check:
         parcel_coords = set(v['name'] for v in parcel_graph.vs)
@@ -179,106 +175,155 @@ def update_edge_types(parcel_graph: PlanarGraph, block_polygon: Polygon, check=F
         for coord in coords:
             is_in = is_in+1 if coord in parcel_coords else is_in 
             total += 1
-        print("{} of {} block coords are NOT in the parcel coords".format(total-is_in, total)) 
-        rv = (total-is_in, total)
+        missing = total-is_in
+        #print("{} of {} block coords are NOT in the parcel coords".format(missing, total)) 
 
     # Get list of coord_tuples from the polygon
-    assert coords_list[0] == coords_list[-1], "Not a complete linear ring for polygon"
-    for i, n0 in enumerate(coords_list):
+    assert block_coords_list[0] == block_coords_list[-1], "Not a complete linear ring for polygon"
+
+    # Loop over the block coords (as define an edge) and update the corresponding edge type in the graph accordingly
+    # NOTE: every block coord will be within the parcel graph vertices
+    for i, n0 in enumerate(block_coords_list):
         if i==0:
             continue
         else:
-            n1 = coords_list[i-1]
+            n1 = block_coords_list[i-1]
             u_list = parcel_graph.vs.select(name_eq=n0)
             v_list = parcel_graph.vs.select(name_eq=n1)
             if len(u_list) > 0 and len(v_list) > 0:
                 u = u_list[0]
                 v = v_list[0]
                 path_idxs = parcel_graph.get_shortest_paths(u, v, weights='weight', output='epath')[0]
-                #if len(path_idxs) > 1:
-                    #print("Length of shortest path = {} edges".format(len(path_idxs)))
-                parcel_graph.es[path_idxs]['edge_type'] = 'from_block'
-    parcel_graph.es.select(edge_type_eq='from_block')['weight'] = 0
 
+                # the coords u and v from the block are
+                if lines_pgraph is None:
+                    parcel_graph.es[path_idxs]['edge_type'] = 'highway'
+                else:
+                    ft_type = get_feature_type_from_lines(lines_pgraph, n0, n1 )
+                    parcel_graph.es[path_idxs]['edge_type'] = 'new'
+
+                    # Now view our new graph
+                    parcel_df = convert_to_gpd(parcel_graph)
+                    print("\n\n changing to {}".format(ft_type))
+                    plot_types(parcel_df)
+                    plt.show()
+                    parcel_graph.es[path_idxs]['edge_type'] = ft_type
+
+    parcel_graph.es.select(edge_type_eq='highway')['weight'] = 0
+    parcel_graph.es.select(edge_type_eq='waterway')['weight'] = WATERWAY_WEIGHT
+    parcel_graph.es.select(edge_type_eq='natural')['weight'] = NATURAL_WEIGHT
+
+    rv = (missing, total)
     return rv 
 
+###########################################################################################
+###########################################################################################
+# NOTE: this section is all code used to recover the feature type (i.e. waterway, road, natural)
+#       contained within OSM but not contained within the block files
+
+def convert_to_gpd(g):
+
+    if 'edge_type' not in g.es.attributes():
+        g.es['edge_type'] = None 
+        
+    edge_geom = [LineString(g.edge_to_coords(e)) for e in g.es]
+    edge_types = g.es['edge_type']
+
+    df = pd.DataFrame(data={'geometry':edge_geom, 'edge_type': edge_types})
+    return gpd.GeoDataFrame(df)
+
+def plot_types(g):
+
+    edge_color_map = {'new': 'red', None: 'orange', 'waterway': 'blue', 
+                      'highway': 'black', 'natural': 'green', 'gadm_boundary': 'orange'}
+    ax = g[g['edge_type'].isna()].plot(color='red')
+
+    for t in g.edge_type.unique():
+        d = g[g['edge_type'] == t]
+        if d.shape[0] > 0:
+            d.plot(ax=ax, color=edge_color_map[t])
 
 
+def create_lines_graph(lines: gpd.GeoDataFrame) -> PlanarGraph:
+    '''
+    Create a PlanarGraph based on a lines GeoDataFrame. The graph will
+    have a feature_type attribute for the edges
+    '''
 
+    b_waterway = ((lines['highway']=="") & (lines['natural']=="")) | (lines['waterway'].notna())
+    b_highway = ((lines['waterway']=="") & (lines['natural']=="")) | (lines['highway'].notna())
+    b_natural = ((lines['highway']=="") & (lines['waterway']=="")) | (lines['natural'].notna())
+
+    lines['feature_type'] = None 
+    lines.loc[b_waterway,'feature_type']='waterway' 
+    lines.loc[b_highway,'feature_type']='highway' 
+    lines.loc[b_natural,'feature_type']='natural' 
+    assert np.all(lines['feature_type'].notna())
+
+    pgraph = PlanarGraph()
+    for index, row in lines[['feature_type','geometry']].iterrows():
+        ft = row['feature_type']
+        coords_list = list(row['geometry'].coords)
+        for i, coords in enumerate(coords_list):
+            if i == 0:
+                continue 
+            else:
+                pgraph.add_edge(coords, coords_list[i-1], feature_type=ft)
+    return pgraph 
+
+def get_feature_type_from_lines(lines_pgraph: PlanarGraph, coords0, coords1 ) -> str:
+
+    # edge0_ft = lines_pgraph.add_node_to_closest_edge(coords0, get_edge=True)['feature_type']
+    # edge1_ft = lines_pgraph.add_node_to_closest_edge(coords1, get_edge=True)['feature_type']
+    edge0, dist0 = lines_pgraph.add_node_to_closest_edge(coords0, get_edge=True)
+    edge1, dist1 = lines_pgraph.add_node_to_closest_edge(coords1, get_edge=True)
+
+    # If our 'closest edge' is in fact relatively far from any line, then the block point
+    #    is actually probably from the GADM boundary
+    edge0_ft = 'gadm_boundary' if dist0 > THRESHOLD_METERS else edge0['feature_type']
+    edge1_ft = 'gadm_boundary' if dist1 > THRESHOLD_METERS else edge1['feature_type']
+
+    if edge0_ft != edge1_ft:
+        print("block coords are different types --> coord0 = {} | coord1 = {}".format(edge0_ft, edge1_ft))
+
+        if 'highway' in (edge0_ft, edge1_ft):
+            return 'highway'
+        else:
+            return 'natural'
+    else:
+        return edge0_ft
+
+
+###########################################################################################
+###########################################################################################
 
 if __name__ == "__main__":
 
-    # #########################################
-    # waterway_edges = edge_list_from_linestrings(example_lines[example_lines['waterway'].notna()])
-    # natural_edges = edge_list_from_linestrings(example_lines[example_lines['natural'].notna()])
-    # highway_edges = edge_list_from_linestrings(example_lines[example_lines['highway'].notna()])
+    BLOCKS = '../data/blocks/Africa/KEN'
+    LINES = BLOCKS.replace("DJI", "KEN").replace("blocks", "lines")
 
-    # for u, v, edge_data in example_graph.edges(data=True):
-    #     edge_tuple = (u,v)
-    #     if edge_tuple in waterway_edges:
-    #         edge_data['weight'] = 999
-    #         edge_data['edge_type'] = "waterway"     
-    #     elif edge_tuple in natural_edges:
-    #         edge_data['weight'] = 999
-    #         edge_data['edge_type'] = "natural" 
-    #     elif edge_tuple in highway_edges:
-    #         edge_data['weight'] = 0
-    #         edge_data['edge_type'] = "highway" 
-    #     else:
-    #         edge_data['edge_type'] = "parcel"
+    gadm = 'KEN.30.10.1_1'
+    lines = gpd.read_file(os.path.join(LINES, 'lines_{}.geojson'.format(gadm)))
+    blocks = csv_to_geo(os.path.join(BLOCKS, 'blocks_{}.csv'.format(gadm)))
 
-    # #########################################
+    b_waterway = ((lines['highway']=="") & (lines['natural']=="")) | (lines['waterway'].notna())
+    b_highway = ((lines['waterway']=="") & (lines['natural']=="")) | (lines['highway'].notna())
+    b_natural = ((lines['highway']=="") & (lines['waterway']=="")) | (lines['natural'].notna())
 
+    lines['feature_type'] = None 
+    lines.loc[b_waterway,'feature_type']='waterway' 
+    lines.loc[b_highway,'feature_type']='highway' 
+    lines.loc[b_natural,'feature_type']='natural' 
+    assert np.all(lines_df['feature_type'].notna())
 
+    fig, ax = plt.subplots(1,2)
+    blocks.plot(alpha=0.2, color='black', ax=ax[0])
 
-    # (1) Just load our data for one GADM
-    bldgs, blocks, parcels, lines = load_geopandas_files(region, gadm_code, gadm) 
+    colors = {'waterway':'blue', 'highway':'red', 'natural':'green'}
 
-    # (2) Now build the parcel graph and prep the buildings
-    graph_parcels = prepare_parcels(bldgs, blocks, parcels)
+    for f in ['waterway', 'highway', 'natural']:
 
-    # (3) We can grab a graph, and just add the corresponding building Nodes
-    example_graph = graph_parcels[graph_parcels['block_id']==example_block]['planar_graph'].item()
-    example_buildings = graph_parcels[graph_parcels['block_id']==example_block]['buildings'].item()
-    example_block = blocks[blocks['block_id']==example_block]['block_geom'].item()
-    BOOM 
+        d = lines[lines['feature_type']==f]
+        if d.shape[0] > 0:
+            d.plot(color=colors[f], ax=ax[1])
 
-    print("\nGraph pre-adding building nodes:\n", example_graph, "\n")
-    total_blgds = len(example_buildings)
-
-    for i, bldg_node in enumerate(example_buildings):
-        example_graph.add_node_to_closest_edge(bldg_node, terminal=True)
-        print("through {} of {} buildings".format(i, total_blgds))
-
-    print("Graph post-adding building nodes:\n", example_graph)
-
-    # (4) Now we take out example graph and update the weights on those edges
-    example_lines = lines[lines['block_id']==example_block]
-    #update_graph_with_edge_type(example_graph, example_lines)
-     
-    #steiner = example_graph.steiner_tree_approx()
-    #example_graph.plot_reblock()
-
-    # Graph snippet
-    ax = parcels[parcels['block_id']==block_id].plot(color='blue', alpha=0.5)
-    lines[(lines['block_id']==block_id)&lines['waterway'].notna()].plot(ax=ax, color='blue')
-    lines[(lines['block_id']==block_id)&lines['highway'].notna()].plot(ax=ax, color='black')
-    lines[(lines['block_id']==block_id)&lines['natural'].notna()].plot(ax=ax, color='green')
-
-    fig, axes = plt.subplots(nrows=1, ncols=2)
-
-    # Plot the lines
-    lines[(lines['block_id']==block_id)&lines['waterway'].notna()].plot(ax=axes[0], color='blue')
-    lines[(lines['block_id']==block_id)&lines['highway'].notna()].plot(ax=axes[1], color='black')
-    lines[(lines['block_id']==block_id)&lines['natural'].notna()].plot(ax=axes[0], color='green')
-
-    # Plot the resulting block
-    #blocks[blocks['block_id']==block_id].plot(ax=axes[1], color='black')
-
-    # Plot the resulting parcel
-    parcels[parcels['block_id']==block_id].plot(ax=axes[1], color='black')
-
-
-    waterway_edges = edge_list_from_linestrings(lines[(lines['block_id']==block_id)&lines['waterway'].notna()])
-    natural_edges = edge_list_from_linestrings(lines[(lines['block_id']==block_id)&lines['natural'].notna()])
-    highway_edges = edge_list_from_linestrings(lines[(lines['block_id']==block_id)&lines['highway'].notna()])

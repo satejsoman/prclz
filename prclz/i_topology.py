@@ -13,6 +13,9 @@ import time
 import matplotlib.pyplot as plt 
 import sys 
 import argparse
+import geopy.distance as gpy 
+import pandas as pd 
+import geopandas as gpd
 
 # These two globals control the growth of the buffer when we search for intersecting
 #     lines when we add a node to the closest edge. They may be suboptimal
@@ -34,12 +37,22 @@ def igraph_steiner_tree(G, terminal_vertices, weight='weight'):
         H.add_edge(u['name'], v['name'], **kwargs)
 
     # Now get the MST of that complete graph of only terminal_vertices
+    if "weight" not in H.es.attributes():
+        print("----H graph does not have weight, ERROR")
+        print("\t\t there are {}".format(len(terminal_vertices)))
     mst_edge_idxs = H.spanning_tree(weights='weight', return_tree=False)
 
     # Now, we join the paths for all the mst_edge_idxs
     steiner_edge_idxs = list(chain.from_iterable(H.es[i]['path'] for i in mst_edge_idxs))
 
     return steiner_edge_idxs
+
+def distance_meters(a0, a1):
+
+    lonlat_a0 = gpy.lonlat(*a0)
+    lonlat_a1 = gpy.lonlat(*a1)
+
+    return gpy.distance(lonlat_a0, lonlat_a1).meters
 
 def distance(a0, a1):
 
@@ -331,15 +344,23 @@ class PlanarGraph(igraph.Graph):
             else:
                 return edge_tuple[1]
 
-    def edge_to_coords(self, edge):
+    def edge_to_coords(self, edge, expand=False):
         '''
         Given an edge, returns the edge_tuple of
         the corresponding coordinates
+
+        NOTE: if we have simplified the graph then we need
+              to unpack the nodes which are saved within
+              the 'path' attribute 
         '''
+
         v0_idx, v1_idx = edge.tuple 
         v0_coords = self.vs[v0_idx]['name']
         v1_coords = self.vs[v1_idx]['name']
-        edge_tuple = (v0_coords, v1_coords)
+        if expand:
+            edge_tuple = [v0_coords] + edge['path'] + [v1_coords]
+        else:
+            edge_tuple = (v0_coords, v1_coords)
 
         return edge_tuple 
 
@@ -372,7 +393,7 @@ class PlanarGraph(igraph.Graph):
         #print("Found {}/{} possible edges thru {} tries".format(len(edges), len(self.es), i))
         return edges 
 
-    def add_node_to_closest_edge(self, coords, terminal=False, fast=True):
+    def add_node_to_closest_edge(self, coords, terminal=False, fast=True, get_edge=False):
         '''
         Given the input node, this finds the closest point on each edge to that input node.
         It then adds that closest node to the graph. It splits the argmin edge into two
@@ -402,8 +423,12 @@ class PlanarGraph(igraph.Graph):
             closest_edge_distances.append(closest_distance)
 
         argmin = np.argmin(closest_edge_distances)
+
         closest_node = closest_edge_nodes[argmin]
         closest_edge = self.edge_to_coords(cand_edges[argmin])
+        if get_edge:
+            dist_meters = distance_meters(coords, closest_node)
+            return cand_edges[argmin], dist_meters
 
         # Now add it
         self.split_edge_by_node(closest_edge, closest_node, terminal=terminal)
@@ -445,9 +470,20 @@ class PlanarGraph(igraph.Graph):
         '''
         Takes the Steiner optimal edges from g and converts them
         '''
-        lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
-        multi_line = unary_union(lines)
-        return multi_line 
+        existing_lines = []
+        new_lines = []
+        for e in self.es:
+            if e['steiner']:
+                #if e['edge_type'] == 'highway':
+                if e['weight'] == 0:
+                    existing_lines.append(LineString(self.edge_to_coords(e, True)))
+                else:
+                    new_lines.append(LineString(self.edge_to_coords(e, True)))
+
+        #lines = [LineString(self.edge_to_coords(e)) for e in self.es if e['steiner']]
+        new_multi_line = unary_union(new_lines)
+        existing_multi_line = unary_union(existing_lines)
+        return new_multi_line, existing_multi_line
 
     def get_terminal_points(self) -> MultiPoint:
         '''
@@ -466,11 +502,79 @@ class PlanarGraph(igraph.Graph):
         multi_line = unary_union(lines)
         return multi_line 
 
+    # These methods are for simplifying the graph
+    def simplify_node(self, vertex):
+        '''
+        If we simplify node B with connections A -- B -- C
+        then we end up with (AB) -- C where the weight 
+        of the edge between (AB) and C equals the sum of the
+        weights between A-B and B-C
+
+        NOTE: this allows the graph to simplify long strings of nodes
+        '''
+
+        # Store the 2 neighbors of the node we are simplifying
+        n0_vtx, n1_vtx = vertex.neighbors()
+        n0_name = n0_vtx['name']
+        n1_name = n1_vtx['name']
+        n0_seq = self.vs.select(name=n0_vtx['name'])
+        n1_seq = self.vs.select(name=n1_vtx['name'])
+        v = self.vs.select(name=vertex['name'])
+
+        # Grab each neighbor edge weight
+        edge_n0 = self.es.select(_between=(n0_seq, v))
+        edge_n1 = self.es.select(_between=(n1_seq, v))
+        total_weight = edge_n0[0]['weight'] + edge_n1[0]['weight']
+
+        # Form a new edge between the two neighbors
+        # The new_path must reflect the node that will be removed and the
+        #    2 edges that will be removed
+        new_path = edge_n0[0]['path'] + [vertex['name']] + edge_n1[0]['path']
+        super().add_edge(n0_seq[0], n1_seq[0], weight=total_weight, path=new_path)
+
+        # Now we can delete the vertex and its 2 edges
+        edge_n0 = self.es.select(_between=(n0_seq, v))
+        super().delete_edges(edge_n0)
+
+        edge_n1 = self.es.select(_between=(n1_seq, v))
+        super().delete_edges(edge_n1)
+        super().delete_vertices(v)
+
+    def simplify(self):
+        '''
+        Many nodes exist to approximate curves in physical space. Calling this
+        collapses those nodes to allow for faster downstream computation
+        '''
+        if 'path' not in self.vs.attributes():
+            self.es['path'] = [ [] for v in self.vs]
+
+        for v in self.vs:
+            num_neighbors = len(v.neighbors())
+            if num_neighbors == 2 and not v['terminal']:
+                #print("simplifying node {}".format(v['name']))
+                self.simplify_node(v)
+        
+
+
 def convert_to_lines(planar_graph) -> MultiLineString:
     lines = [LineString(planar_graph.edge_to_coords(e)) for e in planar_graph.es]
     multi_line = unary_union(lines)
     return multi_line 
 
+def plot_edge_type(g, output_file):
+
+    edge_color_map = {None: 'red', 'waterway': 'blue', 
+                      'highway': 'black', 'natural': 'green', 'gadm_boundary': 'orange'}
+    visual_style = {}       
+    SMALL = 0       
+    visual_style['vertex_size'] = [SMALL for _ in g.vs]
+
+    if 'edge_type' not in g.es.attributes():
+        g.es['edge_type'] = None 
+    visual_style['edge_color'] = [edge_color_map[t] for t in g.es['edge_type'] ]
+    visual_style['layout'] = [(x[0],-x[1]) for x in g.vs['name']]
+
+    return igraph.plot(g, output_file, **visual_style)
 
 
 def plot_reblock(g, output_file):

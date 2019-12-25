@@ -7,23 +7,25 @@
   cd /project2/bettencourt/mnp/prclz
   git pull
   
-  # Concatenate CSVs and convert to GeoJSON and GeoJSON.ld using ogr2ogr
-  bash /project2/bettencourt/mnp/prclz/mapbox/csv_to_geojson.sh
+  # Concatenate CSVs and convert to GeoJSON.ld using ogr2ogr for Africa, Latin America, Oceania, Europe
+  sbatch /project2/bettencourt/mnp/prclz/mapbox/prep/global_csv_to_geojson.sbatch
   ``` 
-* *(Warning: combines all CSVs files in this path `/project2/bettencourt/mnp/prclz/data/complexity/*/*/*.csv` and converts to one GeoJSON)*
 
-### Mapbox API Upload ###
+### Mapbox API Upload (up to 25 GB geojson.ld) ###
 
  #### Method 1: [Tileset API](https://docs.mapbox.com/api/maps/#tilesets) (cloud mbtile processing) ####
  * Generate Mapbox token [here](https://account.mapbox.com/access-tokens/create) and enable secret scopes
     ```
     MAPBOX_API_TOKEN=(<INSERT TOKEN HERE>)
     ```
- * Check parameter defaults in [tileset_api.sh](https://github.com/mansueto-institute/prclz/blob/master/mapbox/tileset_api.sh) and change as needed.
+ * Check parameter defaults in [kblock_tileset_api_upload.sh](https://github.com/mansueto-institute/prclz/blob/master/mapbox/api/kblock_tileset_api_upload.sh) and change as needed.
     ```
-    sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/tileset_api.sh > /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh
+    sed -e "s/::MAPBOX_API_TOKEN::/${MAPBOX_API_TOKEN}/g" < /project2/bettencourt/mnp/prclz/mapbox/api/kblock_tileset_api_upload.sh > /project2/bettencourt/mnp/prclz/mapbox/api/tileset_api_filled.sh
     ```
- * Then run the API calls `bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh` to upload GEOJSON.ld to Mapbox 
+ * Then run the API calls to upload GEOJSON.ld to Mapbox 
+    ```
+    bash /project2/bettencourt/mnp/prclz/mapbox/tileset_api_filled.sh
+    ```
  * A [Tileset CLI](https://github.com/mapbox/tilesets-cli/) is also available which is a wrapper for the Tileset API 
  
  #### Method 2: tippecanoe (local mbtile processing) ####
@@ -45,7 +47,7 @@
  * Convert GeoJSON files to mbtiles
    ```
    cd /project2/bettencourt/mnp/prclz/data/tilesets
-   sbatch /project2/bettencourt/mnp/prclz/mapbox/tippecanoe_tileset.sbatch
+   sbatch /project2/bettencourt/mnp/prclz/mapbox/tippecanoe/tippecanoe_tileset.sbatch
    ```
  * Tranfer to local
    ```
@@ -62,6 +64,12 @@
   * Go to "Style" > "Style across data range" > "Choose numeric data field" > *Complexity # Numeric*
   * Edit color range (i.e., when complexity = 0 is green, complexity = 2 is white, complexity > 2 is red gradient)
   * Click "Share..." copy the "Your style URL" and the "Your access token" -- these go into your index.html file
+    ```
+    complexity: 0 #0571b0
+    complexity: 2 #f7f7f7
+    complexity: 5 #f4a582
+    complexity: 11 #cc0022
+    ```
   
   #### Basics of Mapbox GL JS ####
   * Here is the link to the [404.html, index.html, and index.js](https://github.com/mansueto-institute/prclz/tree/master/mapbox/build) that flow into the Mapbox visualization
@@ -111,3 +119,8 @@
     ```
    * Make sure to add the [Firebase JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L143) to the end of the HTML body and the [Google Analytics JS](https://github.com/mansueto-institute/prclz/blob/master/mapbox/build/index.html#L56) to the HTML head.
     
+### Data Sharing ###
+  #### How to contruct country level shapefiles ####
+  * Run `external_data_prep.sbatch` which will iterate through all complexity files and combine them into country level .geojson and .csv files.
+  * Run `find /project2/bettencourt/mnp/prclz/data/data_release/Africa -name "*.csv" -type f -delete` to delete CSVs only.
+  
