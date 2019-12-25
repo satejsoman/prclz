@@ -25,7 +25,7 @@ def read_file(path, **kwargs):
     return gpd.GeoDataFrame(raw, geometry="geometry")
 
 
-def calculate_complexity(index, output, block, centroids):
+def calculate_complexity(index, output, block, centroids, cache_files):
     block_cache = output.parent/(str(index) + ".block.cache")
     if block_cache.exists():
         info("Reading cached k-value for %s", index)
@@ -41,6 +41,7 @@ def calculate_complexity(index, output, block, centroids):
         with block_cache.open('w') as f:
             print(complexity, file=f)
             print(shapely.wkt.dumps(centroids_multipoint), file=f)
+    cache_files.append(block_cache)
 
     return (index, complexity, centroids_multipoint)
 
@@ -59,8 +60,9 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, overw
         block_buildings = blocks.join(block_aggregation)
         block_buildings = block_buildings[pd.notnull(block_buildings["centroids"])]
 
+        cache_files = []
         info("Calculating block complexity.")
-        complexity = [(calculate_complexity)(idx, complexity_output, block, centroids) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples()]
+        complexity = [calculate_complexity(idx, complexity_output, block, centroids, cache_files) for (idx, block, centroids) in block_buildings[["geometry", "centroids"]].itertuples()]
         
         info("Restructuring complexity calculations by block_id index.")
         block_buildings = block_buildings.join(pd.DataFrame(complexity, columns=["block_id", "complexity", "centroids_multipoint"]).set_index("block_id"))
@@ -69,7 +71,6 @@ def main(blocks_path: Path, buildings_path: Path, complexity_output: Path, overw
         block_buildings[['geometry', 'complexity', 'centroids_multipoint']].to_csv(complexity_output)
         # cleanup 
         info("Removing cache files.")
-        cache_files = glob.glob(str(complexity_output.parent/"*.block.cache"))
         for cache_file in cache_files:
             os.remove(cache_file)
 
