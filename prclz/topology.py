@@ -1,13 +1,14 @@
+import pickle
 from itertools import chain, combinations, product
 from typing import Sequence
+from logging import debug 
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.algorithms import approximation as nx_approx
 import numpy as np
 import shapely.geos
-from shapely.geometry import Polygon, LineString
-import pickle 
+from networkx.algorithms import approximation as nx_approx
+from shapely.geometry import LineString, Polygon
 
 """ implementation of planar graph """
 
@@ -266,9 +267,11 @@ class PlanarGraph(nx.Graph):
 
     @staticmethod
     def from_polygons(polygons: Sequence[Polygon], name="S"):
+        n = len(polygons)
+        debug("Building planar graph %s from %s polygons", name, n)
         nodes = dict()
         faces = []
-        for polygon in polygons:
+        for (i, polygon) in enumerate(polygons):
             polygon_nodes = []
             for node in map(Node, polygon.exterior.coords):
                 if node not in nodes:
@@ -276,8 +279,9 @@ class PlanarGraph(nx.Graph):
                     nodes[node] = node
                 else:
                     polygon_nodes.append(nodes[node])
-                edges = [tuple(polygon_nodes[i:i+2]) for i in range(len(polygon_nodes)-1)]
-                faces.append(Face(edges))
+            edges = [(polygon_nodes[i], polygon_nodes[i+1]) for i in range(len(polygon_nodes)-1)]
+            faces.append(Face(edges))
+            debug("processed polygon %s; total number of faces: %s", i, len(faces))
 
         graph = PlanarGraph(name=name)
 
@@ -517,6 +521,3 @@ class PlanarGraph(nx.Graph):
 
         with open(file_path, 'wb') as file:
             pickle.dump(self, file)
- 
-
-
