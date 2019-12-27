@@ -4,9 +4,9 @@ from typing import Sequence, Tuple, Union
 import geopandas as gpd
 import pytess
 from shapely.geometry import MultiPolygon, Point, Polygon
+import shapely
 
 from .topology import PlanarGraph
-
 
 def get_s0_approximation(block: Polygon, centroids: Sequence[Tuple[float, float]]) -> PlanarGraph:
     """ approximates the initial connectivity graph by partitioning 
@@ -18,10 +18,15 @@ def get_s0_approximation(block: Polygon, centroids: Sequence[Tuple[float, float]
 
     # get internal parcels from the voronoi decomposition of space, given building centroids
     debug("intersecting Voronoi decomposition with block geometry")
-    intersected_polygons = [
-        (Point(anchor), Polygon(vs).buffer(0).intersection(block)) 
-        for (anchor, vs) in pytess.voronoi(centroids) 
-        if (anchor and anchor not in boundary_set and len(vs) > 2)]
+    intersected_polygons = []
+    for (anchor, vs) in pytess.voronoi(centroids):
+        if anchor and anchor not in boundary_set and len(vs) > 2:
+            anchor_pt = Point(anchor)
+            try: 
+                polygon = Polygon(vs).buffer(0).intersection(block)
+                intersected_polygons.append((anchor_pt, polygon))
+            except shapely.errors.TopologicalError as e:
+                debug("invalid geometry at polygon %s\n%s", vs, e)
 
     # simplify geometry when multiple areas intersect original block
     debug("simplifying multi-polygon intersections")
