@@ -482,10 +482,12 @@ class PlanarGraph(nx.Graph):
 
     def weak_dual(self):
         dual = PlanarGraph()
+        debug("building r tree for %s", self)
         idx = rtree.index.Index()
         for i, f in enumerate(self.trace_faces()):
             idx.insert(i, f.bounds(), f)
-
+        
+        debug("building weak dual for %s", self)
         for (fn, face1) in enumerate(self.trace_faces()):
             nearest = list(_.object for _ in idx.nearest(face1.bounds(), MAX_CENTROID_DEGREE, objects=True))
             debug("nearest-polygon search for face %s yielded %s results", fn, len(nearest))
