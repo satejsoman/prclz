@@ -17,9 +17,10 @@ def get_s0_approximation(block: Polygon, centroids: Sequence[Tuple[float, float]
     boundary_set = set(boundary_points)
 
     # get internal parcels from the voronoi decomposition of space, given building centroids
-    debug("intersecting Voronoi decomposition with block geometry")
     intersected_polygons = []
-    for (anchor, vs) in pytess.voronoi(centroids):
+    decomposition = pytess.voronoi(centroids)
+    debug("intersecting Voronoi decomposition (N=%s) with block geometry", len(decomposition))
+    for (anchor, vs) in decomposition:
         if anchor and anchor not in boundary_set and len(vs) > 2:
             anchor_pt = Point(anchor)
             try: 
