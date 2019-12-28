@@ -1,20 +1,21 @@
-from typing import Iterable 
+import argparse
+import os
+import sys
+import time
+from typing import Iterable
 
 import geopandas as gpd
-from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, LineString
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from shapely.geometry import (LineString, MultiLineString, MultiPolygon, Point,
+                              Polygon)
 from shapely.ops import cascaded_union
 from shapely.wkt import loads
-import pandas as pd
-import numpy as np 
-import time 
 
-import os 
-import matplotlib.pyplot as plt 
-import sys 
-
-import argparse
-from .topology import Node, Edge, PlanarGraph
-from .utils import edge_list_from_linestrings
+from prclz.topology import Edge, Node, PlanarGraph
+from prclz.utils import (edge_list_from_linestrings, load_geopandas_files,
+                         prepare_parcels)
 
 # DEFINE GLOBAL PATHS
 ROOT = "../"

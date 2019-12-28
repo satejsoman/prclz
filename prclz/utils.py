@@ -1,7 +1,12 @@
+import os
 from logging import info, warning
 
 import geopandas as gpd
+import pandas as pd
+import shapely.wkt
 from shapely.geometry import Polygon
+
+from .topology import Node, PlanarGraph
 
 
 def parse_ona_text(text: str) -> Polygon:
@@ -29,7 +34,7 @@ def csv_to_geo(csv_path, add_file_col=False):
     assert df['block_id'].is_unique, "Loading {} but block_id is not unique".format(csv_path)
 
     df.rename(columns={"geometry":"block_geom"}, inplace=True)
-    df['block_geom'] = df['block_geom'].apply(loads)
+    df['block_geom'] = df['block_geom'].apply(shapely.wkt.loads)
 
     if add_file_col:
         f = csv_path.split("/")[-1]
@@ -37,8 +42,7 @@ def csv_to_geo(csv_path, add_file_col=False):
 
     return gpd.GeoDataFrame(df, geometry='block_geom')
 
-def load_geopandas_files(region: str, gadm_code: str, 
-                         gadm: str) -> (gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame):
+def load_geopandas_files(region: str, gadm_code: str, gadm: str) -> (gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame):
 
     bldgs_path = os.path.join(BLDGS_PATH, region, gadm_code, "buildings_{}.geojson".format(gadm))
     lines_path = os.path.join(LINES_PATH, region, gadm_code, "lines_{}.geojson".format(gadm))
@@ -86,10 +90,10 @@ def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame,
     parcels.reset_index(inplace=True)
 
     # Now, create the graph for each parcel
-    parcels['planar_graph'] = parcels['parcel_geometry'].apply(multilinestring_to_planar_graph)
+    parcels['planar_graph'] = parcels['parcel_geometry'].apply(PlanarGraph.from_multilinestring)
 
     # And convert the buildings from shapely.Points -> topology.Nodes
-    parcels['buildings'] = parcels['buildings'].apply(lambda x: [point_to_node(p) for p in x])
+    parcels['buildings'] = parcels['buildings'].apply(lambda x: [Node.from_point(p) for p in x])
 
     return parcels 
 
@@ -101,7 +105,7 @@ def edge_list_from_linestrings(lines_df):
     all_edges = []
     lines_df_geom = lines_df.geometry 
     for l in lines_df_geom:
-        l_graph = linestring_to_planar_graph(l, False)
+        l_graph = PlanarGraph.from_linestring(l, False)
         #l_graph_edges = [Edge(e) for e in l_graph.edges]
         l_graph_edges = [e for e in l_graph.edges]
         all_edges.extend(l_graph_edges)

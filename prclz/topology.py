@@ -27,7 +27,7 @@ class Node:
         self.name = name
 
     @staticmethod
-    def to_node(point: Point) -> Node:
+    def from_point(point: Point) -> Node:
         '''
         Helper function to convert shapely.Point -> Node
         '''
