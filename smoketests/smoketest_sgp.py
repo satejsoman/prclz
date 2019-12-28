@@ -70,14 +70,14 @@ s1 = s0.weak_dual()
 s2 = s1.weak_dual()
 
 
-ax = plt.gca()
-buildings.plot(ax=plt.gca())
-plot_polygons([block], zorder=-10, facecolors=cycle(["black"]))
-plot_polygons(simplified_polygons, zorder=-5, facecolors=cycle(["black"]), alpha=0.2)# buildings.plot(ax=plt.gca())
+# ax = plt.gca()
+# buildings.plot(ax=plt.gca())
+# plot_polygons([block], zorder=-10, facecolors=cycle(["black"]))
+# plot_polygons(simplified_polygons, zorder=-5, facecolors=cycle(["black"]), alpha=0.2)# buildings.plot(ax=plt.gca())
 # s0.plot(node_size=9, ax=ax, node_color="red")
-s1.plot(node_size=7, ax=ax, node_color="green",   edge_color="grey")
-s2.plot(node_size=5, ax=ax, node_color="red", edge_color="#dedede")
-plt.show()
+# s1.plot(node_size=7, ax=ax, node_color="green",   edge_color="grey")
+# s2.plot(node_size=5, ax=ax, node_color="red", edge_color="#dedede")
+# plt.show()
 
 
 def vis(pt):

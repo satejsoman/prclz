@@ -7,9 +7,9 @@ from prclz.topology import Edge, Face, Node, PlanarGraph
 
 
 def plot_double_dual(s0):
-    s1 = s0.weak_dual()
-    s2 = s1.weak_dual()
-
+    s1 = s0.indexed_weak_dual()
+    s2 = s1.indexed_weak_dual()
+    
     plt.figure()
     s0.plot(ax=plt.gca(), node_color='r', node_size=50, width=0.3, edge_color='r')
     s1.plot(ax=plt.gca(), node_color='b', node_size=40, width=0.2, edge_color='b')

@@ -6,9 +6,13 @@ from typing import Iterable, Sequence
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import rtree
 import shapely.geos
 from networkx.algorithms import approximation as nx_approx
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
+
+MAX_CENTROID_DEGREE = 100 
+# DEFAULT_RTREE_PROPERTIES = rtree.index.Property(dimension=2, factor=0.3, leaf_capacity=1000)
 
 """ implementation of planar graph """
 
@@ -27,7 +31,7 @@ class Node:
         self.name = name
 
     @staticmethod
-    def from_point(point: Point) -> Node:
+    def from_point(point: Point):
         '''
         Helper function to convert shapely.Point -> Node
         '''
@@ -224,10 +228,21 @@ class Face:
             self.ordered_edges = planar_edges
         self.nodes = list(sorted(node_set))
         self.name = ".".join(map(str, self.nodes))
+        self._centroid = None
 
     def area(self):
-        return 0.5*abs(sum(e.nodes[0].x*e.nodes[1].y -
-                       e.nodes[1].x*e.nodes[0].y for e in self.ordered_edges))
+        return 0.5*abs(sum(e.nodes[0].x*e.nodes[1].y - e.nodes[1].x*e.nodes[0].y for e in self.ordered_edges))
+
+    def bounds(self):
+        nodes = iter(self.nodes)
+        xmin, ymin = next(nodes)
+        xmax, ymax = xmin, ymin
+        for node in nodes:
+            if node.x < xmin: xmin = node.x
+            if node.x > xmax: xmax = node.x
+            if node.y < ymin: ymin = node.y
+            if node.y > ymax: ymax = node.y
+        return (xmin, ymin, xmax, ymax)
 
     def centroid(self):
         """finds the centroid of a MyFace, based on the shoelace method
@@ -235,36 +250,39 @@ class Face:
         http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
         The method relies on properly ordered edges. """
 
-        a = 0.5*(sum(e.nodes[0].x*e.nodes[1].y - e.nodes[1].x*e.nodes[0].y
-                 for e in self.ordered_edges))
-        if abs(a) < 0.01:
-            cx = np.mean([n.x for n in self.nodes])
-            cy = np.mean([n.y for n in self.nodes])
+        if self._centroid:
+            return self._centroid
+        # acc_a2 here is 2 * (the summand for area) in the wikipedia formula 
+        acc_a2, acc_cx, acc_cy = 0, 0, 0
+        for e in self.ordered_edges:
+            acc_a2 += e.nodes[0].x * e.nodes[1].y - e.nodes[1].x * e.nodes[0].y
+            acc_cx += (e.nodes[0].x + e.nodes[1].x) * (e.nodes[0].x*e.nodes[1].y - e.nodes[1].x*e.nodes[0].y)
+            acc_cy += (e.nodes[0].y + e.nodes[1].y) * (e.nodes[0].x*e.nodes[1].y - e.nodes[1].x*e.nodes[0].y)
+        if abs(acc_a2) < 0.02:
+            cx, cy, n = 0, 0, len(self.nodes)
+            for node in self.nodes:
+                cx, cy = cx + node.x, cy + node.y
+            cx, cy = cx/n, cy/n
         else:
-            cx = (1/(6*a))*sum([(e.nodes[0].x + e.nodes[1].x) *
-                               (e.nodes[0].x*e.nodes[1].y -
-                               e.nodes[1].x*e.nodes[0].y)
-                               for e in self.ordered_edges])
-            cy = (1/(6*a))*sum([(e.nodes[0].y + e.nodes[1].y) *
-                               (e.nodes[0].x*e.nodes[1].y -
-                               e.nodes[1].x*e.nodes[0].y)
-                               for e in self.ordered_edges])
+            a6 = 3*acc_a2
+            cx, cy = acc_cx/a6, acc_cy/a6
 
-        return Node((cx, cy))
+        self._centroid = Node((cx, cy))
+        return self._centroid
 
     def __len__(self):
         return len(self.edges)
 
 
 class PlanarGraph(nx.Graph):
-    def __init__(
-        self, name: str = "S", dual_order: int = 0, incoming_graph_data=None, **attr
-    ):
+    
+    def __init__(self, name: str = "S", dual_order: int = 0, incoming_graph_data = None, **attr):
         attr["name"] = name
         attr["dual_order"] = dual_order
         self.steiner_edges = [] 
         super().__init__(incoming_graph_data=incoming_graph_data, **attr)
 
+    # static constructors for all the various ways we generate planar graphs 
     @staticmethod
     def from_edges(edges, name="S"):
         graph = PlanarGraph(name=name)
@@ -298,7 +316,7 @@ class PlanarGraph(nx.Graph):
         return graph
 
     @staticmethod
-    def from_linestring(linestring: LineString, append_connection:bool=True) -> PlanarGraph:
+    def from_linestring(linestring: LineString, append_connection:bool=True):
         '''
         Helper function to convert a single Shapely linestring
         to a PlanarGraph
@@ -320,7 +338,7 @@ class PlanarGraph(nx.Graph):
         return PlanarGraph.from_edges(edges)
     
     @staticmethod
-    def from_multilinestring(multilinestring: MultiLineString) -> PlanarGraph:
+    def from_multilinestring(multilinestring: MultiLineString):
         '''
         Helper function to convert a Shapely multilinestring
         to a PlanarGraph
@@ -343,7 +361,7 @@ class PlanarGraph(nx.Graph):
         return pgraph
 
     @staticmethod
-    def from_file(file_path: str) -> PlanarGraph:
+    def from_file(file_path: str):
         '''
         Loads a planar graph from a saved via
         '''
@@ -352,11 +370,8 @@ class PlanarGraph(nx.Graph):
             graph = pickle.load(file)
         return graph
 
-
     def __repr__(self):
-        return "{}{} with {} nodes".format(
-            self.name, self.graph["dual_order"], self.number_of_nodes()
-        )
+        return "{}{} with {} nodes".format(self.name, self.graph["dual_order"], self.number_of_nodes())
 
     def __str__(self):
         return self.__repr__()
@@ -435,23 +450,20 @@ class PlanarGraph(nx.Graph):
         self.outerface = Face(facelist[-1])
         self.outerface.edges = [self[e[1]][e[0]]["planar_edge"]
                                 for e in facelist[-1]]
-        inner_facelist = []
         for face in facelist[:-1]:
-            iface = Face(face)
-            iface.edges = [self[e[1]][e[0]]["planar_edge"] for e in face]
-            inner_facelist.append(iface)
+            inner_face = Face(face)
+            inner_face.edges = [self[e[1]][e[0]]["planar_edge"] for e in face]
+            yield inner_face
 
-        return inner_facelist
+        # return inner_facelist
 
-    def weak_dual(self):
-        dual = PlanarGraph(
-            name=self.name,
-            dual_order=self.graph["dual_order"] + 1)
+    def _weak_dual(self):
+        dual = PlanarGraph(name = self.name, dual_order = self.graph["dual_order"] + 1)
 
         if self.number_of_nodes() < 2:
             return dual
 
-        inner_facelist = self.trace_faces()
+        inner_facelist = list(self.trace_faces())
 
         if len(inner_facelist) == 1:
             dual.add_node(inner_facelist[0].centroid())
@@ -463,6 +475,24 @@ class PlanarGraph(nx.Graph):
                 linestrings1 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in edges1]
                 linestrings2 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in edges2]
 
+                if len(set(edges1).intersection(edges2)) > 0 or any((e1.intersects(e2) and e1.touches(e2) and e1.intersection(e2).type != "Point") for (e1, e2) in product(linestrings1, linestrings2)):
+                    dual.add_edge(Edge((face1.centroid(), face2.centroid())))
+
+        return dual
+
+    def weak_dual(self):
+        dual = PlanarGraph()
+        idx = rtree.index.Index()
+        for i, f in enumerate(self.trace_faces()):
+            idx.insert(i, f.bounds(), f)
+
+        for face1 in self.trace_faces():
+            for wrapped in idx.nearest(face1.bounds(), MAX_CENTROID_DEGREE, objects=True):
+                face2 = wrapped.object
+                edges1 = [e for e in face1.edges if not e.road]
+                edges2 = [e for e in face2.edges if not e.road]
+                linestrings1 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in face1.edges]
+                linestrings2 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in face2.edges]
                 if len(set(edges1).intersection(edges2)) > 0 or any((e1.intersects(e2) and e1.touches(e2) and e1.intersection(e2).type != "Point") for (e1, e2) in product(linestrings1, linestrings2)):
                     dual.add_edge(Edge((face1.centroid(), face2.centroid())))
 
