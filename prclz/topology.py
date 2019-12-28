@@ -486,9 +486,10 @@ class PlanarGraph(nx.Graph):
         for i, f in enumerate(self.trace_faces()):
             idx.insert(i, f.bounds(), f)
 
-        for face1 in self.trace_faces():
-            for wrapped in idx.nearest(face1.bounds(), MAX_CENTROID_DEGREE, objects=True):
-                face2 = wrapped.object
+        for (fn, face1) in enumerate(self.trace_faces()):
+            nearest = list(_.object for _ in idx.nearest(face1.bounds(), MAX_CENTROID_DEGREE, objects=True))
+            debug("nearest-polygon search for face %s yielded %s results", fn, len(nearest))
+            for face2 in nearest:
                 edges1 = [e for e in face1.edges if not e.road]
                 edges2 = [e for e in face2.edges if not e.road]
                 linestrings1 = [LineString([(e.nodes[0].x, e.nodes[0].y), (e.nodes[1].x, e.nodes[1].y)]) for e in face1.edges]
