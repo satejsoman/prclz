@@ -481,7 +481,7 @@ class PlanarGraph(nx.Graph):
         return dual
 
     def weak_dual(self):
-        dual = PlanarGraph()
+        dual = PlanarGraph(name = self.name, dual_order = self.graph["dual_order"] + 1)
         debug("building r tree for %s", self)
         idx = rtree.index.Index()
         for i, f in enumerate(self.trace_faces()):
