@@ -1,14 +1,14 @@
 import pickle
 from itertools import chain, combinations, product
-from typing import Sequence
-from logging import debug 
+from logging import debug
+from typing import Iterable, Sequence
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import shapely.geos
 from networkx.algorithms import approximation as nx_approx
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 
 """ implementation of planar graph """
 
@@ -25,6 +25,13 @@ class Node:
         self.barrier = False
         self.terminal = False    # This denotes whether we Node is the target of Steiner Tree Approx
         self.name = name
+
+    @staticmethod
+    def to_node(point: Point) -> Node:
+        '''
+        Helper function to convert shapely.Point -> Node
+        '''
+        return Node(point.coords[0])
 
     def __repr__(self):
         return self.name if self.name else "Node(%.2f,%.2f)" % (self.x, self.y)
@@ -291,7 +298,52 @@ class PlanarGraph(nx.Graph):
         return graph
 
     @staticmethod
-    def load_planar(file_path):
+    def from_linestring(linestring: LineString, append_connection:bool=True) -> PlanarGraph:
+        '''
+        Helper function to convert a single Shapely linestring
+        to a PlanarGraph
+        '''
+
+        # linestring -> List[Nodes]
+        nodes: Iterable[Node] = [Node(p) for p in linestring.coords]
+
+        # List[Nodes] -> List[Edges]
+        if append_connection:
+            nodes.append(nodes[0])
+        edges : Iterable[Edge] = []
+        for i, n in enumerate(nodes):
+            if i==0:
+                continue
+            else:
+                edges.append(Edge((n, nodes[i-1])))
+
+        return PlanarGraph.from_edges(edges)
+    
+    @staticmethod
+    def from_multilinestring(multilinestring: MultiLineString) -> PlanarGraph:
+        '''
+        Helper function to convert a Shapely multilinestring
+        to a PlanarGraph
+        '''
+
+        pgraph = PlanarGraph()
+
+        for linestring in multilinestring:
+            # linestring -> List[Nodes]
+            nodes = [Node(p) for p in linestring.coords]
+
+            # List[Nodes] -> List[Edges]
+            nodes.append(nodes[0])
+            for i, n in enumerate(nodes):
+                if i==0:
+                    continue
+                else:
+                    pgraph.add_edge(Edge((n, nodes[i-1])))
+
+        return pgraph
+
+    @staticmethod
+    def from_file(file_path: str) -> PlanarGraph:
         '''
         Loads a planar graph from a saved via
         '''
@@ -337,8 +389,6 @@ class PlanarGraph(nx.Graph):
             new_edge1 = Edge([orig_node1, node])
             self.add_edge(new_edge0)
             self.add_edge(new_edge1)
-
-
 
 
     def get_embedding(self):
