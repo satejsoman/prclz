@@ -18,6 +18,7 @@ def get_s0_approximation(block: Polygon, centroids: Sequence[Tuple[float, float]
 
     # get internal parcels from the voronoi decomposition of space, given building centroids
     intersected_polygons = []
+    debug("generating Voronoi decomposition")
     decomposition = pytess.voronoi(centroids)
     debug("intersecting Voronoi decomposition (N=%s) with block geometry", len(decomposition))
     for (anchor, vs) in decomposition:
