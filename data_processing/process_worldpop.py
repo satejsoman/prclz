@@ -13,7 +13,18 @@ import copy
 root = Path('../')
 DATA = root / 'data' 
 COMPLEXITY = DATA / "complexity"
+GADM = DATA / "GADM"
+AOI_TRACKER = DATA / 'LandScan_Global_2018' / "aoi_tracker.csv" 
 
+def load_complexity_pop(region, country_code, gadm):
+    landscan_path = DATA / 'LandScan_Global_2018' / region / country_code
+    complexity_pop_path = landscan_path / "complexity_pop_{}.csv".format(gadm) 
+    gdf = gpd.GeoDataFrame(pd.read_csv(complexity_pop_path))
+    gdf['geometry'] = gdf['geometry'].apply(loads)
+    gdf.geometry.crs = {'init': 'epsg:4326'}  
+    gdf.crs = {'init': 'epsg:4326'}
+    gdf.drop(columns=['Unnamed: 0'], inplace=True)
+    return gdf 
 
 def load_complexity(region, country_code, f):
     p = COMPLEXITY / region / country_code / f
@@ -98,58 +109,141 @@ def process_path_landscan(path_to_complexity_files):
         gadm = full_path.stem.replace('complexity_', '')
         process_gadm_landscan(region, country_code, gadm)
 
-# obs0 = gdf_complexity.iloc[0]
-# window = obs0['windows']
-# geom = obs0['geometry']   
+def get_gadm_level(country_code):   
 
-# geo_series, pop_series = calculate_population(geom, ls_dataset, window)
-# df = gpd.GeoDataFrame({'geometry':geo_series, 'pop': pop_series}) 
+    # Tiny helper to extract the int level from a gadm file path
+    get_int = lambda f: int(f.stem[-1])
 
-# ax = df.plot(column=df['pop'])
-# # We just need a function to distribute the data pro-rata 
-# # based on some intersection
+    # These are all the shape files in the dir
+    shp_files = [f for f in (GADM / country_code).iterdir() if "shp" in str(f)]
 
+    # Now sort via the final digit, which indicates the level
+    shp_files.sort(key=get_int)
 
-# def main_process_tif_to_geojson():
-#     landscan_path = DATA / 'LandScan_Global_2018' / 'ls_2018.tif'
-
-#     dataset = rasterio.open(landscan_path)
-#     bounds = dataset.bounds 
-#     resolution = 30 / 3600 # resolution of dataset in degrees
-#     delta = resolution
-
-#     top = bounds.top 
-#     bottom = bounds.bottom 
-#     left = bounds.left 
-#     right = bounds.right 
-
-#     print("Reading tif file....")
-#     mat = dataset.read(1)
-#     print("...complete!")
-
-#     x_coords = np.linspace(left, right, dataset.shape[0])
-#     y_coords = np.linspace(top, bottom, dataset.shape[1])
-
-#     df_dict = {}
-#     df_dict['geometry'] = []
-#     df_dict['population'] = []
-#     df_dict['grid_idx'] = []
+    # Return the largest level
+    return get_int(shp_files[-1])
 
 
+def AoI_intersects_with_gadms(aoi_geom, country_code):
+    '''
+    Given an area of interest and a 3-letter country code, this determines
+    which GADM's that area intersects with. This is a helper function in 
+    generating summary stats for that area.
 
-# def make_landscan_gadm_file(region, country_code, gadm, landscan_dataset=None):
+    Inputs:
+        - aoi_geom (Polygon) shapely polygon defining Area of Interest
+        - country_code (str) 3-letter country code 
+    Outputs:
+        - intersected_gadms (List[str]) list of gadm's that intersect with AoI
+    '''
 
-#     # Get complexity file
-#     f = "complexity_{}.csv".format(gadm)
-#     complexity_gdf = load_complexity(region, country_code, f)
+    # The level of nesting of gadm's varies from country to country
+    gadm_depth = get_gadm_level(country_code)
+    gadm_path = GADM / country_code / "gadm36_{}_{}.shp".format(country_code, gadm_depth)
+    gadm = gpd.read_file(str(gadm_path))
+    gadm_column = "GID_{}".format(gadm_depth)
+    gadm = gadm[[gadm_column, 'geometry']]
 
-#     if landscan_dataset is None:
-#         ls_path = DATA / 'LandScan_Global_2018' / 'raw_tif' / 'ls_2018.tif'
-#         landscan_dataset = rasterio.open(ls_path)
+    intersects_with_aoi = gadm.intersects(aoi_geom)
+    intersected_gadms = gadm[intersects_with_aoi][gadm_column]
+    return list(intersected_gadms)
 
-#     # Get the window in our LandScan dataset that contains the AoI
-#     geom = complexity_gdf['geometry']
-#     window = rasterio.features.geometry_window(landscan_dataset, geom)
+def AoI_intersects_with_blocks(region, aoi_geom, country_code, gadm):
+    '''
+    Another helper function in generating summary stats for an Area of Interest,
+    this will return the list of blocks, within the given gadm, that intersect
+    with the Area of Interest
+
+    Inputs:
+        - region (str) region consistent with the general data format
+        - aoi_geom (Polygon) shapely polygon defining Area of Interest
+        - country_code (str) 3-letter country code 
+        - gadm (str) gadm containing the blocks we check for intersection
+    Outputs:
+        - intersected_complexity_pop (GeoDataFrame) complexity-population
+                                                    intersecting with AoI
+        - intersected_blocks (List[str]) list of gadm's that intersect with AoI
+    '''
+
+    # The Landscan processed files contain the blocks so save a step here
+    landscan_path = DATA / 'LandScan_Global_2018' / region / country_code
+    complexity_pop_path = landscan_path / "complexity_pop_{}.csv".format(gadm)
+
+    if not complexity_pop_path.is_file():
+        print("--Adding the pop data to complexity file for: {}".format(gadm))
+        process_gadm_landscan(region, country_code, gadm)
+    
+    # Load the complexity-population file
+    complexity_pop = load_complexity_pop(region, country_code, gadm)
+
+    # Get the intersecting blocks
+    intersects_with_aoi = complexity_pop.intersects(aoi_geom)
+    intersected_complexity_pop = complexity_pop[intersects_with_aoi]
+    intersected_blocks = list(intersected_complexity_pop['block_id'])
+
+    return intersected_complexity_pop, intersected_blocks
+
+def process_AoI(region, country_code, aoi_geom, aoi_name=""):
+    '''
+    Given some area of interest, we will find the gadm's that intersect
+    the aoi, then the blocks within those gadm's that intersect. We'll
+    then return the corresponding block-level complexity w/ Landscan population 
+    as well as a list of the intersecting blocks. It also updates the 
+    csv which contains a master list of AoI's and the corresponding intersecting
+    blocks to expedite later analyses.
+
+    Inputs:
+        - region (str) region consistent with the general data format
+        - country_code (str) 3-letter country code 
+        - aoi_geom (Polygon) shapely polygon defining Area of Interest
+        - aoi_name [optional] (str) when saving out the intersecting list of
+                         block_ids it may be useful to have an alias for the
+                         aoi (i.e. city name)
+    '''
+
+    # Get intersecting GADM's
+    intersected_gadms = AoI_intersects_with_gadms(aoi_geom, country_code)
+
+    # Loop over each gadm and get the intersecting blocks within that gadm
+    for i, gadm in enumerate(intersected_gadms):
+        intersected_complexity_pop, intersected_blocks = AoI_intersects_with_blocks(region, aoi_geom, country_code, gadm)
+        if i == 0:
+            all_intersected_complexity_pop = intersected_complexity_pop
+            all_intersected_blocks = intersected_blocks
+        else:
+            all_intersected_complexity_pop = pd.concat([all_intersected_complexity_pop, intersected_complexity_pop])
+            all_intersected_blocks = all_intersected_blocks + intersected_blocks
+
+    # Now update our AoI tracker
+    if not AOI_TRACKER.is_file():
+        print("Creating AoI tracker at: {}".format(AOI_TRACKER))
+        aoi_dict = {'aoi_name':[aoi_name], 'aoi_geom':[aoi_geom.wkt], 'block_list': [all_intersected_blocks]}
+        aoi_tracker = pd.DataFrame.from_dict(aoi_dict)
+    else:
+        print("Updating AoI tracker...")
+        aoi_tracker = pd.read_csv(AOI_TRACKER)
+        aoi_record = {'aoi_name':aoi_name, 'aoi_geom':aoi_geom.wkt, 'block_list': all_intersected_blocks}
+        aoi_tracker = aoi_tracker.append(aoi_record, ignore_dict=True)
+    aoi_tracker.to_csv(AOI_TRACKER)
+
+    return all_intersected_complexity_pop, all_intersected_blocks
+
+import requests
+import json
+def load_geojson_from_web(url):
+
+    reply = requests.get(url)
+    content = reply.content
+    encoding = reply.encoding
+    str_content = content.decode(encoding)
+    return str_content
+    parsed = json.loads(content.decode(encoding))
+
+    geoms = parse['geometries']
+    assert len(geoms) == 1, "Check, there's more than 1 geometry in the parsed data"
+    geom_dict = geoms[0]
+    geom_coords = geom_dict['']
+
 
 
 
