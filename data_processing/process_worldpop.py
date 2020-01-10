@@ -9,6 +9,8 @@ from shapely.wkt import loads
 import argparse 
 import tqdm
 import copy 
+import requests
+import json
 
 root = Path('../')
 DATA = root / 'data' 
@@ -228,23 +230,46 @@ def process_AoI(region, country_code, aoi_geom, aoi_name=""):
 
     return all_intersected_complexity_pop, all_intersected_blocks
 
-import requests
-import json
-def load_geojson_from_web(url):
+
+def load_geojson_from_wkt_url(url):
 
     reply = requests.get(url)
     content = reply.content
     encoding = reply.encoding
     str_content = content.decode(encoding)
-    return str_content
-    parsed = json.loads(content.decode(encoding))
+    wkt_str = str_content.split(";")[-1].strip()
 
-    geoms = parse['geometries']
-    assert len(geoms) == 1, "Check, there's more than 1 geometry in the parsed data"
-    geom_dict = geoms[0]
-    geom_coords = geom_dict['']
+    return loads(wkt_str)
 
+    # return str_content
+    # parsed = json.loads(content.decode(encoding))
 
+    # geoms = parse['geometries']
+    # assert len(geoms) == 1, "Check, there's more than 1 geometry in the parsed data"
+    # geom_dict = geoms[0]
+    # geom_coords = geom_dict['']
+
+def fetch_all_wkt_url(url_df):
+    '''
+    url_df is a dataframe with columns: aoi_name, wkt_url, wkt_geometry
+    This function checks whether any entries have wkt_url but no
+    wkt_geometry, indicating it needs to be gathered
+    '''
+
+    no_geom = url_df['wkt_geometry'].isna()
+    to_download = url_df[no_geom]['wkt_url']
+    wkt_geoms = [load_geojson_from_wkt_url(url).wkt for url in to_download]
+    
+    new_geoms_dict = {'aoi_name':url_df[no_geom]['aoi_name'], 'wkt_geometry':wkt_geoms}
+    new_geoms_df = pd.DataFrame(new_geoms_dict)
+    url_df.update(new_geoms_df)
+
+    return url_df
+
+# p = "mnp_map_cities.csv"
+# df = pd.read_csv(p)
+# new_df = fetch_all_wkt_url(df)
+# new_df.to_csv(p, index=False)
 
 
 if __name__ == "__main__":
