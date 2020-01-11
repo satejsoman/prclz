@@ -9,7 +9,7 @@ from shapely.wkt import loads
 import argparse 
 import tqdm
 import copy 
-import requests
+#import requests
 import json
 
 root = Path('../')
@@ -266,11 +266,18 @@ def fetch_all_wkt_url(url_df):
 
     return url_df
 
-# p = "mnp_map_cities.csv"
+# Update the aoi tracker to include the geom and intersected blocks for each AoI
+# p = "../data/city_boundaries/mnp_map_cities.csv"
 # df = pd.read_csv(p)
-# new_df = fetch_all_wkt_url(df)
+# #new_df = fetch_all_wkt_url(df)
 # new_df.to_csv(p, index=False)
-
+# new_df
+# for i, obs in new_df.iterrows():
+#     region = obs['region']
+#     aoi_name = obs['aoi_name']
+#     country_code = obs['country_code']
+#     aoi_geom = loads(obs['wkt_geometry'])
+    #process_AoI(region, country_code, aoi_geom, aoi_name="")
 
 if __name__ == "__main__":
 
