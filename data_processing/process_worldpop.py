@@ -15,8 +15,11 @@ import json
 root = Path('../')
 DATA = root / 'data' 
 COMPLEXITY = DATA / "complexity"
+BLOCKS = DATA / "blocks"
+BUILDINGS = DATA / "buildings"
 GADM = DATA / "GADM"
 AOI_TRACKER = DATA / 'LandScan_Global_2018' / "aoi_tracker.csv" 
+
 
 def load_complexity_pop(region, country_code, gadm):
     landscan_path = DATA / 'LandScan_Global_2018' / region / country_code
@@ -28,22 +31,90 @@ def load_complexity_pop(region, country_code, gadm):
     gdf.drop(columns=['Unnamed: 0'], inplace=True)
     return gdf 
 
-def load_complexity(region, country_code, f):
-    p = COMPLEXITY / region / country_code / f
-    df = pd.read_csv(p)
-    gdf_complexity = gpd.GeoDataFrame(df[['block_id', 'geometry', 'complexity', 'centroids_multipoint']])
-    gdf_complexity['geometry'] = gdf_complexity['geometry'].apply(loads)
-    gdf_complexity.geometry.crs = {'init': 'epsg:4326'}  
-    gdf_complexity.crs = {'init': 'epsg:4326'}  
-    gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
-    #print(gdf_complexity.crs)
-    #gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:3395'})
-    gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
-    #gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
-    #gdf_complexity = gdf_complexity.to_crs({'init': 'epsg:4326'})
+def get_gadm_from_file(f):
+    gadm = f.replace(".csv", "").replace("blocks_", "").replace("complexity_", "")
+    gadm = gadm.replace(".geojson", "")
+    return gadm 
 
-    #gdf_bldgs = gpd.GeoDataFrame(df[['block_id', 'centroids_multipoint']])
+def join_with_buildings(gdf, region, country_code, gadm):
+
+    bldg_path = BUILDINGS / region / country_code / "buildings_{}.geojson".format(gadm)
+    bldg_gdf = gpd.read_file(bldg_path)
+    bldg_gdf = bldg_gdf[['osm_id', 'geometry']]
+    joined = gpd.sjoin(gdf, bldg_gdf, how='left')
+    joined = joined.merge(bldg_gdf, how='left', on='osm_id', suffixes=["", "_bldgs"])
+
+    # Make a temp series so we can calculate the area of each building
+    geo_series = gpd.GeoSeries(joined['geometry_bldgs'])
+    geo_series.crs = {'init': 'epsg:4326'}
+    joined['bldg_area_sq_km'] = geo_series.to_crs({'init': 'epsg:3395'}).area / (10**6)  
+
+    bldgs_by_block = joined[['block_id', 'geometry_bldgs', 'bldg_area_sq_km']].groupby('block_id').aggregate(list)
+    bldgs_by_block.reset_index(inplace=True)
+    gdf_w_buildings = gdf.merge(bldgs_by_block, how='left', on='block_id')
+    return gdf_w_buildings 
+
+def load_block(region,country_code, f):
+    p = BLOCKS / region / country_code / f
+    gadm = get_gadm_from_file(f)
+    df = pd.read_csv(p)
+    df.drop(columns=['Unnamed: 0'], inplace=True)
+    #gdf_complexity = gpd.GeoDataFrame(df[['block_id', 'geometry', 'complexity', 'centroids_multipoint']])
+    gdf_block = gpd.GeoDataFrame(df[['block_id', 'geometry']])
+    gdf_block['complexity'] = None #float("NaN")
+    gdf_block['centroids_multipoint'] = None #float("NaN")
+    gdf_block['geometry'] = gdf_block['geometry'].apply(loads)
+    gdf_block.geometry.crs = {'init': 'epsg:4326'}  
+    gdf_block.crs = {'init': 'epsg:4326'}  
+    gdf_block['bldg_count'] = 0
+    
+    gdf_block['block_area_km2'] = gdf_block['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
+    gdf_block = join_with_buildings(gdf_block, region, country_code, gadm)
+
+    return gdf_block
+
+def load_complexity(region, country_code, f):
+    '''
+    Load the complexity file. Note, if the file does not exist then
+    just return None
+    '''
+
+    p = COMPLEXITY / region / country_code / f
+    if p.is_file():
+        gadm = get_gadm_from_file(f)
+
+        df = pd.read_csv(p)
+        gdf_complexity = gpd.GeoDataFrame(df[['block_id', 'geometry', 'complexity', 'centroids_multipoint']])
+        gdf_complexity['geometry'] = gdf_complexity['geometry'].apply(loads)
+        gdf_complexity.geometry.crs = {'init': 'epsg:4326'}  
+        gdf_complexity.crs = {'init': 'epsg:4326'}  
+        gdf_complexity['centroids_multipoint'] = gdf_complexity['centroids_multipoint'].apply(loads)
+        gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
+        
+        gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
+        gdf_complexity = join_with_buildings(gdf_complexity, region, country_code, gadm)
+
+    else:
+        print("Complexity file does not exist: {}".format(str(p)))
+        print("Loading from the block file")
+        block_f = f.replace("complexity_", "blocks_")
+        gdf_complexity = load_block(region, country_code, block_f)
+
     return gdf_complexity
+    # gadm = get_gadm_from_file(f)
+
+    # df = pd.read_csv(p)
+    # gdf_complexity = gpd.GeoDataFrame(df[['block_id', 'geometry', 'complexity', 'centroids_multipoint']])
+    # gdf_complexity['geometry'] = gdf_complexity['geometry'].apply(loads)
+    # gdf_complexity.geometry.crs = {'init': 'epsg:4326'}  
+    # gdf_complexity.crs = {'init': 'epsg:4326'}  
+    # gdf_complexity['centroids_multipoint'] = gdf_complexity['centroids_multipoint'].apply(loads)
+    # gdf_complexity['bldg_count'] = gdf_complexity['centroids_multipoint'].apply(lambda x: len(x))
+    
+    # gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
+    # gdf_complexity = join_with_buildings(gdf_complexity, region, country_code, gadm)
+
+    # return gdf_complexity
 
 def add_landscan_data(ls_dataset, gdf_complexity):
 
@@ -99,7 +170,7 @@ def process_gadm_landscan(region, country_code, gadm):
     output_path = DATA / 'LandScan_Global_2018' / region / country_code
     output_path.mkdir(parents=True, exist_ok=True)
     #gdf_complexity.to_file(output_path / f, driver='GeoJSON')
-    gdf_complexity.to_csv(output_path / f)
+    gdf_complexity.to_csv(output_path / f, index=False)
 
 def process_path_landscan(path_to_complexity_files):
 
@@ -219,14 +290,14 @@ def process_AoI(region, country_code, aoi_geom, aoi_name=""):
     # Now update our AoI tracker
     if not AOI_TRACKER.is_file():
         print("Creating AoI tracker at: {}".format(AOI_TRACKER))
-        aoi_dict = {'aoi_name':[aoi_name], 'aoi_geom':[aoi_geom.wkt], 'block_list': [all_intersected_blocks]}
+        aoi_dict = {'aoi_name':[aoi_name], 'aoi_geom':[aoi_geom.wkt], 'gadm_list': [intersected_gadms], 'block_list': [all_intersected_blocks]}
         aoi_tracker = pd.DataFrame.from_dict(aoi_dict)
     else:
         print("Updating AoI tracker...")
         aoi_tracker = pd.read_csv(AOI_TRACKER)
-        aoi_record = {'aoi_name':aoi_name, 'aoi_geom':aoi_geom.wkt, 'block_list': all_intersected_blocks}
-        aoi_tracker = aoi_tracker.append(aoi_record, ignore_dict=True)
-    aoi_tracker.to_csv(AOI_TRACKER)
+        aoi_record = {'aoi_name':aoi_name, 'aoi_geom':aoi_geom.wkt, 'gadm_list': intersected_gadms, 'block_list': all_intersected_blocks}
+        aoi_tracker = aoi_tracker.append(aoi_record, ignore_index=True)
+    aoi_tracker.to_csv(AOI_TRACKER, index=False)
 
     return all_intersected_complexity_pop, all_intersected_blocks
 
@@ -267,17 +338,19 @@ def fetch_all_wkt_url(url_df):
     return url_df
 
 # Update the aoi tracker to include the geom and intersected blocks for each AoI
-# p = "../data/city_boundaries/mnp_map_cities.csv"
-# df = pd.read_csv(p)
+p = "../data/city_boundaries/mnp_map_cities.csv"
+df = pd.read_csv(p)
+df['geometry'] = df['wkt_geometry'].apply(loads)
+gdf = gpd.GeoDataFrame(df)
 # #new_df = fetch_all_wkt_url(df)
 # new_df.to_csv(p, index=False)
 # new_df
-# for i, obs in new_df.iterrows():
-#     region = obs['region']
-#     aoi_name = obs['aoi_name']
-#     country_code = obs['country_code']
-#     aoi_geom = loads(obs['wkt_geometry'])
-    #process_AoI(region, country_code, aoi_geom, aoi_name="")
+for i, obs in gdf.iterrows():
+    region = obs['region']
+    aoi_name = obs['aoi_name']
+    country_code = obs['country_code']
+    aoi_geom = loads(obs['wkt_geometry'])
+    process_AoI(region, country_code, aoi_geom, aoi_name)
 
 if __name__ == "__main__":
 
