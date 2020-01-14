@@ -11,6 +11,9 @@ import tqdm
 import copy 
 #import requests
 import json
+import ast 
+from functools import reduce
+import operator
 
 root = Path('../')
 DATA = root / 'data' 
@@ -20,6 +23,63 @@ BUILDINGS = DATA / "buildings"
 GADM = DATA / "GADM"
 AOI_TRACKER = DATA / 'LandScan_Global_2018' / "aoi_tracker.csv" 
 
+mapper = {
+    'greater_monrovia': 'Africa',
+    'nairobi': 'Africa',
+    'douala': 'Africa',
+    'kinshasa': 'Africa',
+    'blantyre': 'Africa',
+    'port_au_prince': 'Central-America',
+    'caracas': 'South-America',
+    'kathmandu': 'Asia'
+}
+
+def make_aoi_dataset():
+    aoi_tracker = pd.read_csv(AOI_TRACKER)
+    convert_fn = lambda x: ast.literal_eval(x)
+    aoi_tracker['gadm_list'] = aoi_tracker['gadm_list'].apply(convert_fn) 
+    aoi_tracker['block_list'] = aoi_tracker['block_list'].apply(convert_fn) 
+
+    for i, row in aoi_tracker.iterrows():
+        gadm_list = row['gadm_list']
+        block_list = row['block_list']
+        aoi_name = row['aoi_name']
+        region = mapper[aoi_name]
+        complexity_pop = assemble_complexity_pop(region, gadm_list, block_list)
+        complexity_pop['geometry'] = complexity_pop['geometry'].apply(lambda x: x.wkt)
+        p = DATA / 'LandScan_Global_2018' / 'aoi_datasets'
+        p.mkdir(parents=True, exist_ok=True)
+        complexity_pop.to_csv(str(p / "analysis_{}.csv".format(aoi_name)), index=False)
+
+
+def assemble_complexity_pop(region, gadm_list, block_list):
+    '''
+    Given a list of gadms and blocks, assemble the complexity pop
+    files and return 
+    '''
+    if isinstance(gadm_list, str):
+        gadm_list = ast.literal_eval(gadm_list)
+    if isinstance(block_list, str):
+        block_list = ast.literal_eval(block_list)
+
+    # Load all gadm's
+    country_code = gadm_list[0].split(".")[0]
+    p = DATA / 'LandScan_Global_2018' / region / country_code  
+    gadm_paths = [p / "complexity_pop_{}.csv".format(g) for g in gadm_list]
+    complexity_pop = pd.concat([pd.read_csv(p) for p in gadm_paths])
+    complexity_pop = gpd.GeoDataFrame(complexity_pop)
+    complexity_pop['geometry'] = complexity_pop['geometry'].apply(loads)
+    complexity_pop.geometry.crs = {'init': 'epsg:4326'}  
+    complexity_pop.crs = {'init': 'epsg:4326'}
+
+    # Now limit to only our blocks
+    aoi_blocks_df = pd.DataFrame.from_dict({'block_id':block_list})
+    complexity_pop = complexity_pop.merge(aoi_blocks_df, how='left', indicator=True)
+    complexity_pop = complexity_pop[complexity_pop['_merge']=="both"]
+
+    return complexity_pop
+
+
 
 def load_complexity_pop(region, country_code, gadm):
     landscan_path = DATA / 'LandScan_Global_2018' / region / country_code
@@ -28,7 +88,7 @@ def load_complexity_pop(region, country_code, gadm):
     gdf['geometry'] = gdf['geometry'].apply(loads)
     gdf.geometry.crs = {'init': 'epsg:4326'}  
     gdf.crs = {'init': 'epsg:4326'}
-    gdf.drop(columns=['Unnamed: 0'], inplace=True)
+    #gdf.drop(columns=['Unnamed: 0'], inplace=True)
     return gdf 
 
 def get_gadm_from_file(f):
@@ -52,6 +112,12 @@ def join_with_buildings(gdf, region, country_code, gadm):
     bldgs_by_block = joined[['block_id', 'geometry_bldgs', 'bldg_area_sq_km']].groupby('block_id').aggregate(list)
     bldgs_by_block.reset_index(inplace=True)
     gdf_w_buildings = gdf.merge(bldgs_by_block, how='left', on='block_id')
+    gdf_w_buildings['geometry_bldgs'] = gdf_w_buildings['geometry_bldgs'].map(lambda x_list: [x.wkt for x in x_list])
+    
+    # Area of each building is stored in a list, so sum it
+    sum_fn = lambda area_list : reduce(operator.add, area_list)
+    gdf_w_buildings['total_bldg_area_sq_km'] = gdf_w_buildings['bldg_area_sq_km'].map(sum_fn)
+
     return gdf_w_buildings 
 
 def load_block(region,country_code, f):
@@ -69,7 +135,7 @@ def load_block(region,country_code, f):
     gdf_block['bldg_count'] = 0
     
     gdf_block['block_area_km2'] = gdf_block['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
-    gdf_block = join_with_buildings(gdf_block, region, country_code, gadm)
+    #gdf_block = join_with_buildings(gdf_block, region, country_code, gadm)
 
     return gdf_block
 
@@ -93,6 +159,7 @@ def load_complexity(region, country_code, f):
         
         gdf_complexity['block_area_km2'] = gdf_complexity['geometry'].to_crs({'init': 'epsg:3395'}).area / (10**6)  
         gdf_complexity = join_with_buildings(gdf_complexity, region, country_code, gadm)
+
 
     else:
         print("Complexity file does not exist: {}".format(str(p)))
@@ -124,6 +191,8 @@ def add_landscan_data(ls_dataset, gdf_complexity):
     return gdf_complexity 
 
 def calculate_population_uniform_dist(geom, ls_dataset, window):
+    '''
+    '''
 
     data = ls_dataset.read(1, window=window)
     trans = ls_dataset.window_transform(window)
@@ -135,7 +204,24 @@ def calculate_population_uniform_dist(geom, ls_dataset, window):
         assert shape['type'] == 'Polygon', "ERROR -- not Polygon"
         pop_series.append(pop)
     geo_series = gpd.GeoSeries(geo_series)
-    inter_pct = geo_series.intersection(geom).area / geo_series.area 
+    
+    #print("\n\ntest ")
+    geo_series_valid = geo_series.is_valid
+    geom_valid = geom.is_valid
+    #print("geo_series {}".format(np.all(geom_valid)))
+    #print(type(geom))
+    #print("geom {}".format(geom.is_valid))
+    #print("geo_series")
+    try:
+        temp_geom = geo_series.intersection(geom)
+    except:
+        geo_series = geo_series.buffer(0)
+        temp_geom = geo_series.intersection(geom)
+
+    #print("temp_geom {}".format(np.all(temp_geom.is_valid)))
+    inter_pct = temp_geom.area / geo_series.area
+    #inter_pct = geo_series.intersection(geom).area / geo_series.area 
+    #print("through intersection")
 
     avg_pop = (inter_pct.values * np.array(pop_series)).sum()
 
@@ -165,6 +251,7 @@ def process_gadm_landscan(region, country_code, gadm):
     gdf_complexity['pop_est'] = gdf_complexity.apply(pop_fn, axis=1)
     gdf_complexity['windows'] = gdf_complexity['windows'].map(lambda x: x.todict())
     gdf_complexity['geometry'] = gdf_complexity['geometry'].map(lambda x: x.wkt)
+    
 
     f = "complexity_pop_{}.csv".format(gadm)
     output_path = DATA / 'LandScan_Global_2018' / region / country_code
@@ -243,7 +330,7 @@ def AoI_intersects_with_blocks(region, aoi_geom, country_code, gadm):
     complexity_pop_path = landscan_path / "complexity_pop_{}.csv".format(gadm)
 
     if not complexity_pop_path.is_file():
-        print("--Adding the pop data to complexity file for: {}".format(gadm))
+        print("\n\n--Adding the pop data to complexity file for: {}".format(gadm))
         process_gadm_landscan(region, country_code, gadm)
     
     # Load the complexity-population file
@@ -289,11 +376,11 @@ def process_AoI(region, country_code, aoi_geom, aoi_name=""):
 
     # Now update our AoI tracker
     if not AOI_TRACKER.is_file():
-        print("Creating AoI tracker at: {}".format(AOI_TRACKER))
+        print("\nCreating AoI tracker at: {}".format(AOI_TRACKER))
         aoi_dict = {'aoi_name':[aoi_name], 'aoi_geom':[aoi_geom.wkt], 'gadm_list': [intersected_gadms], 'block_list': [all_intersected_blocks]}
         aoi_tracker = pd.DataFrame.from_dict(aoi_dict)
     else:
-        print("Updating AoI tracker...")
+        print("\nUpdating AoI tracker...")
         aoi_tracker = pd.read_csv(AOI_TRACKER)
         aoi_record = {'aoi_name':aoi_name, 'aoi_geom':aoi_geom.wkt, 'gadm_list': intersected_gadms, 'block_list': all_intersected_blocks}
         aoi_tracker = aoi_tracker.append(aoi_record, ignore_index=True)
@@ -338,19 +425,19 @@ def fetch_all_wkt_url(url_df):
     return url_df
 
 # Update the aoi tracker to include the geom and intersected blocks for each AoI
-p = "../data/city_boundaries/mnp_map_cities.csv"
-df = pd.read_csv(p)
-df['geometry'] = df['wkt_geometry'].apply(loads)
-gdf = gpd.GeoDataFrame(df)
-# #new_df = fetch_all_wkt_url(df)
-# new_df.to_csv(p, index=False)
-# new_df
-for i, obs in gdf.iterrows():
-    region = obs['region']
-    aoi_name = obs['aoi_name']
-    country_code = obs['country_code']
-    aoi_geom = loads(obs['wkt_geometry'])
-    process_AoI(region, country_code, aoi_geom, aoi_name)
+# p = "../data/city_boundaries/mnp_map_cities.csv"
+# df = pd.read_csv(p)
+# df['geometry'] = df['wkt_geometry'].apply(loads)
+# gdf = gpd.GeoDataFrame(df)
+# # #new_df = fetch_all_wkt_url(df)
+# # new_df.to_csv(p, index=False)
+# # new_df
+# for i, obs in gdf.iterrows():
+#     region = obs['region']
+#     aoi_name = obs['aoi_name']
+#     country_code = obs['country_code']
+#     aoi_geom = loads(obs['wkt_geometry'])
+#     process_AoI(region, country_code, aoi_geom, aoi_name)
 
 if __name__ == "__main__":
 
