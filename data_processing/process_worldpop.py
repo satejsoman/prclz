@@ -105,6 +105,10 @@ def join_with_buildings(gdf, region, country_code, gadm):
     joined = joined.merge(bldg_gdf, how='left', on='osm_id', suffixes=["", "_bldgs"])
 
     # Make a temp series so we can calculate the area of each building
+    missing = joined['geometry_bldgs'].isna().sum()
+    if missing > 0:
+        print("NOTE: there are {} missing geoms".format(missing))
+        joined['geometry_bldgs'] = joined['geometry_bldgs'].fillna(Polygon([]))
     geo_series = gpd.GeoSeries(joined['geometry_bldgs'])
     geo_series.crs = {'init': 'epsg:4326'}
     joined['bldg_area_sq_km'] = geo_series.to_crs({'init': 'epsg:3395'}).area / (10**6)  
@@ -146,6 +150,8 @@ def load_complexity(region, country_code, f):
     '''
 
     p = COMPLEXITY / region / country_code / f
+    block_f = f.replace("complexity_", "blocks_")
+    block_p = BLOCKS / region / country_code / block_f
     if p.is_file():
         gadm = get_gadm_from_file(f)
 
@@ -161,11 +167,14 @@ def load_complexity(region, country_code, f):
         gdf_complexity = join_with_buildings(gdf_complexity, region, country_code, gadm)
 
 
-    else:
+    elif block_p.is_file():
         print("Complexity file does not exist: {}".format(str(p)))
         print("Loading from the block file")
-        block_f = f.replace("complexity_", "blocks_")
+        #block_f = f.replace("complexity_", "blocks_")
         gdf_complexity = load_block(region, country_code, block_f)
+    else:
+        print("\n\n Complexity and block files do not exist: {}\n{}".format(str(p), str(block_p)))
+        return None 
 
     return gdf_complexity
     # gadm = get_gadm_from_file(f)
@@ -242,6 +251,9 @@ def process_gadm_landscan(region, country_code, gadm):
 
     # Load the complexity file
     gdf_complexity = load_complexity(region, country_code, f)
+    if gdf_complexity is None:
+        print("FAILURE - Could not find block or complexity files for {}-{}-{}".format(region, country_code, gadm))
+        return None 
 
     # Add the landscan window for each block's geometry
     gdf_complexity = add_landscan_data(ls_dataset, gdf_complexity)
@@ -386,8 +398,8 @@ def process_AoI(region, country_code, aoi_geom, aoi_name=""):
         aoi_tracker = aoi_tracker.append(aoi_record, ignore_index=True)
     aoi_tracker.to_csv(AOI_TRACKER, index=False)
 
-    return all_intersected_complexity_pop, all_intersected_blocks
-
+    #return all_intersected_complexity_pop, all_intersected_blocks
+    return intersected_gadms, all_intersected_blocks
 
 def load_geojson_from_wkt_url(url):
 
@@ -424,39 +436,65 @@ def fetch_all_wkt_url(url_df):
 
     return url_df
 
+def get_aoi_dataset_path(aoi_name):
+    p = DATA / 'LandScan_Global_2018' / 'aoi_datasets'
+    p / "analysis_{}.csv".format(aoi_name)
+    return p 
+
+def create_aoi_dataset(aoi_name, gadm_list, block_list, region):
+
+    complexity_pop = assemble_complexity_pop(region, gadm_list, block_list)
+    complexity_pop['geometry'] = complexity_pop['geometry'].apply(lambda x: x.wkt)
+    
+    return complexity_pop
+    #complexity_pop.to_csv(str(p / "analysis_{}.csv".format(aoi_name)), index=False)
+
+
+def process_aoi_dataframe(aoi_df):
+    aoi_df = aoi_df.iloc[aoi_df['wkt_url'] != "not_available"]
+    new_df = fetch_all_wkt_url(aoi_df)
+
+    for i, obs in new_df.iterrows():
+        region = obs['region']
+        aoi_name = obs['aoi_name']
+        country_code = obs['country_code']
+        aoi_geom = loads(obs['wkt_geometry'])
+
+        # Has this AoI already been processed into dataset?
+        aoi_path = get_aoi_dataset_path()
+        if aoi_path.is_file():
+            continue
+        else:
+            gadm_list, block_list = process_AoI(region, country_code, aoi_geom, aoi_name)
+            aoi_dataset = create_aoi_dataset(aoi_name, gadm_list, block_list, region)
+
 # Update the aoi tracker to include the geom and intersected blocks for each AoI
-# p = "../data/city_boundaries/mnp_map_cities.csv"
-# df = pd.read_csv(p)
-# df['geometry'] = df['wkt_geometry'].apply(loads)
-# gdf = gpd.GeoDataFrame(df)
-# # #new_df = fetch_all_wkt_url(df)
-# # new_df.to_csv(p, index=False)
-# # new_df
-# for i, obs in gdf.iterrows():
-#     region = obs['region']
-#     aoi_name = obs['aoi_name']
-#     country_code = obs['country_code']
-#     aoi_geom = loads(obs['wkt_geometry'])
-#     process_AoI(region, country_code, aoi_geom, aoi_name)
+p = "../data/city_boundaries/mnp_map_cities.csv"
+df = pd.read_csv(p)
 
-if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='utilities to process LandScan data')
-    subparsers = parser.add_subparsers()
 
-    # Args for when you just want a single GADM
-    sub_parser_single = subparsers.add_parser('single')
-    sub_parser_single.add_argument('region', type=str, help='Geographic region')
-    sub_parser_single.add_argument('country_code', type=str, help='3-letter country code')
-    sub_parser_single.add_argument('gadm', type=str, help='gadm code')
-    sub_parser_single.set_defaults(func=process_gadm_landscan)
+
+#def process_entire_aoi_file(csv_path, )
+
+# if __name__ == "__main__":
+
+#     parser = argparse.ArgumentParser(description='utilities to process LandScan data')
+#     subparsers = parser.add_subparsers()
+
+#     # Args for when you just want a single GADM
+#     sub_parser_single = subparsers.add_parser('single')
+#     sub_parser_single.add_argument('region', type=str, help='Geographic region')
+#     sub_parser_single.add_argument('country_code', type=str, help='3-letter country code')
+#     sub_parser_single.add_argument('gadm', type=str, help='gadm code')
+#     sub_parser_single.set_defaults(func=process_gadm_landscan)
     
-    # Args for doing a directory
-    sub_parser_path = subparsers.add_parser('path')
-    sub_parser_path.add_argument('path_to_complexity_files', type=str, help='path to a complexity folder of which to process')
-    sub_parser_path.set_defaults(func=process_path_landscan)
+#     # Args for doing a directory
+#     sub_parser_path = subparsers.add_parser('path')
+#     sub_parser_path.add_argument('path_to_complexity_files', type=str, help='path to a complexity folder of which to process')
+#     sub_parser_path.set_defaults(func=process_path_landscan)
     
-    args = parser.parse_args()
-    d_args = copy.copy(vars(args))
-    del d_args['func']
-    args.func(**d_args)
+#     args = parser.parse_args()
+#     d_args = copy.copy(vars(args))
+#     del d_args['func']
+#     args.func(**d_args)
