@@ -9,7 +9,7 @@ from shapely.wkt import loads
 import argparse 
 import tqdm
 import copy 
-#import requests
+import requests
 import json
 import ast 
 from functools import reduce
@@ -66,7 +66,7 @@ def assemble_complexity_pop(region, gadm_list, block_list):
     country_code = gadm_list[0].split(".")[0]
     p = DATA / 'LandScan_Global_2018' / region / country_code  
     gadm_paths = [p / "complexity_pop_{}.csv".format(g) for g in gadm_list]
-    complexity_pop = pd.concat([pd.read_csv(p) for p in gadm_paths])
+    complexity_pop = pd.concat([pd.read_csv(p) for p in gadm_paths if p.is_file()])
     complexity_pop = gpd.GeoDataFrame(complexity_pop)
     complexity_pop['geometry'] = complexity_pop['geometry'].apply(loads)
     complexity_pop.geometry.crs = {'init': 'epsg:4326'}  
@@ -253,7 +253,7 @@ def process_gadm_landscan(region, country_code, gadm):
     gdf_complexity = load_complexity(region, country_code, f)
     if gdf_complexity is None:
         print("FAILURE - Could not find block or complexity files for {}-{}-{}".format(region, country_code, gadm))
-        return None 
+        return False 
 
     # Add the landscan window for each block's geometry
     gdf_complexity = add_landscan_data(ls_dataset, gdf_complexity)
@@ -270,6 +270,8 @@ def process_gadm_landscan(region, country_code, gadm):
     output_path.mkdir(parents=True, exist_ok=True)
     #gdf_complexity.to_file(output_path / f, driver='GeoJSON')
     gdf_complexity.to_csv(output_path / f, index=False)
+
+    return True
 
 def process_path_landscan(path_to_complexity_files):
 
@@ -343,17 +345,24 @@ def AoI_intersects_with_blocks(region, aoi_geom, country_code, gadm):
 
     if not complexity_pop_path.is_file():
         print("\n\n--Adding the pop data to complexity file for: {}".format(gadm))
-        process_gadm_landscan(region, country_code, gadm)
-    
-    # Load the complexity-population file
-    complexity_pop = load_complexity_pop(region, country_code, gadm)
+        comp_pop_sucess_bool = process_gadm_landscan(region, country_code, gadm)
+    else:
+        comp_pop_sucess_bool = True
 
-    # Get the intersecting blocks
-    intersects_with_aoi = complexity_pop.intersects(aoi_geom)
-    intersected_complexity_pop = complexity_pop[intersects_with_aoi]
-    intersected_blocks = list(intersected_complexity_pop['block_id'])
+    # If the comp_pop was a success then load it
+    if comp_pop_sucess_bool:
+        # Load the complexity-population file for that gadm
+        complexity_pop = load_complexity_pop(region, country_code, gadm)
 
-    return intersected_complexity_pop, intersected_blocks
+        # Get the intersecting blocks
+        intersects_with_aoi = complexity_pop.intersects(aoi_geom)
+        intersected_complexity_pop = complexity_pop[intersects_with_aoi]
+        intersected_blocks = list(intersected_complexity_pop['block_id'])
+
+        return intersected_complexity_pop, intersected_blocks
+    # But if not, return None so we can then skip the bad gadm
+    else:
+        return None, None 
 
 def process_AoI(region, country_code, aoi_geom, aoi_name=""):
     '''
@@ -376,10 +385,24 @@ def process_AoI(region, country_code, aoi_geom, aoi_name=""):
     # Get intersecting GADM's
     intersected_gadms = AoI_intersects_with_gadms(aoi_geom, country_code)
 
+    if len(intersected_gadms) == 0:
+        print("WARNING -- check AoI {}, it intersects with no GADMS".format(aoi_name))
+        return None, None, 
+
+    total_failures = 0
+    total_success = 0
     # Loop over each gadm and get the intersecting blocks within that gadm
-    for i, gadm in enumerate(intersected_gadms):
+    for i, gadm in tqdm.tqdm(enumerate(intersected_gadms), total=len(intersected_gadms)):
         intersected_complexity_pop, intersected_blocks = AoI_intersects_with_blocks(region, aoi_geom, country_code, gadm)
-        if i == 0:
+        
+        # If both intersected_complexity_pop, intersected_blocks are None then we continue
+        if intersected_complexity_pop is None and intersected_blocks is None:
+            total_failures += 1 
+            continue
+        else:
+            total_success += 1
+
+        if total_success == 1:
             all_intersected_complexity_pop = intersected_complexity_pop
             all_intersected_blocks = intersected_blocks
         else:
@@ -438,8 +461,8 @@ def fetch_all_wkt_url(url_df):
 
 def get_aoi_dataset_path(aoi_name):
     p = DATA / 'LandScan_Global_2018' / 'aoi_datasets'
-    p / "analysis_{}.csv".format(aoi_name)
-    return p 
+    pt = p / "analysis_{}.csv".format(aoi_name)
+    return pt 
 
 def create_aoi_dataset(aoi_name, gadm_list, block_list, region):
 
@@ -451,7 +474,9 @@ def create_aoi_dataset(aoi_name, gadm_list, block_list, region):
 
 
 def process_aoi_dataframe(aoi_df):
-    aoi_df = aoi_df.iloc[aoi_df['wkt_url'] != "not_available"]
+    aoi_df = aoi_df.loc[aoi_df['wkt_url'] != "not_available"]
+    if "wkt_geometry" not in aoi_df.columns:
+        aoi_df['wkt_geometry'] = np.nan 
     new_df = fetch_all_wkt_url(aoi_df)
 
     for i, obs in new_df.iterrows():
@@ -461,12 +486,16 @@ def process_aoi_dataframe(aoi_df):
         aoi_geom = loads(obs['wkt_geometry'])
 
         # Has this AoI already been processed into dataset?
-        aoi_path = get_aoi_dataset_path()
+        aoi_path = get_aoi_dataset_path(aoi_name)
         if aoi_path.is_file():
             continue
         else:
+            print("PROCESSING: {}-{}".format(country_code, aoi_name))
             gadm_list, block_list = process_AoI(region, country_code, aoi_geom, aoi_name)
+            if gadm_list is None and block_list is None:
+                continue 
             aoi_dataset = create_aoi_dataset(aoi_name, gadm_list, block_list, region)
+            aoi_dataset.to_csv(str(aoi_path), index=False)
 
 # Update the aoi tracker to include the geom and intersected blocks for each AoI
 p = "../data/city_boundaries/mnp_map_cities.csv"
