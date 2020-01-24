@@ -301,7 +301,7 @@ def get_aoi_dataset_path(aoi_name):
     pt = p / "analysis_{}.csv".format(aoi_name)
     return pt 
 
-def make_plots_for_aoi(aoi_df, aoi_description):
+def make_plots_for_aoi(aoi_df, aoi_description, update=False):
   '''
   Make histogram and box plots for all AoI's included 
   in some csv file and then make a cross-country summary
@@ -326,14 +326,16 @@ def make_plots_for_aoi(aoi_df, aoi_description):
     outpath = Path("./hist_summaries/{}.png".format(aoi_name))
     outpath.parent.mkdir(exist_ok=True, parents=True)    
     main_title = "Block complexity summary - {}".format(city)
-    make_hist_summary(aoi_data, main_title, outpath)
+    if not outpath.is_file() or update:
+      make_hist_summary(aoi_data, main_title, outpath)
 
     # (2) Make boxplots
     aoi_data = pd.read_csv(aoi_path)
     outpath = Path("./boxplot_summaries/{}.png".format(aoi_name))
     outpath.parent.mkdir(exist_ok=True, parents=True)    
     main_title = "Box plot block complexity summary - {}".format(city)
-    make_box_plot_summary(aoi_data, main_title, outpath)
+    if not outpath.is_file() or update:
+      make_box_plot_summary(aoi_data, main_title, outpath)
 
     # (3) Make figs for cross-country comparison
     aoi_data = pd.read_csv(aoi_path)
