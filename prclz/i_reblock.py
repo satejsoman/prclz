@@ -276,16 +276,19 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom):
 # plt.show()
 
 
-def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True):
+def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_already_completed=True):
     '''
     Does reblocking for an entire GADM boundary
     '''
+    block_list = [] if block_list is None else block_list
 
     # (1) Just load our data for one GADM
     print("Begin loading of data--{}-{}".format(region, gadm))
     parcels, buildings, blocks = i_topology_utils.load_reblock_inputs(region, gadm_code, gadm) 
 
-    buildings.sort_values(by=['building_count'], inplace=True)
+    buildings['in_target'] = buildings['block_id'].applys(lambda x: x not in block_list)
+    buildings.sort_values(by=['in_target', 'building_count'], inplace=True)
+    
 
     checkpoint_every = 1
 
@@ -343,6 +346,8 @@ if __name__ == "__main__":
     parser.add_argument('--gadm_code', type=str, required=True, help="3-digit country gadm code to process")
     parser.add_argument('--gadm', help='process this gadm')
     parser.add_argument('--simplify', help='boolean to simplify the graph or not', action='store_true')
+    parser.add_argument('--blocks', dest='block_list', help='prioritize these block ids', nargs='*', type=str)
+
 
     args = parser.parse_args()
    
