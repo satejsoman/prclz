@@ -288,7 +288,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_alread
     print("Begin loading of data--{}-{}".format(region, gadm))
     parcels, buildings, blocks = i_topology_utils.load_reblock_inputs(region, gadm_code, gadm) 
 
-    buildings['in_target'] = buildings['block_id'].applys(lambda x: x not in block_list)
+    buildings['in_target'] = buildings['block_id'].apply(lambda x: x not in block_list)
     buildings.sort_values(by=['in_target', 'building_count'], inplace=True)
 
 
