@@ -35,7 +35,51 @@ def get_color(complexity):
 HEIGHT = 900
 WIDTH = 900
 
+def make_freetown_summary():
+    p = Path("../data/LandScan_Global_2018/freetown_w_reblock.csv")
 
+    df = pd.read_csv(str(p))
+    cur_df = df[['complexity', 'existing', 'new']].groupby('complexity').sum()
+    cur_df['total'] = cur_df['existing'] + cur_df['new']   
+    cur_df.reset_index(inplace=True)
+    cur_df['color'] = cur_df['complexity'].apply(get_color)
+
+    size = 900
+    total_new = int(cur_df['new'].sum())
+    total_exist = int(cur_df['existing'].sum())
+    grand_total = total_new + total_exist
+    title = "Estimated road length for universal access\nTotal existing={:,}, Total new={:,}, Grand total={:,}".format(total_exist, total_new, grand_total)
+    fig = figure(x_range=(0, cur_df['complexity'].max()), toolbar_location='above', border_fill_color='blue', border_fill_alpha=0.25, 
+                plot_height=size, plot_width=size, title=title)
+    fig.title.text_font_size = '20pt'
+    fig.title.text_font_style = 'bold'
+    fig.title.text_color = 'black'
+    cur_source = ColumnDataSource(cur_df)
+
+    #fig.vbar(x='complexity', top='existing', width=1.0, color='color', source=cur_source, line_color='black')
+    #g = fig.vbar(x='complexity', top='total', bottom='existing', width=1.0, color='black', source=cur_source, line_color='black')
+
+    #fig = figure(x_range=(0, cur_df['complexity'].max()))
+    fig.vbar_stack(['existing', 'new'], x='complexity', width=1.0, color='color', source=cur_source, line_color='black')
+    fig.y_range.start = 0
+    fig.axis.minor_tick_line_color = None
+
+    fig.yaxis.axis_label = 'Total road length'
+    fig.yaxis.axis_label_text_font_style = 'bold'
+    fig.yaxis.axis_label_text_font_size = '14pt'
+    fig.yaxis.major_label_text_font_size = '12pt'
+    fig.yaxis.major_label_text_font_style = 'bold'
+    fig.yaxis.major_label_text_color = 'black'
+ 
+    fig.xaxis.axis_label = 'Block complexity'
+    fig.xaxis.axis_label_text_font_style = 'bold'
+    fig.xaxis.axis_label_text_font_size = '14pt'
+    fig.xaxis.axis_label_text_color = 'black'
+    fig.xaxis.major_label_text_font_size = '12pt'
+    fig.xaxis.major_label_text_font_style = 'bold'
+    fig.xaxis.major_label_text_color = 'black'
+
+    return fig 
 
 # Load main dataframe
 def make_ridge_plot_w_examples(aoi_name, file_path, output_filename, add_observations=True, bandwidth=.05, block_list=[]):
@@ -44,20 +88,17 @@ def make_ridge_plot_w_examples(aoi_name, file_path, output_filename, add_observa
 
     max_density = 1
     probly_df = load_aoi(file_path)
-    # probly_df = pd.read_csv(file_path) 
-    # probly_df['bldg_density'] = max_density*probly_df['total_bldg_area_sq_km']/probly_df['block_area_km2']
+
     missing_compl = probly_df['complexity'].isna()
     probly_df = probly_df.loc[~missing_compl]
+    probly_df['count'] = 1
     probly_df_gb = probly_df.groupby('complexity')
-    #print(probly_df_gb.groups.keys())
 
-    #cats = list(reversed(probly.keys()))
     cats_int = np.arange(probly_df['complexity'].max()+1).astype('uint8')
     cats_str = ["Complexity {}".format(i) for i in cats_int]
     int_to_str = {i:s for i, s in zip(cats_int, cats_str)}
     str_to_int = {s:i for i, s in zip(cats_int, cats_str)}
 
-    #palette = [cc.rainbow[i*15] for i in range(17)]
 
     #x = linspace(-20,110, 500)
     target_col = 'bldg_density'
@@ -71,16 +112,29 @@ def make_ridge_plot_w_examples(aoi_name, file_path, output_filename, add_observa
 
     title = "Block building density and\nblock complexity: {}".format(aoi_name)
     size = 900
+
+    # Make the main figure
     p = figure(toolbar_location='above', border_fill_color='blue', border_fill_alpha=0.25, y_range=cats_str, plot_height=size, plot_width=size, x_range=(0, 1.0), title=title)
     p.title.text_font_size = '20pt'
     p.title.text_font_style = 'bold'
     p.title.text_color = 'black'
 
+    # Now make the histogram count figure
+    obs_count = probly_df_gb.sum()[['count']].reset_index()
+    obs_count['complexity_str'] = obs_count['complexity'].apply(lambda x: int_to_str[x] )
+    print(obs_count)
+    hist = figure(toolbar_location=None, border_fill_color='blue', border_fill_alpha=0.25, plot_width=100, plot_height=p.plot_height, y_range=p.y_range,
+               x_range=(0, obs_count['count'].max()))
+    hist.hbar(y='complexity_str', right='count', source=obs_count, height=1, line_color=None, fill_color='black', fill_alpha=.5)
+    hist.ygrid.grid_line_color = None
+    hist.yaxis.visible = False
+    hist.xaxis.major_label_orientation = np.pi/4
+
     for i, cat_s in enumerate(reversed(cats_str)):
 
         cat_i = str_to_int[cat_s]
         if cat_i not in probly_df_gb.groups.keys():
-            p.line([0, 1], [cat_s, cat_s])
+            p.line([0, 1], [cat_s, cat_s], line_color='black')
             continue 
 
         #if cat_i not in probly_df.groups
@@ -93,24 +147,25 @@ def make_ridge_plot_w_examples(aoi_name, file_path, output_filename, add_observa
         print("Processing cat = {}".format(cat_i))
         print("shape = {}".format(cat_data.shape))
         if cat_data.shape[0] == 1:
-            p.line([0, 1], [cat_s, cat_s])
+            p.line([0, 1], [cat_s, cat_s], line_color='black')
             continue 
-            
+
         #pdf = gaussian_kde(cat_data)
         kernel_density = sm.nonparametric.KDEMultivariate(data=cat_data, var_type='c', bw=[bandwidth])
         y = ridge(cat_s, kernel_density.pdf(x), SCALE)
         source.add(y, cat_s)
-        #p.patch('x', cat_s, color=palette[i], alpha=0.6, line_color="black", source=source)
         p.patch('x', cat_s, color=get_color(cat_i), alpha=0.6, line_color="black", source=source)
-     
 
-    #p00.circle('complexity', 'bldg_density', fill_alpha=0.5, size=10, hover_color="firebrick")
+        # Get count for cat_s
+        #print(obs_count)
+        #cat_bool = obs_count['complexity']==cat_i  
+        #cur_count = obs_count['count'].loc[cat_bool].item()
+        #print("x = {} y = {}".format(cur_count, cat_s))
+        #hist.circle(x=[cur_count], y=[cat_s], size=100, fill_color='black')   
 
     p.outline_line_color = None
-    #p.background_fill_color = "#efefef"
 
     p.xaxis.ticker = FixedTicker(ticks=list(np.linspace(0, max_density, 11)))
-    #p.xaxis.formatter = PrintfTickFormatter(format="%d%%")
 
     p.ygrid.grid_line_color = None
     p.xgrid.grid_line_color = "#dddddd"
@@ -140,17 +195,39 @@ def make_ridge_plot_w_examples(aoi_name, file_path, output_filename, add_observa
     sub_layout_list = make_block_example_grid(probly_df, HEIGHT, WIDTH, block_list)
     grid = gridplot(children=sub_layout_list, ncols=2, toolbar_location=None)
 
-    final_layout = row([p, grid])
-    show(final_layout)
+    # Add subplots -- reblocked
+    sub_layout_list_reblocked = make_block_example_grid(probly_df, HEIGHT, WIDTH, block_list, add_reblock=True, region='Africa')
+    grid_reblocked = gridplot(children=sub_layout_list_reblocked, ncols=2, toolbar_location=None)    
 
-    #save(final_layout, output_filename)
+
+    fig_list = [p, hist, grid]
+    counts_df = obs_count
+    #return fig_list, counts_df
+
+    #final_layout = row([p, hist, grid])
+    fig10 = figure(plot_height=p.height, plot_width=p.width)
+    fig11 = figure(plot_height=hist.height, plot_width=hist.width)
+
+    if aoi_name == "Freetown":
+        bottom_fig = make_freetown_summary()
+    else:
+        bottom_fig = None 
+    final_layout = gridplot([[p, hist, grid], 
+                           [bottom_fig, grid_reblocked]])
+    show(final_layout)
+    #return fig_list, counts_df, probly_df
+
+    save(final_layout, output_filename)
     # return final_layout
 
 
-def make_block_example_grid(aoi_gdf, total_height, total_width, block_list ):
+def make_block_example_grid(aoi_gdf, total_height, total_width, block_list, add_reblock=False, region=None ):
     '''
     Start by assuming a 2x2 grid of examples
     '''
+
+    if add_reblock:
+        assert region is not None, "If adding reblocking must also provide region, i.e. 'Africa' "
 
     # Add other figs
     r = 2
@@ -168,23 +245,24 @@ def make_block_example_grid(aoi_gdf, total_height, total_width, block_list ):
         cur_gdf = aoi_gdf.loc[is_block]
         cur_density = cur_gdf['bldg_density'].iloc[0]
         cur_complexity = cur_gdf['complexity'].iloc[0]
+        cur_count = cur_gdf['bldg_count'].iloc[0]
 
-        fig = make_bokeh(cur_gdf, plot_height=height, plot_width=width, bldg_alpha=1.0)
+        #fig = make_bokeh(cur_gdf, plot_height=height, plot_width=width, bldg_alpha=1.0)
+        fig, new_road_length = make_bokeh(cur_gdf, plot_height=height, plot_width=width, bldg_alpha=1.0, add_reblock=add_reblock, region=region)
         t = Title()
-        t.text = "Complexity = {} Building density = {}%".format(cur_complexity, np.round(cur_density*100))
+
+        if add_reblock:
+            if new_road_length is None:
+                new_road_length = "???"
+                t.text = "Complexity = {} New road len (m) = {}".format(cur_complexity, new_road_length)
+            else:
+                t.text = "Complexity = {} New road len (m) = {:,}".format(cur_complexity, new_road_length)
+        else:
+            t.text = "Complexity = {} Bldg. density = {}% Bldg. count = {:,}".format(cur_complexity, np.round(cur_density*100), int(cur_count))
         fig.title = t
         fig.xaxis.visible = False
         fig.yaxis.visible = False 
         fig.title.text_color = 'black' 
-        # fig.ygrid.grid_line_color = None
-        # fig.xgrid.grid_line_color = None
-        # fig.xaxis.minor_tick_line_color = None
-        # fig.xaxis.major_tick_line_color = None
-        # fig.yaxis.minor_tick_line_color = None
-        # fig.yaxis.major_tick_line_color = None
-        # fig.axis.axis_label = None 
-        # fig.axis.axis_label = None 
-        # fig.grid.grid_line_color = None 
 
         # Add the plot to the below
         flat_l.append(fig)
@@ -305,8 +383,10 @@ for aoi_name, file_path, output_filename in zip(aoi_names, file_paths, output_fi
         continue
     else:
         block_list = block_map[aoi_name]
-        plots = make_ridge_plot_w_examples(aoi_name, file_path, output_filename, block_list=block_list)
-    break 
+        #fig_list, counts_df = make_ridge_plot_w_examples(aoi_name, file_path, output_filename, block_list=block_list)
+    if "Freetown" in aoi_name:
+        fig_list, counts_df, gdf = make_ridge_plot_w_examples(aoi_name, file_path, output_filename, block_list=block_list)
+        break 
 
 # aoi_gdf = load_aoi(file_path)
 # total_height = 900

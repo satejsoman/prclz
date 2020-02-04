@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, LineString
-from shapely.ops import cascaded_union
+from shapely.ops import cascaded_union, polygonize
 from shapely.wkt import loads, dumps
 import pandas as pd
 import numpy as np 
@@ -161,6 +161,120 @@ class CheckPointer:
         steiner_df.to_csv(self.steiner_path)
         terminal_df.to_csv(self.terminal_path)
 
+# def convert_to_polys(parcel_geom, eps=1e-8):
+
+#     parcel_geom = unary_union(parcel_geom)
+#     buffered = parcel_geom.buffer(eps)
+#     convex_hull = parcel_geom.convex_hull
+#     return convex_hull.difference(buffered)
+
+# def get_closest_point(parcel_geom, node_geom, block_buffer):
+#     '''
+#     Helper function to move building centroids to the closest parcel
+#     boundary, BUT that favors a parcel boundary that is a current
+#     block (i.e. existing)
+#     '''
+#     #block_points_set = block_buffer
+
+#     parcel_points = list(parcel_geom.exterior.coords)
+#     node_points = list(node_geom.coords)[0]
+
+#     closest_edge_nodes = []
+#     closest_edge_distances = []
+#     closest_block_edge_nodes = []
+#     closest_block_edge_distances = []
+
+#     assert parcel_points[0] == parcel_points[-1], "Parcel not closed -- check"
+#     for i in range(1, len(parcel_points)):
+#         pt0 = parcel_points[i-1]
+#         pt1 = parcel_points[i]
+#         edge_tuple = (pt0, pt1)
+
+#         # print(edge_tuple)
+#         # print(node_points)
+
+#         closest_node = PlanarGraph.closest_point_to_node(edge_tuple, node_points)
+#         closest_distance = distance(closest_node, node_points)
+
+#         # Check if both points are in the block_points_set
+#         #if (pt0 in block_points_set) and (pt1 in block_points_set):
+#         if block_buffer.intersects(Point(pt0)) and block_buffer.intersects(Point(pt1)):
+#             closest_block_edge_nodes.append(closest_node)
+#             closest_block_edge_distances.append(closest_distance)          
+#         # Or if they are not
+#         else:
+#             closest_edge_nodes.append(closest_node)
+#             closest_edge_distances.append(closest_distance)               
+
+#     # Prefer edges from the existing block
+#     if len(closest_block_edge_nodes) > 0:
+#         print("Found block edge!")
+#         argmin = np.argmin(closest_block_edge_distances)
+#         closest = closest_block_edge_nodes[argmin]
+#     else:
+#         print("Did not find edge...")
+#         argmin = np.argmin(closest_edge_distances)
+#         closest = closest_edge_nodes[argmin]
+#     return closest 
+
+
+def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom):
+    '''
+    If a parcel shares a boundary with the block, then it already has access 
+    and doesn't need to be included. So, polygonize the parcels and intersect 
+    the parcel polygons with the boundary of the block, thus allowing reblocking
+    to focus only on the interior parcels without access.
+    '''
+
+    # Converts the parcels to polygons
+    parcel_geom_df = gpd.GeoDataFrame({'geometry': list(polygonize(parcel_geom))})
+    parcel_geom_df = parcel_geom_df.explode()
+    parcel_geom_df.reset_index(inplace=True, drop=True)
+
+    # Make a dataframe of building points
+    building_geom_df = gpd.GeoDataFrame({'geometry': [MultiPoint(building_list)]})
+    building_geom_df = building_geom_df.explode()
+    building_geom_df.reset_index(inplace=True, drop=True)
+    building_geom_df.reset_index(inplace=True)
+    building_geom_df.rename(columns={'index': 'building_id'}, inplace=True)
+
+    # Figure out which building is in each parcel
+    m = gpd.sjoin(parcel_geom_df, building_geom_df, how='left') 
+    has_building = m['building_id'].notna()
+    assert has_building.sum() == building_geom_df.shape[0], "Check map_points_to_parcel sjoin"
+    m_has_building = m.loc[has_building]
+    m_has_building = m_has_building.rename(columns={'geometry':'parcel_geom'})
+    m_has_building = m_has_building.merge(building_geom_df, how='left', on='building_id')
+
+    # Now check which parcel geoms intersect with the block
+    block_boundary = block_geom.boundary 
+
+    fn = lambda geom: geom.intersects(block_boundary)
+
+    # And now return just the buildings that DO NOT have parcels on the border
+    m_has_building['parcel_intersects_block'] = m_has_building['parcel_geom'].apply(fn)
+
+    reblock_buildings = m_has_building[~m_has_building['parcel_intersects_block']]['geometry'].apply(lambda g: g.coords[0])
+    return list(reblock_buildings.values)
+
+# new_points = []
+# for i, row in m_has_building.iterrows():
+#     pgeom = row['parcel_geom']
+#     ngeom = row['geometry']
+#     closest = get_closest_point(pgeom, ngeom, block_buffer)
+#     #closest = get_closest_point(pgeom, ngeom, block_points_set)
+#     new_points.append(closest)
+
+# # For QC
+# new_geom = [Point(x) for x in new_points]
+# new_buildings = gpd.GeoDataFrame({'geometry': new_geom})
+# ax = orig_parcel_geom_df.plot(color='blue', alpha=.3)
+# block_buffer_geom_df = gpd.GeoDataFrame({'geometry': [block_buffer]})
+# block_buffer_geom_df.plot(color='blue', alpha=1, ax=ax)
+# building_geom_df.plot(color='black', ax=ax)
+# new_buildings.plot(color='red', ax=ax)
+# plt.show()
+
 
 def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True):
     '''
@@ -188,6 +302,9 @@ def reblock_gadm(region, gadm_code, gadm, simplify, drop_already_completed=True)
         parcel_geom = parcels[parcels['block_id']==block_id]['geometry'].iloc[0]
         building_list = buildings[buildings['block_id']==block_id]['buildings'].iloc[0]
         block_geom = blocks[blocks['block_id']==block_id]['geometry'].iloc[0]
+
+        ## UPDATES: drop buildings that intersect with the block border -- they have access
+        building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom)
 
         if len(building_list) <= 1:
             continue 

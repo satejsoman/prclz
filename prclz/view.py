@@ -83,9 +83,9 @@ def get_point_coords(point, coord_type):
 def get_line_coords(line, coord_type):
     """Calculates coordinates ('x' or 'y') of a Point geometry"""
     if coord_type == 'x':
-        return line.coords.xy[0]
+        return list(line.coords.xy[0])
     elif coord_type == 'y':
-        return line.coords.xy[1]
+        return list(line.coords.xy[1])
 
 def get_polygon_coords(polygon, coord_type):
     """Calculates coordinates ('x' or 'y') of a Point geometry"""
@@ -105,11 +105,13 @@ def get_multipolygon_coords(multipolygon, coord_type):
             rv += get_polygon_coords(poly, 'y')
     return rv 
   
-def make_bokeh(complexity_df, output_filename):
+def make_bokeh(complexity_df, output_filename=None, plot_height=800, plot_width=1600, bldg_alpha=0.3,
+               add_reblock=False, region=None):
     # c is a complexity geodataframe
     # (1) Process the data sources
 
-    output_file(output_filename.split(".")[0])
+    if output_filename is not None:
+        output_file(output_filename.split(".")[0])
     cols = ['block_id', 'bldg_count', 'block_area_km2', 'complexity', 'bldg_density']
 
     # 1.a -- define blocks
@@ -136,15 +138,13 @@ def make_bokeh(complexity_df, output_filename):
     df_buildings['x'] = df_buildings['geometry'].apply(lambda p: get_polygon_coords(p, 'x'))
     df_buildings['y'] = df_buildings['geometry'].apply(lambda p: get_polygon_coords(p, 'y'))
     df_buildings_no_geom = df_buildings.drop(columns=['geometry'])
-    #missing = df_buildings_no_geom['x'].isna()
-    #source_df_buildings = ColumnDataSource(df_buildings_no_geom.loc[~missing])
 
     
     df_blocks['compl_label'] = df_blocks['complexity'].apply(get_range)
     
     # (2) Make the fig
     fig = figure(border_fill_color='blue', border_fill_alpha=0.25, match_aspect=True, aspect_scale=1.0,
-                 plot_height=800, plot_width=1600, x_axis_type="mercator", y_axis_type="mercator")
+                 plot_height=plot_height, plot_width=plot_width, x_axis_type="mercator", y_axis_type="mercator")
 
     # 2.a -- add the tools
     fig.add_tools(my_hover)
@@ -159,7 +159,9 @@ def make_bokeh(complexity_df, output_filename):
     for label, color in zip(labels, MNP):
         cur_df = df_blocks.loc[df_blocks['compl_label']==label]
         cur_source = ColumnDataSource(cur_df)
+
         fig.patches('x', 'y', fill_color=color, source=cur_source, legend=label)
+        #fig.patches('x', 'y', fill_color=color, source=cur_source)
 
     # Legend plot of buildings
     #source_df_buildings = ColumnDataSource(df_buildings_no_geom)
@@ -167,15 +169,52 @@ def make_bokeh(complexity_df, output_filename):
     for label, color in zip(labels, MNP):
         cur_df = df_buildings_no_geom.loc[df_buildings_no_geom['compl_label']==label]
         cur_source = ColumnDataSource(cur_df)
-        fig.patches('x', 'y', line_alpha=0, fill_color='black', fill_alpha=0.3, source=cur_source, legend=label)
+        fig.patches('x', 'y', line_alpha=0, fill_color='black', fill_alpha=bldg_alpha, source=cur_source, legend=label)
 
-    #fig.patches('x', 'y', line_width=0, fill_color='black', fill_alpha=0.3, source=source_df_buildings)
+    # Add reblocking. NOTE, only works for a single block currently
+    if add_reblock:
+        assert region is not None, "If adding reblock need to include region ex. 'Africa'"
+        cur_block = df_blocks['block_id'].iloc[0]
+        cur_gadm = cur_block[0:cur_block.rfind("_")]
+        country_code = cur_block[0:3]
 
-    fig.legend.location = "top_left"
-    fig.legend.click_policy="hide"
-    
-    #save(fig, output_filename)
-    show(fig)
+        reblock_path = REBLOCK / region / country_code / "steiner_lines_{}.csv".format(cur_gadm)
+        reblock = read_steiner(reblock_path)
+        is_block = reblock['block']==cur_block
+        if is_block.sum() == 0:
+            print("Block {} does not have reblocking yet".format(cur_block))
+            new_road_length = None 
+             
+        else:
+            cur_reblock = reblock.loc[is_block]
+            cur_reblock = cur_reblock.explode()
+            cur_reblock['geometry'].crs =  {'init': 'epsg:4326'}
+            is_new = cur_reblock['line_type']=='new_steiner'
+            cur_reblock = cur_reblock.loc[is_new]
+            cur_reblock.crs =  {'init': 'epsg:4326'}
+            cur_reblock['geometry'] = cur_reblock['geometry'].to_crs({'init': 'epsg:3395'})
+            #print("crs = {}".format(cur_reblock.crs))
+            cur_reblock['x'] = cur_reblock['geometry'].apply(lambda geom: get_line_coords(geom, 'x'))
+            cur_reblock['y'] = cur_reblock['geometry'].apply(lambda geom: get_line_coords(geom, 'y'))
+            # print("type x = {}".format(cur_reblock['x'].iloc[0]))
+            # print("type y = {}".format(cur_reblock['y'].iloc[0]))
+
+            temp_df = cur_reblock.drop(columns=['geometry', 'block', 'block_w_type'])
+            cur_reblock_source = ColumnDataSource(temp_df)
+            fig.multi_line('x', 'y', line_color='green', line_width=3, source=cur_reblock_source)
+            new_road_length = int(np.round(cur_reblock['geometry'].length.sum()))
+    else:
+        new_road_length = None 
+
+    if output_filename is None:
+        fig.legend.visible = False 
+        print("New road length = {}".format(new_road_length))
+        return [fig, new_road_length] 
+    else:
+        fig.legend.location = "top_left"
+        fig.legend.click_policy="hide"
+        save(fig, output_filename)
+    #show(fig)
 
 # MNP = ["#0571b0", "#f7f7f7", "#f4a582", "#cc0022"]
 # PALETTE = MNP
@@ -183,7 +222,7 @@ def make_bokeh(complexity_df, output_filename):
 # RANGE = [1, 3, 7, np.inf]
 # RANGE_LABEL = ['high', 'medium', 'low', 'very low']
 
-def convert_buildings(bldg_obs):
+def convert_buildings_OLD(bldg_obs):
     '''
     Converts the literal string repr list of wkt format
     to multipolygons
@@ -195,6 +234,29 @@ def convert_buildings(bldg_obs):
         return MultiPolygon(bldgs)
     except:
         return None 
+
+def convert_buildings(bldg_obs):
+    '''
+    Converts the literal string repr list of wkt format
+    to multipolygons
+    '''
+    try:
+        bldg_list = ast.literal_eval(bldg_obs)
+        bldgs = []
+        for b in bldg_list:
+            b_shape = loads(b)
+            if isinstance(b_shape, Polygon):
+                bldgs.append(b_shape)
+            elif isinstance(b_shape, MultiPolygon):
+                for subpoly in b_shape:
+                    bldgs.append(subpoly)
+            else:
+                print("In converting buildings encontered type of {}".format(type(b_shape)))
+
+        return MultiPolygon(bldgs)
+    except:
+        return None 
+    
 
 def make_scatter_plot(df_path, count_var='bldg_count'):
     df = pd.read_csv(df_path)
@@ -229,8 +291,9 @@ gadm_list = ['KEN.30.10.1_1', 'KEN.30.10.2_1', 'KEN.30.10.3_1', 'KEN.30.10.4_1',
 
 def read_steiner(path):
     wkt_to_geom = lambda x: loads(x) if isinstance(x, str) else None 
-
-    d = pd.read_csv(path).drop(columns=['Unnamed: 0'])
+    print("Loading reblock at: {}".format(str(path)))
+    d = pd.read_csv(str(path))
+    d.drop(columns=['Unnamed: 0'], inplace=True)
     d['geometry'] = d['geometry'].apply(wkt_to_geom)
     geo_d = gpd.GeoDataFrame(d)
 
@@ -573,36 +636,36 @@ nairobi = ComplexityViewer(region='Africa', aoi_path=nairobi_path)
 # #aoi_analysis.make_box_plot_summary(freetown_df, "Freetown, SL", outpath="./bokeh/freetown_slum_plot.png")
 # make_bokeh(freetown_df, "./bokeh/freetown_bokeh.html")
 
-import statsmodels.api as sm 
-from mpl_toolkits import mplot3d
-from statsmodels.nonparametric.kde import kernel_switch
-cols = ['complexity', 'bldg_density']
-data = nairobi.complexity[cols]
-missing_compl = data['complexity'].isna()
-data = data.loc[~missing_compl]
+# import statsmodels.api as sm 
+# from mpl_toolkits import mplot3d
+# from statsmodels.nonparametric.kde import kernel_switch
+# cols = ['complexity', 'bldg_density']
+# data = nairobi.complexity[cols]
+# missing_compl = data['complexity'].isna()
+# data = data.loc[~missing_compl]
 
-x = data['complexity'].values
-y = data['bldg_density'].values 
-#y = np.log(y)
-bandwidth = 0.1
-dens_fn = sm.nonparametric.KDEMultivariate(data=[x, y], var_type='oc', bw=[bandwidth, bandwidth])
+# x = data['complexity'].values
+# y = data['bldg_density'].values 
+# #y = np.log(y)
+# bandwidth = 0.1
+# dens_fn = sm.nonparametric.KDEMultivariate(data=[x, y], var_type='oc', bw=[bandwidth, bandwidth])
 
-x_min = 5
-x_max = x.max()
-y_min = 0.0
-y_max = 1.0
+# x_min = 5
+# x_max = x.max()
+# y_min = 0.0
+# y_max = 1.0
 
-x_plot_point_count = 20 
-y_plot_point_count = 40
-x_plot_vals = np.linspace(x_min, x_max, x_plot_point_count) 
-y_plot_vals = np.linspace(y_min, y_max, y_plot_point_count) 
-X_plot, Y_plot = np.meshgrid(x_plot_vals, y_plot_vals)
-eval_data = [X_plot.ravel(), Y_plot.ravel()]
-z = dens_fn.pdf(eval_data)
-Z_plot = z.reshape(X_plot.shape)
+# x_plot_point_count = 20 
+# y_plot_point_count = 40
+# x_plot_vals = np.linspace(x_min, x_max, x_plot_point_count) 
+# y_plot_vals = np.linspace(y_min, y_max, y_plot_point_count) 
+# X_plot, Y_plot = np.meshgrid(x_plot_vals, y_plot_vals)
+# eval_data = [X_plot.ravel(), Y_plot.ravel()]
+# z = dens_fn.pdf(eval_data)
+# Z_plot = z.reshape(X_plot.shape)
 
-ax = plt.axes(projection='3d')  
-ax.plot_surface(X_plot, Y_plot, Z_plot, cmap='viridis') 
+# ax = plt.axes(projection='3d')  
+# ax.plot_surface(X_plot, Y_plot, Z_plot, cmap='viridis') 
 
 # if __name__ == "__main__":
 #     # gadm_list = ['KEN.30.10.1_1',
