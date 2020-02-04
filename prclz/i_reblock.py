@@ -218,7 +218,7 @@ class CheckPointer:
 #     return closest 
 
 
-def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom):
+def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id):
     '''
     If a parcel shares a boundary with the block, then it already has access 
     and doesn't need to be included. So, polygonize the parcels and intersect 
@@ -241,7 +241,9 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom):
     # Figure out which building is in each parcel
     m = gpd.sjoin(parcel_geom_df, building_geom_df, how='left') 
     has_building = m['building_id'].notna()
-    assert has_building.sum() == building_geom_df.shape[0], "Check map_points_to_parcel sjoin"
+
+    if has_building.sum() != building_geom_df.shape[0]:
+        print("Check map_points_to_parcel sjoin for block: {}".format(block_id))
     m_has_building = m.loc[has_building]
     m_has_building = m_has_building.rename(columns={'geometry':'parcel_geom'})
     m_has_building = m_has_building.merge(building_geom_df, how='left', on='building_id')
@@ -288,7 +290,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_alread
 
     buildings['in_target'] = buildings['block_id'].applys(lambda x: x not in block_list)
     buildings.sort_values(by=['in_target', 'building_count'], inplace=True)
-    
+
 
     checkpoint_every = 1
 
@@ -307,7 +309,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_alread
         block_geom = blocks[blocks['block_id']==block_id]['geometry'].iloc[0]
 
         ## UPDATES: drop buildings that intersect with the block border -- they have access
-        building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom)
+        building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id)
 
         if len(building_list) <= 1:
             continue 
