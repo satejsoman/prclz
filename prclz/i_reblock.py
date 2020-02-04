@@ -311,6 +311,14 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_alread
         ## UPDATES: drop buildings that intersect with the block border -- they have access
         building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id)
 
+        ## And explicitly add a dummy building outside of the block which will force Steiner Alg
+        #      to connect to the outside road network
+        bounding_rect = block_geom.minimum_rotated_rectangle()
+        convex_hull = block_geom.convex_hull
+        outside_block = bounding_rect.difference(convex_hull)
+        outside_building_point = outside_block.representative_point()
+        building_list.append(outside_building_point.coords[0])
+
         if len(building_list) <= 1:
             continue 
 
