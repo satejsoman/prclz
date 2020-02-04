@@ -278,7 +278,7 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
 # plt.show()
 
 
-def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_already_completed=True):
+def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_list=False, drop_already_completed=True):
     '''
     Does reblocking for an entire GADM boundary
     '''
@@ -296,7 +296,8 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, drop_alread
 
     # (2) Create a checkpointer which will handle saving and restoring of past work
     checkpointer = CheckPointer(region, gadm, gadm_code, drop_already_completed)
-    all_blocks = [b for b in buildings['block_id'] if b not in checkpointer.completed]
+    possible_buildings = block_list if only_block_list else buildings['block_id']
+    all_blocks = [b for b in possible_buildings if b not in checkpointer.completed]
 
     print("\nBegin looping")
     i = 0
@@ -357,10 +358,11 @@ if __name__ == "__main__":
     parser.add_argument('--gadm', help='process this gadm')
     parser.add_argument('--simplify', help='boolean to simplify the graph or not', action='store_true')
     parser.add_argument('--blocks', dest='block_list', help='prioritize these block ids', nargs='*', type=str)
-
+    parser.add_argument('--only_block_list', help='limit reblocking to specified blocks', action='store_true')
 
     args = parser.parse_args()
    
     reblock_gadm(**vars(args))
 
 
+#     'Monrovia': ['LBR.11.2.1_1_2563', 'LBR.11.2.1_1_282', 'LBR.11.2.1_1_1360', 'LBR.11.2.1_1_271'],
