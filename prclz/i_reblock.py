@@ -256,7 +256,7 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
     # And now return just the buildings that DO NOT have parcels on the border
     m_has_building['parcel_intersects_block'] = m_has_building['parcel_geom'].apply(fn)
 
-    reblock_buildings = m_has_building[~m_has_building['parcel_intersects_block']]['geometry'].apply(lambda g: g.coords[0])
+    reblock_buildings = m_has_building[~m_has_building]['geometry'].apply(lambda g: g.coords[0])
     return list(reblock_buildings.values)
 
 # new_points = []
@@ -291,12 +291,11 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
     buildings['in_target'] = buildings['block_id'].apply(lambda x: x not in block_list)
     buildings.sort_values(by=['in_target', 'building_count'], inplace=True)
 
-
     checkpoint_every = 1
 
     # (2) Create a checkpointer which will handle saving and restoring of past work
     checkpointer = CheckPointer(region, gadm, gadm_code, drop_already_completed)
-    possible_buildings = block_list if only_block_list else buildings['block_id']
+    possible_buildings = buildings['block_id'].values[0:len(block_list)] if only_block_list else buildings['block_id']
     all_blocks = [b for b in possible_buildings if b not in checkpointer.completed]
 
     print("\nBegin looping")
@@ -314,7 +313,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
 
         ## And explicitly add a dummy building outside of the block which will force Steiner Alg
         #      to connect to the outside road network
-        bounding_rect = block_geom.minimum_rotated_rectangle()
+        bounding_rect = block_geom.minimum_rotated_rectangle
         convex_hull = block_geom.convex_hull
         outside_block = bounding_rect.difference(convex_hull)
         outside_building_point = outside_block.representative_point()
