@@ -312,6 +312,8 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
         block_geom = blocks[blocks['block_id']==block_id]['geometry'].iloc[0]
 
         ## UPDATES: drop buildings that intersect with the block border -- they have access
+        if len(building_list) <= 1:
+            continue 
         building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id)
 
         ## And explicitly add a dummy building outside of the block which will force Steiner Alg
