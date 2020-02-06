@@ -244,6 +244,7 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
 
     if has_building.sum() != building_geom_df.shape[0]:
         print("Check map_points_to_parcel sjoin for block: {}".format(block_id))
+        print("buildings = {} but matched = {}".format(building_geom_df.shape[0], has_building.sum()))
     m_has_building = m.loc[has_building]
     m_has_building = m_has_building.rename(columns={'geometry':'parcel_geom'})
     m_has_building = m_has_building.merge(building_geom_df, how='left', on='building_id')
@@ -255,6 +256,8 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
 
     # And now return just the buildings that DO NOT have parcels on the border
     m_has_building['parcel_intersects_block'] = m_has_building['parcel_geom'].apply(fn)
+
+    print(m_has_building)
 
     reblock_buildings = m_has_building[~m_has_building['parcel_intersects_block']][['geometry']].apply(lambda g: g.coords[0])
     return list(reblock_buildings.values)
