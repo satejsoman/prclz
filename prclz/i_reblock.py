@@ -106,9 +106,11 @@ class CheckPointer:
     prior work exists, etc
     '''
 
-    def __init__(self, region: str, gadm: str, gadm_code: str, drop_already_completed: bool):
+    def __init__(self, region: str, gadm: str, gadm_code: str, drop_already_completed: bool, digital_globe_data:bool):
 
-        self.reblock_path = os.path.join(DATA, "reblock", region, gadm_code)
+        reblock_stub = "dg_reblock" if digital_globe_data else "reblock"
+
+        self.reblock_path = os.path.join(DATA, reblock_stub, region, gadm_code)
         if not os.path.exists(self.reblock_path):
             os.makedirs(self.reblock_path)
         self.summary_path = os.path.join(self.reblock_path, "reblock_summary_{}.csv".format(gadm))
@@ -161,62 +163,6 @@ class CheckPointer:
         summary_df.to_csv(self.summary_path)
         steiner_df.to_csv(self.steiner_path)
         terminal_df.to_csv(self.terminal_path)
-
-# def convert_to_polys(parcel_geom, eps=1e-8):
-
-#     parcel_geom = unary_union(parcel_geom)
-#     buffered = parcel_geom.buffer(eps)
-#     convex_hull = parcel_geom.convex_hull
-#     return convex_hull.difference(buffered)
-
-# def get_closest_point(parcel_geom, node_geom, block_buffer):
-#     '''
-#     Helper function to move building centroids to the closest parcel
-#     boundary, BUT that favors a parcel boundary that is a current
-#     block (i.e. existing)
-#     '''
-#     #block_points_set = block_buffer
-
-#     parcel_points = list(parcel_geom.exterior.coords)
-#     node_points = list(node_geom.coords)[0]
-
-#     closest_edge_nodes = []
-#     closest_edge_distances = []
-#     closest_block_edge_nodes = []
-#     closest_block_edge_distances = []
-
-#     assert parcel_points[0] == parcel_points[-1], "Parcel not closed -- check"
-#     for i in range(1, len(parcel_points)):
-#         pt0 = parcel_points[i-1]
-#         pt1 = parcel_points[i]
-#         edge_tuple = (pt0, pt1)
-
-#         # print(edge_tuple)
-#         # print(node_points)
-
-#         closest_node = PlanarGraph.closest_point_to_node(edge_tuple, node_points)
-#         closest_distance = distance(closest_node, node_points)
-
-#         # Check if both points are in the block_points_set
-#         #if (pt0 in block_points_set) and (pt1 in block_points_set):
-#         if block_buffer.intersects(Point(pt0)) and block_buffer.intersects(Point(pt1)):
-#             closest_block_edge_nodes.append(closest_node)
-#             closest_block_edge_distances.append(closest_distance)          
-#         # Or if they are not
-#         else:
-#             closest_edge_nodes.append(closest_node)
-#             closest_edge_distances.append(closest_distance)               
-
-#     # Prefer edges from the existing block
-#     if len(closest_block_edge_nodes) > 0:
-#         print("Found block edge!")
-#         argmin = np.argmin(closest_block_edge_distances)
-#         closest = closest_block_edge_nodes[argmin]
-#     else:
-#         print("Did not find edge...")
-#         argmin = np.argmin(closest_edge_distances)
-#         closest = closest_edge_nodes[argmin]
-#     return closest 
 
 
 def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id):
@@ -282,15 +228,21 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
 # plt.show()
 
 
-def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_list=False, drop_already_completed=True):
+def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_list=False, 
+                 drop_already_completed=True, digital_globe_data=False):
     '''
     Does reblocking for an entire GADM boundary
     '''
     block_list = [] if block_list is None else block_list
 
     # (1) Just load our data for one GADM
-    print("Begin loading of data--{}-{}".format(region, gadm))
-    parcels, buildings, blocks = i_topology_utils.load_reblock_inputs(region, gadm_code, gadm) 
+    
+    if digital_globe_data:
+        print("Begin loading of Digital Globe data--{}-{}".format(region, gadm))
+        parcels, buildings, blocks = i_topology_utils.load_reblock_inputs_dg(region, gadm_code, gadm)         
+    else:
+        print("Begin loading of data--{}-{}".format(region, gadm))
+        parcels, buildings, blocks = i_topology_utils.load_reblock_inputs(region, gadm_code, gadm) 
 
     buildings['in_target'] = buildings['block_id'].apply(lambda x: x not in block_list)
     buildings.sort_values(by=['in_target', 'building_count'], inplace=True)
@@ -298,7 +250,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
     checkpoint_every = 1
 
     # (2) Create a checkpointer which will handle saving and restoring of past work
-    checkpointer = CheckPointer(region, gadm, gadm_code, drop_already_completed)
+    checkpointer = CheckPointer(region, gadm, gadm_code, drop_already_completed, digital_globe_data)
     possible_buildings = buildings['block_id'].values[0:len(block_list)] if only_block_list else buildings['block_id']
     all_blocks = [b for b in possible_buildings if b not in checkpointer.completed]
 

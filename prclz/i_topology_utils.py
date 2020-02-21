@@ -27,6 +27,9 @@ PARCELS_PATH = os.path.join(DATA_PATH, "parcels")
 LINES_PATH = os.path.join(DATA_PATH, "lines")
 COMPLEXITY_PATH = os.path.join(DATA_PATH, "complexity")
 
+DG_BLDGS_PATH = os.path.join(DATA_PATH, "dg_buildings")
+DG_PARCELS_PATH = os.path.join(DATA_PATH, "dg_parcels")
+
 THRESHOLD_METERS = 1
 WATERWAY_WEIGHT = 1e5 
 NATURAL_WEIGHT = 1e5
@@ -94,6 +97,34 @@ def load_reblock_inputs(region: str, gadm_code: str, gadm: str):
     parcels_df = gpd.read_file(parcels_path)
     return parcels_df, buildings_df, blocks_df 
 
+def load_reblock_inputs_dg(region: str, gadm_code: str, gadm: str):
+
+    # Paths
+    parcels_path = os.path.join(DG_PARCELS_PATH, region, gadm_code, "parcels_{}.geojson".format(gadm))
+    buildings_path = os.path.join(DG_BLDGS_PATH, region, gadm_code, "buildings_{}.geojson".format(gadm))
+    blocks_path = os.path.join(BLOCK_PATH, region, gadm_code, "blocks_{}.csv".format(gadm))
+
+    # Load the files
+    parcels_df = gpd.read_file(parcels_path)
+    buildings_df = gpd.read_file(buildings_path)
+    blocks_df = csv_to_geo(blocks_path)
+    blocks_df.rename(columns={'block_geom': 'geometry'}, inplace=True)
+
+    print("Blocks {}".format(blocks_df.columns))
+    print("Buildings {}".format(buildings_df.columns))
+
+    # Map buildings to a block
+    # Convert buildings to centroids
+    buildings_df['buildings'] = buildings_df['geometry'].centroid
+    buildings_df.set_geometry('buildings', inplace=True)
+
+    # We want to map each building to a given block to then map the buildings to a parcel
+    buildings_df = gpd.sjoin(buildings_df[['buildings', 'osm_id']], blocks_df[['geometry', 'block_id']], how='left', op='within')
+    buildings_df = buildings_df[['buildings', 'block_id']].groupby('block_id').agg(list)
+    buildings_df['building_count'] = buildings_df['buildings'].apply(lambda x: len(x))
+    buildings_df.reset_index(inplace=True)
+
+    return parcels_df, buildings_df, blocks_df 
 
 def prepare_parcels(bldgs: gpd.GeoDataFrame, blocks: gpd.GeoDataFrame, 
                                                parcels: gpd.GeoDataFrame) -> pd.DataFrame:
