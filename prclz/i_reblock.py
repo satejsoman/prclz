@@ -321,10 +321,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args_dict = vars(args)
-    if args_dict['from_dir'] is not None:
+    from_dir = args_dict.pop('from_dir')
+    if from_dir is not None:
         # Then process all GADMs
         dir_path = Path(args_dict['from_dir']) 
-        all_gadms = [f.stem.replace("buildings_", "").replace("parcels_", "") for f in buildings_path.iterdir()]
+        all_gadms = [f.stem.replace("buildings_", "").replace("parcels_", "") for f in dir_path.iterdir()]
         for gadm in all_gadms:
             args_dict['gadm'] = gadm 
             print("Beginning reblock for {}-{}".format(args_dict['region'],  args_dict['gadm']))
