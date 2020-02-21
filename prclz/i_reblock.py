@@ -316,6 +316,7 @@ if __name__ == "__main__":
     parser.add_argument('--simplify', help='boolean to simplify the graph or not', action='store_true')
     parser.add_argument('--blocks', dest='block_list', help='prioritize these block ids', nargs='*', type=str)
     parser.add_argument('--only_block_list', help='limit reblocking to specified blocks', action='store_true')
+    parser.add_argument('--dg', dest='digital_globe_data', help='adding flag indicates to use DG data', action='store_true')
 
     args = parser.parse_args()
     args_dict = vars(args)
