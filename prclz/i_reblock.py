@@ -317,19 +317,19 @@ if __name__ == "__main__":
     parser.add_argument('--blocks', dest='block_list', help='prioritize these block ids', nargs='*', type=str)
     parser.add_argument('--only_block_list', help='limit reblocking to specified blocks', action='store_true')
     parser.add_argument('--dg', dest='digital_globe_data', help='adding flag indicates to use DG data', action='store_true')
+    parser.add_argument('--from_dir', help='process all the gadms in this directory', type=str, default=None)
 
     args = parser.parse_args()
     args_dict = vars(args)
-    if args_dict['gadm'] is None:
+    if args_dict['from_dir'] is not None:
         # Then process all GADMs
-        buildings_path = Path(DATA) / "buildings" / args_dict['region'] / args_dict['gadm_code']
-        all_gadms = [f.stem.replace("buildings_", "") for f in buildings_path.iterdir()]
+        dir_path = Path(args_dict['from_dir']) 
+        all_gadms = [f.stem.replace("buildings_", "").replace("parcels_", "") for f in buildings_path.iterdir()]
         for gadm in all_gadms:
             args_dict['gadm'] = gadm 
             print("Beginning reblock for {}-{}".format(args_dict['region'],  args_dict['gadm']))
             reblock_gadm(**args_dict)
     else:   
-        #reblock_gadm(**vars(args))
         print("Beginning reblock for {}-{}".format(args_dict['region'], args_dict['gadm']))
         reblock_gadm(**args_dict)
 
