@@ -229,7 +229,7 @@ def drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, bl
 
 
 def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_list=False, 
-                 drop_already_completed=True, digital_globe_data=False):
+                 drop_already_completed=True, digital_globe_data=False, mins_threshold=np.inf):
     '''
     Does reblocking for an entire GADM boundary
     '''
@@ -256,9 +256,15 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
 
     print("\nBegin looping")
     i = 0
-
+    elapsed_time_mins = -np.inf 
     # (4) Loop and process one block at-a-time
     for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
+
+        # If most recent block took over our minute cutoff, break and finish
+        if elapsed_time_mins > mins_threshold:
+            print("Took {} mins and threshold is {} mins -- ending gadm at {}".format(elapsed_time_mins, mins_threshold, block_id))
+            checkpointer.save()
+            break 
 
         parcel_geom = parcels[parcels['block_id']==block_id]['geometry'].iloc[0]
         building_list = buildings[buildings['block_id']==block_id]['buildings'].iloc[0]
@@ -267,6 +273,9 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
         ## UPDATES: drop buildings that intersect with the block border -- they have access
         if len(building_list) <= 1:
             continue 
+
+        # Approx time of completion of block
+        start_time = time.time()
         building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id)
 
         ## And explicitly add a dummy building outside of the block which will force Steiner Alg
@@ -294,6 +303,8 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
             existing_steiner = None 
             terminal_points = None 
             summary = [None, None, None, None, None, None, None, None]
+
+        elapsed_time_mins = (start_time - time.time())/60
 
         # Collect and store the summary info from reblocking
         summary = summary + [len(building_list), total_block_coords, missing, block_id]
