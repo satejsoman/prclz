@@ -329,7 +329,8 @@ if __name__ == "__main__":
     parser.add_argument('--only_block_list', help='limit reblocking to specified blocks', action='store_true')
     parser.add_argument('--dg', dest='digital_globe_data', help='adding flag indicates to use DG data', action='store_true')
     parser.add_argument('--from_dir', help='process all the gadms in this directory', type=str, default=None)
-
+    parser.add_argument('--mins_threshold', help='will break if block takes more than this num of mins', type=int)
+    
     args = parser.parse_args()
     args_dict = vars(args)
     from_dir = args_dict.pop('from_dir')
