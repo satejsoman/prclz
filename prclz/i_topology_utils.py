@@ -110,6 +110,7 @@ def load_reblock_inputs_dg(region: str, gadm_code: str, gadm: str):
     blocks_df = csv_to_geo(blocks_path)
     blocks_df.rename(columns={'block_geom': 'geometry'}, inplace=True)
     blocks_df = blocks_df[['geometry', 'block_id']]
+    blocks_df = gpd.GeoDataFrame(blocks_df, geometry='geometry')
 
     print("Blocks {}".format(blocks_df.columns))
     print(type(blocks_df))
