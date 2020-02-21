@@ -323,7 +323,7 @@ if __name__ == "__main__":
     if args_dict['gadm'] is None:
         # Then process all GADMs
         buildings_path = Path(DATA) / "buildings" / args_dict['region'] / args_dict['gadm_code']
-        all_gadms = [f.name.replace("buildings_", "") for f in buildings_path.iterdir()]
+        all_gadms = [f.stem.replace("buildings_", "") for f in buildings_path.iterdir()]
         for gadm in all_gadms:
             args_dict['gadm'] = gadm 
             print("Beginning reblock for {}-{}".format(args_dict['region'],  args_dict['gadm']))
