@@ -112,10 +112,10 @@ def load_reblock_inputs_dg(region: str, gadm_code: str, gadm: str):
     blocks_df = blocks_df[['geometry', 'block_id']]
     blocks_df = gpd.GeoDataFrame(blocks_df, geometry='geometry')
 
-    print("Blocks {}".format(blocks_df.columns))
-    print(type(blocks_df))
-    print("TESTING")
-    print("Buildings {}".format(buildings_df.columns))
+    # print("Blocks {}".format(blocks_df.columns))
+    # print(type(blocks_df))
+    # print("TESTING")
+    # print("Buildings {}".format(buildings_df.columns))
 
     # Map buildings to a block
     # Convert buildings to centroids
