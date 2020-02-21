@@ -109,8 +109,11 @@ def load_reblock_inputs_dg(region: str, gadm_code: str, gadm: str):
     buildings_df = gpd.read_file(buildings_path)
     blocks_df = csv_to_geo(blocks_path)
     blocks_df.rename(columns={'block_geom': 'geometry'}, inplace=True)
+    blocks_df = blocks_df[['geometry', 'block_id']]
 
     print("Blocks {}".format(blocks_df.columns))
+    print(type(blocks_df))
+    print("TESTING")
     print("Buildings {}".format(buildings_df.columns))
 
     # Map buildings to a block
@@ -119,7 +122,7 @@ def load_reblock_inputs_dg(region: str, gadm_code: str, gadm: str):
     buildings_df.set_geometry('buildings', inplace=True)
 
     # We want to map each building to a given block to then map the buildings to a parcel
-    buildings_df = gpd.sjoin(buildings_df[['buildings', 'osm_id']], blocks_df[['geometry', 'block_id']], how='left', op='within')
+    buildings_df = gpd.sjoin(buildings_df[['buildings', 'osm_id']], blocks_df, how='left', op='within')
     buildings_df = buildings_df[['buildings', 'block_id']].groupby('block_id').agg(list)
     buildings_df['building_count'] = buildings_df['buildings'].apply(lambda x: len(x))
     buildings_df.reset_index(inplace=True)
