@@ -359,14 +359,25 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Do reblocking on a GADM')
     parser.add_argument('--region', type=str, required=True, help="region to process")
     parser.add_argument('--gadm_code', type=str, required=True, help="3-digit country gadm code to process")
-    parser.add_argument('--gadm', help='process this gadm')
+    parser.add_argument('--gadm', help='process this gadm, if not supplied will process all GADMs', default=None)
     parser.add_argument('--simplify', help='boolean to simplify the graph or not', action='store_true')
     parser.add_argument('--blocks', dest='block_list', help='prioritize these block ids', nargs='*', type=str)
     parser.add_argument('--only_block_list', help='limit reblocking to specified blocks', action='store_true')
 
     args = parser.parse_args()
-   
-    reblock_gadm(**vars(args))
+    args_dict = vars(args)
+    if gadm is None:
+        # Then process all GADMs
+        buildings_path = DATA / "buildings" / region / gadm_code
+        all_gadms = [f.name.replace("buildings_", "") for f in buildings_path.iterdir()]
+        for gadm in all_gadms:
+            args_dict['gadm'] = gadm 
+            print("Beginning reblock for {}-{}-{}".format(region, gadm_code, gadm))
+            reblock_gadm(**args_dict)
+    else:   
+        #reblock_gadm(**vars(args))
+        print("Beginning reblock for {}-{}-{}".format(region, gadm_code, gadm))
+        reblock_gadm(**args_dict)
 
 
 #     'Monrovia': ['LBR.11.2.1_1_2563', 'LBR.11.2.1_1_282', 'LBR.11.2.1_1_1360', 'LBR.11.2.1_1_271'],
