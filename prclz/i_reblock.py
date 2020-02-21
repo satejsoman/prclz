@@ -1,6 +1,7 @@
 import typing
 from typing import List, Tuple  
 
+from pathlib import Path 
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon, MultiLineString, Point, LineString
 from shapely.ops import cascaded_union, polygonize
@@ -366,17 +367,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args_dict = vars(args)
-    if gadm is None:
+    if args_dict['gadm'] is None:
         # Then process all GADMs
-        buildings_path = DATA / "buildings" / region / gadm_code
+        buildings_path = Path(DATA) / "buildings" / args_dict['region'] / args_dict['gadm_code']
         all_gadms = [f.name.replace("buildings_", "") for f in buildings_path.iterdir()]
         for gadm in all_gadms:
             args_dict['gadm'] = gadm 
-            print("Beginning reblock for {}-{}-{}".format(region, gadm_code, gadm))
+            print("Beginning reblock for {}-{}".format(args_dict['region'],  args_dict['gadm']))
             reblock_gadm(**args_dict)
     else:   
         #reblock_gadm(**vars(args))
-        print("Beginning reblock for {}-{}-{}".format(region, gadm_code, gadm))
+        print("Beginning reblock for {}-{}".format(args_dict['region'], args_dict['gadm']))
         reblock_gadm(**args_dict)
 
 
