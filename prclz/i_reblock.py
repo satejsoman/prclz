@@ -260,8 +260,11 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
     # (4) Loop and process one block at-a-time
     for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
 
+        # Approx time of completion of block
+        start_time = time.time()
+
         # If most recent block took over our minute cutoff, break and finish
-        print("threshold is {}, most recent is {}".format(mins_threshold, elapsed_time_mins))
+        #print("threshold is {}, most recent is {}".format(mins_threshold, elapsed_time_mins))
         if elapsed_time_mins > mins_threshold:
             print("Took {} mins and threshold is {} mins -- ending gadm at {}".format(elapsed_time_mins, mins_threshold, block_id))
             checkpointer.save()
@@ -275,8 +278,6 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
         if len(building_list) <= 1:
             continue 
 
-        # Approx time of completion of block
-        start_time = time.time()
         building_list = drop_buildings_intersecting_block(parcel_geom, building_list, block_geom, block_id)
 
         ## And explicitly add a dummy building outside of the block which will force Steiner Alg
