@@ -257,6 +257,8 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
     print("\nBegin looping")
     i = 0
     elapsed_time_mins = -np.inf 
+    if mins_threshold is None:
+        mins_threshold = np.inf 
     # (4) Loop and process one block at-a-time
     for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
 
