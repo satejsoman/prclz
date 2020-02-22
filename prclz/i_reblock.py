@@ -261,6 +261,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
     for block_id in tqdm.tqdm(all_blocks, total=len(all_blocks)):
 
         # If most recent block took over our minute cutoff, break and finish
+        print("threshold is {}, most recent is {}".format(mins_threshold, elapsed_time_mins))
         if elapsed_time_mins > mins_threshold:
             print("Took {} mins and threshold is {} mins -- ending gadm at {}".format(elapsed_time_mins, mins_threshold, block_id))
             checkpointer.save()
@@ -304,7 +305,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
             terminal_points = None 
             summary = [None, None, None, None, None, None, None, None]
 
-        elapsed_time_mins = (time.time() - start)/60
+        elapsed_time_mins = (time.time() - start_time)/60
 
         # Collect and store the summary info from reblocking
         summary = summary + [len(building_list), total_block_coords, missing, block_id]
