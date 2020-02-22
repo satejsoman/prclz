@@ -304,7 +304,7 @@ def reblock_gadm(region, gadm_code, gadm, simplify, block_list=None, only_block_
             terminal_points = None 
             summary = [None, None, None, None, None, None, None, None]
 
-        elapsed_time_mins = (start_time - time.time())/60
+        elapsed_time_mins = (time.time() - start)/60
 
         # Collect and store the summary info from reblocking
         summary = summary + [len(building_list), total_block_coords, missing, block_id]
@@ -348,3 +348,4 @@ if __name__ == "__main__":
 
 
 #     'Monrovia': ['LBR.11.2.1_1_2563', 'LBR.11.2.1_1_282', 'LBR.11.2.1_1_1360', 'LBR.11.2.1_1_271'],
+#gadms=(NAM.7.3_1 NAM.7.11_1 NAM.8.3_1 NAM.8.4_1 NAM.5.1_1 NAM.5.2_1 NAM.5.3_1 NAM.5.4_1 NAM.5.5_1 NAM.5.6_1 NAM.5.7_1 NAM.5.8_1 NAM.5.9_1 NAM.5.10_1 NAM.11.2_1 NAM.11.10_1)
