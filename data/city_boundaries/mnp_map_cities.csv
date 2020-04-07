@@ -1,0 +1,9 @@
+aoi_name,region,country_code,wkt_url,wkt_geometry
+greater_monrovia,Africa,LBR,http://polygons.openstreetmap.fr/get_wkt.py?id=4001311&params=0,
+nairobi,Africa,KEN,http://polygons.openstreetmap.fr/get_wkt.py?id=3492709&params=0,
+douala,Africa,CMR,http://polygons.openstreetmap.fr/get_wkt.py?id=3832073&params=0,
+kinshasa,Africa,COD,http://polygons.openstreetmap.fr/get_wkt.py?id=5646651&params=0,
+blantyre,Africa,MWI,http://polygons.openstreetmap.fr/get_wkt.py?id=7347100&params=0,
+port_au_prince,Central-America,HTI,http://polygons.openstreetmap.fr/get_wkt.py?id=387318&params=0,
+caracas,South-America,VEN,http://polygons.openstreetmap.fr/get_wkt.py?id=2444378&params=0,
+kathmandu,Asia,NPL,http://polygons.openstreetmap.fr/get_wkt.py?id=4583247&params=0,
