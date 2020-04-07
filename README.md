@@ -15,6 +15,8 @@
     - [`parcels`](/prclz/parcels): generate cadastral parcels tesselating each block given building/land use footprints
     - [`topology`](/prclz/topology): planar graph implementation, with tools to calculate weak duals. largely taken from [openreblock/topology](https://github.com/open-reblock/topology).
 
+- [`reblock`](/reblock): tools to implement Steiner tree approximations of reblock graphs
+
 - [`smoketests`](/smoketests): not _quite_ unit tests, but visual tests to make sure things look right
 
 - [`osm-etl`](/osm-etl): scripts to perform ETL on `*.osm.pbf` files and extract relevant features.
