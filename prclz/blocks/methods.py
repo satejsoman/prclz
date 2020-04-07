@@ -1,39 +1,47 @@
 from abc import ABC as AbstractBaseClass
 from abc import ABCMeta, abstractclassmethod
-from typing import Union
+from logging import info
+from typing import Union, Optional
 
 from shapely.geometry import (MultiLineString, MultiPolygon, Polygon, asShape,
                               mapping)
 from shapely.ops import polygonize
 
 
-class BlockExtractionMethod(AbstractBaseClass, metaclass = ABCMeta):
+class BlockExtractionMethod(AbstractBaseClass, metaclass=ABCMeta):
     @abstractclassmethod
     def extract(self, region: Union[Polygon, MultiPolygon], linestrings: MultiLineString) -> MultiPolygon:
         pass
 
+
 class BufferedLineDifference(BlockExtractionMethod):
-    """ buffers each line string by a given epsilon, and returns the difference 
-    between the area and buffered road linestrings 
-    
+    """ buffers each line string by a given epsilon, and returns the difference
+    between the area and buffered road linestrings
+
     taken from: https://gis.stackexchange.com/a/58674
-    
-    suggested epsilons: 
+
+    suggested epsilons:
         1e-4 for generating representative graphics
         5e-6 for generating workable shapefiles
     """
 
-    def __init__(self, epsilon: float=5e-6):
+    def __init__(self, epsilon: float = 5e-6, name: Optional[str] = None):
         self.epsilon = epsilon
+        self.name    = name
 
     def __repr__(self):
         return "BufferedLineDifference(epsilon={})".format(self.epsilon)
 
     def extract(self, region: Union[Polygon, MultiPolygon], linestrings: MultiLineString) -> MultiPolygon:
-        return region.difference(linestrings.buffer(self.epsilon))
+        info("%sApplying buffer of %s.", "(" + self.name + ") " if self.name else "", self.epsilon)
+        buffered = linestrings.buffer(self.epsilon)
+        info("%sCalculating difference.", "(" + self.name + ") " if self.name else "")
+        difference = region.difference(buffered)
+        return MultiPolygon([difference]) if difference.type == "Polygon" else difference
+
 
 class IntersectionPolygonization(BlockExtractionMethod):
-    """ converts each linestring into multiple straight segments, and then uses GDAL's 
+    """ converts each linestring into multiple straight segments, and then uses GDAL's
     built-in polygonization function to return polygons
 
     taken from: https://peteris.rocks/blog/openstreetmap-city-blocks-as-geojson-polygons/#mapzen-metro-extracts://gis.stackexchange.com/a/58674
@@ -46,13 +54,14 @@ class IntersectionPolygonization(BlockExtractionMethod):
 
     @staticmethod
     def get_line_feature(start, stop, properties):
-        return {"type": "Feature",
-                "properties": properties, 
-                "geometry": {
-                    "type": "LineString",
-                    "coordinates": [start, stop]
-                }
+        return {
+            "type": "Feature",
+            "properties": properties,
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [start, stop]
             }
+        }
 
     @staticmethod
     def segment_streets(multipoint_lines):
@@ -63,7 +72,7 @@ class IntersectionPolygonization(BlockExtractionMethod):
 
         for feature in multipoint_lines['features']:
             output['features'] += [
-                IntersectionPolygonization.get_line_feature(current, feature['geometry']['coordinates'][i+1], feature['properties']) 
+                IntersectionPolygonization.get_line_feature(current, feature['geometry']['coordinates'][i+1], feature['properties'])
                 for (i, current) in enumerate(feature['geometry']['coordinates'][:-1])]
         return output
 
@@ -95,5 +104,6 @@ class IntersectionPolygonization(BlockExtractionMethod):
         # add the region boundary as an additional constraint
         constrained_linestrings = segmented_streets + [region.exterior]
         return MultiPolygon(list(IntersectionPolygonization.polygonize_streets(constrained_linestrings)))
+
 
 DEFAULT_EXTRACTION_METHOD = BufferedLineDifference
